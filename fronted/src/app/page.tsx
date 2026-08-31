@@ -144,6 +144,7 @@ export default function Home() {
       setExpenses(expensesData);
     } catch (err) {
       console.error("Dashboard error:", err);
+
       setError(
         "Unable to load dashboard data. Make sure the backend is running.",
       );
@@ -170,12 +171,16 @@ export default function Home() {
       vehicle.status === "inactive",
   ).length;
 
-  const availableVehicles =
-    activeVehicles - trips.filter(
-      (trip) =>
-        trip.status === "In Progress" ||
-        trip.status === "Active",
-      ).length;
+  const activeTripsCount = trips.filter(
+    (trip) =>
+      trip.status === "In Progress" ||
+      trip.status === "Active",
+  ).length;
+
+  const availableVehicles = Math.max(
+    activeVehicles - activeTripsCount,
+    0,
+  );
 
   const activeDrivers = drivers.filter(
     (driver) => driver.status === "Active",
@@ -223,16 +228,22 @@ export default function Home() {
     totalMaintenanceCost +
     totalExpenses;
 
+  /*
+   * IMPORTANT:
+   * Keep all dates in YYYY-MM-DD format.
+   * Do NOT use toLocaleDateString() here because it can
+   * convert the date into Arabic or another localized format.
+   */
   const formatDate = (date: string) => {
     if (!date) {
       return "";
     }
 
-    return date.substring(0, 10);
+    return String(date).substring(0, 10);
   };
 
   const formatNumber = (value: number) => {
-    return value.toLocaleString(undefined, {
+    return value.toLocaleString("en-US", {
       maximumFractionDigits: 2,
     });
   };
@@ -424,7 +435,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-green-600">
-                  {Math.max(availableVehicles, 0)}
+                  {loading ? "..." : availableVehicles}
                 </span>
               </div>
 
@@ -434,7 +445,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-blue-600">
-                  {activeTrips}
+                  {loading ? "..." : activeTrips}
                 </span>
               </div>
 
@@ -444,7 +455,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-orange-600">
-                  {maintenanceVehicles}
+                  {loading ? "..." : maintenanceVehicles}
                 </span>
               </div>
 
@@ -454,7 +465,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-slate-500">
-                  {inactiveVehicles}
+                  {loading ? "..." : inactiveVehicles}
                 </span>
               </div>
 
@@ -480,7 +491,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-slate-900">
-                  {trips.length}
+                  {loading ? "..." : trips.length}
                 </span>
               </div>
 
@@ -490,7 +501,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-blue-600">
-                  {activeTrips}
+                  {loading ? "..." : activeTrips}
                 </span>
               </div>
 
@@ -500,7 +511,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-orange-600">
-                  {scheduledTrips}
+                  {loading ? "..." : scheduledTrips}
                 </span>
               </div>
 
@@ -510,7 +521,7 @@ export default function Home() {
                 </span>
 
                 <span className="font-semibold text-green-600">
-                  {completedTrips}
+                  {loading ? "..." : completedTrips}
                 </span>
               </div>
 
@@ -670,9 +681,7 @@ export default function Home() {
                       </p>
 
                       <p className="mt-1 text-xs text-slate-400">
-                        {formatDate(
-                          record.maintenanceDate,
-                        )}
+                        {formatDate(record.maintenanceDate)}
                       </p>
                     </div>
 

@@ -15,6 +15,12 @@ import { SalesOrderDetailsModule } from "./sales-order-details/sales-order-detai
 import { PurchasesModule } from "./purchases/purchases.module";
 import { PurchaseDetailsModule } from "./purchase-details/purchase-details.module";
 import { PaymentsModule } from "./payments/payments.module";
+import { VehiclesModule } from "./vehicles/vehicles.module";
+import { DriversModule } from "./drivers/drivers.module";
+import { TripsModule } from "./trips/trips.module";
+import { FuelModule } from './fuel/fuel.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
+import { ExpensesModule } from './expenses/expenses.module';
 
 @Module({
   imports: [
@@ -48,6 +54,12 @@ import { PaymentsModule } from "./payments/payments.module";
     PurchasesModule,
     PurchaseDetailsModule,
     PaymentsModule,
+    VehiclesModule,
+    DriversModule,
+    TripsModule,
+    FuelModule,
+    MaintenanceModule,
+    ExpensesModule,
   ],
 
   controllers: [AppController],

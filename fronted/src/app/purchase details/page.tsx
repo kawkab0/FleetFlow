@@ -2,90 +2,90 @@
 
 import { useEffect, useState } from "react";
 
-interface SalesOrderDetail {
+interface PurchaseDetail {
   id: number;
-  salesOrderId: number;
+  purchaseId: number;
   productId: number;
   quantity: number;
-  unitPrice: number;
-  totalPrice: number;
+  unitPrice: number | string;
+  totalPrice: number | string;
 }
 
-interface SalesOrder {
+interface Purchase {
   id: number;
-  orderNumber: string;
+  referenceNumber: string;
 }
 
 interface Product {
   id: number;
   name: string;
-  price: number;
+  price: number | string;
 }
 
 interface DetailForm {
-  salesOrderId: string;
+  purchaseId: string;
   productId: string;
   quantity: string;
   unitPrice: string;
 }
 
 const emptyForm: DetailForm = {
-  salesOrderId: "",
+  purchaseId: "",
   productId: "",
   quantity: "",
   unitPrice: "",
 };
 
-export default function SalesOrderDetailsPage() {
-  const [details, setDetails] = useState<SalesOrderDetail[]>([]);
-  const [orders, setOrders] = useState<SalesOrder[]>([]);
+export default function PurchaseDetailsPage() {
+  const [details, setDetails] = useState<PurchaseDetail[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [form, setForm] = useState<DetailForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [editingDetail, setEditingDetail] =
-    useState<SalesOrderDetail | null>(null);
+    useState<PurchaseDetail | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchData = async () => {
     try {
       const [
         detailsResponse,
-        ordersResponse,
+        purchasesResponse,
         productsResponse,
       ] = await Promise.all([
-        fetch("http://localhost:3001/sales-order-details"),
-        fetch("http://localhost:3001/sales-orders"),
+        fetch("http://localhost:3001/purchase-details"),
+        fetch("http://localhost:3001/purchases"),
         fetch("http://localhost:3001/products"),
       ]);
 
       if (
         !detailsResponse.ok ||
-        !ordersResponse.ok ||
+        !purchasesResponse.ok ||
         !productsResponse.ok
       ) {
         throw new Error(
-          "Failed to fetch sales order details data"
+          "Failed to fetch purchase details data"
         );
       }
 
       const [
         detailsData,
-        ordersData,
+        purchasesData,
         productsData,
       ] = await Promise.all([
         detailsResponse.json(),
-        ordersResponse.json(),
+        purchasesResponse.json(),
         productsResponse.json(),
       ]);
 
       setDetails(detailsData);
-      setOrders(ordersData);
+      setPurchases(purchasesData);
       setProducts(productsData);
     } catch (error) {
       console.error(
-        "Failed to fetch sales order details data:",
+        "Failed to fetch purchase details data:",
         error
       );
     } finally {
@@ -97,11 +97,12 @@ export default function SalesOrderDetailsPage() {
     fetchData();
   }, []);
 
-  const getOrderNumber = (salesOrderId: number) => {
+  const getPurchaseReference = (purchaseId: number) => {
     return (
-      orders.find(
-        (order) => order.id === salesOrderId
-      )?.orderNumber || `Order #${salesOrderId}`
+      purchases.find(
+        (purchase) => purchase.id === purchaseId
+      )?.referenceNumber ||
+      `Purchase #${purchaseId}`
     );
   };
 
@@ -138,8 +139,8 @@ export default function SalesOrderDetailsPage() {
       const unitPrice = Number(form.unitPrice);
 
       const url = editingDetail
-        ? `http://localhost:3001/sales-order-details/${editingDetail.id}`
-        : "http://localhost:3001/sales-order-details";
+        ? `http://localhost:3001/purchase-details/${editingDetail.id}`
+        : "http://localhost:3001/purchase-details";
 
       const method = editingDetail ? "PATCH" : "POST";
 
@@ -149,7 +150,7 @@ export default function SalesOrderDetailsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          salesOrderId: Number(form.salesOrderId),
+          purchaseId: Number(form.purchaseId),
           productId: Number(form.productId),
           quantity,
           unitPrice,
@@ -159,7 +160,7 @@ export default function SalesOrderDetailsPage() {
 
       if (!response.ok) {
         throw new Error(
-          "Failed to save sales order detail"
+          "Failed to save purchase detail"
         );
       }
 
@@ -169,17 +170,17 @@ export default function SalesOrderDetailsPage() {
       await fetchData();
     } catch (error) {
       console.error(error);
-      alert("Failed to save sales order detail.");
+      alert("Failed to save purchase detail.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleEdit = (detail: SalesOrderDetail) => {
+  const handleEdit = (detail: PurchaseDetail) => {
     setEditingDetail(detail);
 
     setForm({
-      salesOrderId: String(detail.salesOrderId),
+      purchaseId: String(detail.purchaseId),
       productId: String(detail.productId),
       quantity: String(detail.quantity),
       unitPrice: String(detail.unitPrice),
@@ -193,7 +194,7 @@ export default function SalesOrderDetailsPage() {
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this order detail?"
+      "Are you sure you want to delete this purchase detail?"
     );
 
     if (!confirmed) {
@@ -204,7 +205,7 @@ export default function SalesOrderDetailsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/sales-order-details/${id}`,
+        `http://localhost:3001/purchase-details/${id}`,
         {
           method: "DELETE",
         }
@@ -212,14 +213,14 @@ export default function SalesOrderDetailsPage() {
 
       if (!response.ok) {
         throw new Error(
-          "Failed to delete sales order detail"
+          "Failed to delete purchase detail"
         );
       }
 
       await fetchData();
     } catch (error) {
       console.error(error);
-      alert("Failed to delete sales order detail.");
+      alert("Failed to delete purchase detail.");
     } finally {
       setDeletingId(null);
     }
@@ -234,7 +235,7 @@ export default function SalesOrderDetailsPage() {
     const searchText = search.toLowerCase();
 
     return (
-      getOrderNumber(detail.salesOrderId)
+      getPurchaseReference(detail.purchaseId)
         .toLowerCase()
         .includes(searchText) ||
       getProductName(detail.productId)
@@ -261,11 +262,11 @@ export default function SalesOrderDetailsPage() {
     <main className="ml-64 min-h-screen bg-slate-50 p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">
-          Sales Order Details
+          Purchase Details
         </h1>
 
         <p className="mt-2 text-slate-500">
-          Manage products and quantities assigned to sales orders.
+          Manage products and quantities assigned to purchases.
         </p>
       </div>
 
@@ -305,8 +306,8 @@ export default function SalesOrderDetailsPage() {
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-slate-900">
             {editingDetail
-              ? "Edit Order Detail"
-              : "Add Order Detail"}
+              ? "Edit Purchase Detail"
+              : "Add Purchase Detail"}
           </h2>
 
           {editingDetail && (
@@ -325,24 +326,26 @@ export default function SalesOrderDetailsPage() {
           className="grid grid-cols-1 gap-4 md:grid-cols-2"
         >
           <select
-            value={form.salesOrderId}
+            value={form.purchaseId}
             onChange={(e) =>
               setForm({
                 ...form,
-                salesOrderId: e.target.value,
+                purchaseId: e.target.value,
               })
             }
             required
             className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
           >
-            <option value="">Select sales order</option>
+            <option value="">
+              Select purchase
+            </option>
 
-            {orders.map((order) => (
+            {purchases.map((purchase) => (
               <option
-                key={order.id}
-                value={order.id}
+                key={purchase.id}
+                value={purchase.id}
               >
-                {order.orderNumber}
+                {purchase.referenceNumber}
               </option>
             ))}
           </select>
@@ -355,7 +358,9 @@ export default function SalesOrderDetailsPage() {
             required
             className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
           >
-            <option value="">Select product</option>
+            <option value="">
+              Select product
+            </option>
 
             {products.map((product) => (
               <option
@@ -426,7 +431,7 @@ export default function SalesOrderDetailsPage() {
       <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
         <input
           type="text"
-          placeholder="Search by order or product..."
+          placeholder="Search by purchase or product..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
@@ -435,12 +440,12 @@ export default function SalesOrderDetailsPage() {
 
       {loading ? (
         <p className="text-slate-500">
-          Loading sales order details...
+          Loading purchase details...
         </p>
       ) : filteredDetails.length === 0 ? (
         <div className="rounded-xl bg-white p-8 text-center shadow-sm">
           <p className="text-slate-500">
-            No sales order details found.
+            No purchase details found.
           </p>
         </div>
       ) : (
@@ -450,7 +455,7 @@ export default function SalesOrderDetailsPage() {
               <thead className="bg-slate-100">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Sales Order
+                    Purchase
                   </th>
 
                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
@@ -483,11 +488,13 @@ export default function SalesOrderDetailsPage() {
                   >
                     <td className="px-6 py-4">
                       <p className="font-semibold text-slate-900">
-                        {getOrderNumber(detail.salesOrderId)}
+                        {getPurchaseReference(
+                          detail.purchaseId
+                        )}
                       </p>
 
                       <p className="mt-1 text-xs text-slate-400">
-                        ID: {detail.salesOrderId}
+                        ID: {detail.purchaseId}
                       </p>
                     </td>
 
@@ -500,11 +507,17 @@ export default function SalesOrderDetailsPage() {
                     </td>
 
                     <td className="px-6 py-4 text-sm text-slate-600">
-                      ${Number(detail.unitPrice).toFixed(2)}
+                      $
+                      {Number(
+                        detail.unitPrice
+                      ).toFixed(2)}
                     </td>
 
                     <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                      ${Number(detail.totalPrice).toFixed(2)}
+                      $
+                      {Number(
+                        detail.totalPrice
+                      ).toFixed(2)}
                     </td>
 
                     <td className="px-6 py-4">
@@ -545,4 +558,3 @@ export default function SalesOrderDetailsPage() {
     </main>
   );
 }
-

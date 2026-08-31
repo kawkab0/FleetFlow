@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+import { Driver } from '../../drivers/entities/driver.entity';
 
 @Entity('vehicles')
 export class Vehicle {
@@ -23,6 +31,9 @@ export class Vehicle {
   @Column({ type: 'int', default: 0 })
   mileage!: number;
 
-  @Column({ length: 100, nullable: true })
-  driver!: string;
+  @ManyToOne(() => Driver, {
+    nullable: true,
+  })
+  @JoinColumn({ name: 'driverId' })
+  driver!: Driver | null;
 }

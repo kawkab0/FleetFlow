@@ -21,15 +21,30 @@ export class Driver {
   @Column({ length: 150 })
   licenseNumber!: string;
 
-  @Column({ length: 50, default: 'Professional' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: 'Professional',
+  })
   licenseType!: string;
 
-  @Column({ length: 50, default: 'Active' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: 'Active',
+  })
   status!: string;
 
-  @Column({ type: 'date', nullable: true })
-  hireDate!: string;
+  @Column({
+    type: 'date',
+    nullable: true,
+  })
+  hireDate!: string | null;
 
-  @Column({ length: 100, nullable: true })
-  assignedVehicle!: string;
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  assignedVehicle!: string | null;
 }

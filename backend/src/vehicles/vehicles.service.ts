@@ -8,37 +8,45 @@ import { Vehicle } from './entities/vehicle.entity';
 export class VehiclesService {
   constructor(
     @InjectRepository(Vehicle)
-    private readonly vehicleRepository: Repository<Vehicle>,
+    private readonly vehiclesRepository: Repository<Vehicle>,
   ) {}
 
   async findAll(): Promise<Vehicle[]> {
-    return this.vehicleRepository.find();
-  }
-
-  async findOne(id: number): Promise<Vehicle | null> {
-    return this.vehicleRepository.findOne({
-      where: { id },
+    return this.vehiclesRepository.find({
+      relations: {
+        driver: true,
+      },
+      order: {
+        id: 'ASC',
+      },
     });
   }
 
-  async create(vehicle: Partial<Vehicle>): Promise<Vehicle> {
-    const newVehicle = this.vehicleRepository.create(vehicle);
+  async findOne(id: number): Promise<Vehicle | null> {
+    return this.vehiclesRepository.findOne({
+      where: { id },
+      relations: {
+        driver: true,
+      },
+    });
+  }
 
-    return this.vehicleRepository.save(newVehicle);
+  async create(vehicleData: Partial<Vehicle>): Promise<Vehicle> {
+    const vehicle = this.vehiclesRepository.create(vehicleData);
+
+    return this.vehiclesRepository.save(vehicle);
   }
 
   async update(
     id: number,
-    vehicle: Partial<Vehicle>,
+    vehicleData: Partial<Vehicle>,
   ): Promise<Vehicle | null> {
-    await this.vehicleRepository.update(id, vehicle);
+    await this.vehiclesRepository.update(id, vehicleData);
 
-    return this.vehicleRepository.findOne({
-      where: { id },
-    });
+    return this.findOne(id);
   }
 
   async remove(id: number): Promise<void> {
-    await this.vehicleRepository.delete(id);
+    await this.vehiclesRepository.delete(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -8,37 +8,54 @@ import { Driver } from './entities/driver.entity';
 export class DriversService {
   constructor(
     @InjectRepository(Driver)
-    private readonly driverRepository: Repository<Driver>,
+    private readonly driversRepository: Repository<Driver>,
   ) {}
 
+  // GET ALL DRIVERS
   async findAll(): Promise<Driver[]> {
-    return this.driverRepository.find();
-  }
-
-  async findOne(id: number): Promise<Driver | null> {
-    return this.driverRepository.findOne({
-      where: { id },
+    return this.driversRepository.find({
+      order: {
+        id: 'ASC',
+      },
     });
   }
 
-  async create(driver: Partial<Driver>): Promise<Driver> {
-    const newDriver = this.driverRepository.create(driver);
+  // GET ONE DRIVER
+  async findOne(id: number): Promise<Driver> {
+    const driver = await this.driversRepository.findOne({
+      where: { id },
+    });
 
-    return this.driverRepository.save(newDriver);
+    if (!driver) {
+      throw new NotFoundException(`Driver with ID ${id} not found`);
+    }
+
+    return driver;
   }
 
+  // CREATE DRIVER
+  async create(driverData: Partial<Driver>): Promise<Driver> {
+    const driver = this.driversRepository.create(driverData);
+
+    return this.driversRepository.save(driver);
+  }
+
+  // UPDATE DRIVER
   async update(
     id: number,
-    driver: Partial<Driver>,
-  ): Promise<Driver | null> {
-    await this.driverRepository.update(id, driver);
+    driverData: Partial<Driver>,
+  ): Promise<Driver> {
+    const driver = await this.findOne(id);
 
-    return this.driverRepository.findOne({
-      where: { id },
-    });
+    Object.assign(driver, driverData);
+
+    return this.driversRepository.save(driver);
   }
 
+  // DELETE DRIVER
   async remove(id: number): Promise<void> {
-    await this.driverRepository.delete(id);
+    const driver = await this.findOne(id);
+
+    await this.driversRepository.remove(driver);
   }
 }

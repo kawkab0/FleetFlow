@@ -11,6 +11,8 @@ import {
 
 import { MaintenanceService } from './maintenance.service';
 import { Maintenance } from './entities/maintenance.entity';
+import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
+import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
 
 @Controller('maintenance')
 export class MaintenanceController {
@@ -32,7 +34,7 @@ export class MaintenanceController {
 
   @Post()
   create(
-    @Body() maintenance: Partial<Maintenance>,
+    @Body() maintenance: CreateMaintenanceDto,
   ): Promise<Maintenance> {
     return this.maintenanceService.create(maintenance);
   }
@@ -40,7 +42,7 @@ export class MaintenanceController {
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() maintenance: Partial<Maintenance>,
+    @Body() maintenance: UpdateMaintenanceDto,
   ): Promise<Maintenance | null> {
     return this.maintenanceService.update(id, maintenance);
   }

@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Maintenance } from './entities/maintenance.entity';
+import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
+import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
 
 @Injectable()
 export class MaintenanceService {
@@ -25,7 +27,7 @@ export class MaintenanceService {
     });
   }
 
-  create(maintenance: Partial<Maintenance>): Promise<Maintenance> {
+  create(maintenance: CreateMaintenanceDto): Promise<Maintenance> {
     const newMaintenance =
       this.maintenanceRepository.create(maintenance);
 
@@ -34,7 +36,7 @@ export class MaintenanceService {
 
   async update(
     id: number,
-    maintenance: Partial<Maintenance>,
+    maintenance: UpdateMaintenanceDto,
   ): Promise<Maintenance | null> {
     const existingMaintenance = await this.findOne(id);
 

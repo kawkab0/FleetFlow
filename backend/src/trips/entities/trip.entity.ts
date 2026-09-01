@@ -9,31 +9,123 @@ export class Trip {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ length: 100 })
+  // =========================
+  // TRIP IDENTIFICATION
+  // =========================
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    unique: true,
+  })
   tripCode!: string;
 
-  @Column({ length: 100 })
+  // =========================
+  // ROUTE
+  // =========================
+
+  @Column({
+    type: 'varchar',
+    length: 150,
+  })
   origin!: string;
 
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: 150,
+  })
   destination!: string;
 
-  @Column({ length: 100 })
+  // =========================
+  // ASSIGNMENTS
+  // =========================
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   vehicleCode!: string;
 
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   driverCode!: string;
 
-  @Column({ type: 'date' })
+  // =========================
+  // TRIP DATE
+  // =========================
+
+  @Column({
+    type: 'date',
+  })
   tripDate!: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  // =========================
+  // DISTANCE
+  // =========================
+
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   distance!: number;
 
-  @Column({ length: 50, default: 'Planned' })
+  // =========================
+  // FUEL
+  // =========================
+
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
+  fuelUsed!: number;
+
+  // =========================
+  // REVENUE
+  // =========================
+
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
+  revenue!: number;
+
+  // =========================
+  // CARGO
+  // =========================
+
+  @Column({
+    type: 'varchar',
+    length: 200,
+    nullable: true,
+  })
+  cargo!: string | null;
+
+  // =========================
+  // STATUS
+  // =========================
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: 'Planned',
+  })
   status!: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
-  fuelUsed!: number;
-}
+  // =========================
+  // NOTES
+  // =========================
 
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  notes!: string | null;
+}

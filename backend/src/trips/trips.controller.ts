@@ -10,37 +10,65 @@ import {
 } from '@nestjs/common';
 
 import { TripsService } from './trips.service';
-import { Trip } from './entities/trip.entity';
+import { CreateTripDto } from './dto/create-trip.dto';
+import { UpdateTripDto } from './dto/update-trip.dto';
 
 @Controller('trips')
 export class TripsController {
-  constructor(private readonly tripsService: TripsService) {}
+  constructor(
+    private readonly tripsService: TripsService,
+  ) {}
+
+  // =========================
+  // CREATE TRIP
+  // POST /trips
+  // =========================
+
+  @Post()
+  create(@Body() createTripDto: CreateTripDto) {
+    return this.tripsService.create(createTripDto);
+  }
+
+  // =========================
+  // GET ALL TRIPS
+  // GET /trips
+  // =========================
 
   @Get()
-  findAll(): Promise<Trip[]> {
+  findAll() {
     return this.tripsService.findAll();
   }
 
+  // =========================
+  // GET ONE TRIP
+  // GET /trips/:id
+  // =========================
+
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Trip | null> {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.tripsService.findOne(id);
   }
 
-  @Post()
-  create(@Body() trip: Partial<Trip>): Promise<Trip> {
-    return this.tripsService.create(trip);
-  }
+  // =========================
+  // UPDATE TRIP
+  // PATCH /trips/:id
+  // =========================
 
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() trip: Partial<Trip>,
-  ): Promise<Trip | null> {
-    return this.tripsService.update(id, trip);
+    @Body() updateTripDto: UpdateTripDto,
+  ) {
+    return this.tripsService.update(id, updateTripDto);
   }
 
+  // =========================
+  // DELETE TRIP
+  // DELETE /trips/:id
+  // =========================
+
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.tripsService.remove(id);
   }
 }

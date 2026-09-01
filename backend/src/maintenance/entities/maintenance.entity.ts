@@ -9,34 +9,65 @@ export class Maintenance {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: 100,
+    unique: true,
+  })
   maintenanceCode!: string;
 
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   vehicleCode!: string;
 
-  @Column({ type: 'date' })
+  @Column({
+    type: 'date',
+  })
   maintenanceDate!: string;
 
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   maintenanceType!: string;
 
-  @Column({ type: 'text' })
+  @Column({
+    type: 'text',
+  })
   description!: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+  })
   mileage!: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+  })
   cost!: number;
 
-  @Column({ length: 150 })
+  @Column({
+    type: 'varchar',
+    length: 150,
+  })
   serviceProvider!: string;
 
-  @Column({ length: 50, default: 'Pending' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: 'Pending',
+  })
   status!: string;
 
-  @Column({ type: 'text', nullable: true })
-  notes!: string;
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  notes!: string | null;
 }
-

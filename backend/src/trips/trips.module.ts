@@ -9,5 +9,6 @@ import { Trip } from './entities/trip.entity';
   imports: [TypeOrmModule.forFeature([Trip])],
   controllers: [TripsController],
   providers: [TripsService],
+  exports: [TripsService],
 })
 export class TripsModule {}

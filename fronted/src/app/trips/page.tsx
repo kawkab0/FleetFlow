@@ -11,26 +11,51 @@ interface Trip {
   driverCode: string;
   tripDate: string;
   distance: string | number;
-  status: string;
   fuelUsed: string | number;
+  revenue: string | number;
+  cargo: string | null;
+  status: string;
+  notes: string | null;
 }
+
+interface TripForm {
+  tripCode: string;
+  origin: string;
+  destination: string;
+  vehicleCode: string;
+  driverCode: string;
+  tripDate: string;
+  distance: string;
+  fuelUsed: string;
+  revenue: string;
+  cargo: string;
+  status: string;
+  notes: string;
+}
+
+const emptyForm: TripForm = {
+  tripCode: "",
+  origin: "",
+  destination: "",
+  vehicleCode: "",
+  driverCode: "",
+  tripDate: "",
+  distance: "",
+  fuelUsed: "0",
+  revenue: "0",
+  cargo: "",
+  status: "Planned",
+  notes: "",
+};
 
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
 
-  const [form, setForm] = useState({
-    tripCode: "",
-    origin: "",
-    destination: "",
-    vehicleCode: "",
-    driverCode: "",
-    tripDate: "",
-    distance: "",
-    status: "Planned",
-    fuelUsed: "0",
-  });
+  const [showForm, setShowForm] = useState(false);
+  const [editingTripId, setEditingTripId] = useState<number | null>(null);
+
+  const [form, setForm] = useState<TripForm>(emptyForm);
 
   const fetchTrips = async () => {
     try {
@@ -53,7 +78,19 @@ export default function TripsPage() {
     fetchTrips();
   }, []);
 
-  const handleCreateTrip = async (e: React.FormEvent) => {
+  const updateForm = (
+    field: keyof TripForm,
+    value: string,
+  ) => {
+    setForm((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent,
+  ) => {
     e.preventDefault();
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(form.tripDate)) {
@@ -61,52 +98,125 @@ export default function TripsPage() {
       return;
     }
 
+    const tripData = {
+      tripCode: form.tripCode,
+      origin: form.origin,
+      destination: form.destination,
+      vehicleCode: form.vehicleCode,
+      driverCode: form.driverCode,
+      tripDate: form.tripDate,
+      distance: Number(form.distance),
+      fuelUsed: Number(form.fuelUsed),
+      revenue: Number(form.revenue),
+      cargo: form.cargo || null,
+      status: form.status,
+      notes: form.notes || null,
+    };
+
     try {
-      const response = await fetch("http://localhost:3001/trips", {
-        method: "POST",
+      const url =
+        editingTripId !== null
+          ? `http://localhost:3001/trips/${editingTripId}`
+          : "http://localhost:3001/trips";
+
+      const method =
+        editingTripId !== null ? "PATCH" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          tripCode: form.tripCode,
-          origin: form.origin,
-          destination: form.destination,
-          vehicleCode: form.vehicleCode,
-          driverCode: form.driverCode,
-          tripDate: form.tripDate,
-          distance: Number(form.distance),
-          status: form.status,
-          fuelUsed: Number(form.fuelUsed),
-        }),
+        body: JSON.stringify(tripData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create trip");
+        throw new Error(
+          editingTripId !== null
+            ? "Failed to update trip"
+            : "Failed to create trip",
+        );
       }
 
-      setForm({
-        tripCode: "",
-        origin: "",
-        destination: "",
-        vehicleCode: "",
-        driverCode: "",
-        tripDate: "",
-        distance: "",
-        status: "Planned",
-        fuelUsed: "0",
-      });
-
+      setForm(emptyForm);
+      setEditingTripId(null);
       setShowForm(false);
-      fetchTrips();
+
+      await fetchTrips();
+
+      alert(
+        editingTripId !== null
+          ? "Trip updated successfully."
+          : "Trip created successfully.",
+      );
     } catch (error) {
-      console.error("Error creating trip:", error);
-      alert("Failed to create trip.");
+      console.error("Error saving trip:", error);
+      alert(
+        editingTripId !== null
+          ? "Failed to update trip."
+          : "Failed to create trip.",
+      );
     }
+  };
+
+  const handleEdit = (trip: Trip) => {
+    setForm({
+      tripCode: trip.tripCode,
+      origin: trip.origin,
+      destination: trip.destination,
+      vehicleCode: trip.vehicleCode,
+      driverCode: trip.driverCode,
+      tripDate: trip.tripDate.substring(0, 10),
+      distance: String(trip.distance),
+      fuelUsed: String(trip.fuelUsed),
+      revenue: String(trip.revenue),
+      cargo: trip.cargo ?? "",
+      status: trip.status,
+      notes: trip.notes ?? "",
+    });
+
+    setEditingTripId(trip.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this trip?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/trips/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete trip");
+      }
+
+      await fetchTrips();
+
+      alert("Trip deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting trip:", error);
+      alert("Failed to delete trip.");
+    }
+  };
+
+  const handleCancel = () => {
+    setForm(emptyForm);
+    setEditingTripId(null);
+    setShowForm(false);
   };
 
   const formatDate = (date: string) => {
     if (!date) return "";
-
     return date.substring(0, 10);
   };
 
@@ -145,22 +255,36 @@ export default function TripsPage() {
           </div>
 
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              if (showForm) {
+                handleCancel();
+              } else {
+                setForm(emptyForm);
+                setEditingTripId(null);
+                setShowForm(true);
+              }
+            }}
             className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
           >
-            {showForm ? "Cancel" : "+ Create Trip"}
+            {showForm
+              ? "Cancel"
+              : "+ Create Trip"}
           </button>
         </div>
 
-        {/* CREATE TRIP FORM */}
+        {/* FORM */}
         {showForm && (
           <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
-            <h2 className="mb-5 text-lg font-semibold text-slate-900">
-              Create New Trip
-            </h2>
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">
+                {editingTripId !== null
+                  ? "Edit Trip"
+                  : "Create New Trip"}
+              </h2>
+            </div>
 
             <form
-              onSubmit={handleCreateTrip}
+              onSubmit={handleSubmit}
               className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
             >
 
@@ -170,10 +294,10 @@ export default function TripsPage() {
                 placeholder="Trip Code"
                 value={form.tripCode}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    tripCode: e.target.value,
-                  })
+                  updateForm(
+                    "tripCode",
+                    e.target.value,
+                  )
                 }
                 required
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
@@ -185,10 +309,10 @@ export default function TripsPage() {
                 placeholder="Origin"
                 value={form.origin}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    origin: e.target.value,
-                  })
+                  updateForm(
+                    "origin",
+                    e.target.value,
+                  )
                 }
                 required
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
@@ -200,10 +324,10 @@ export default function TripsPage() {
                 placeholder="Destination"
                 value={form.destination}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    destination: e.target.value,
-                  })
+                  updateForm(
+                    "destination",
+                    e.target.value,
+                  )
                 }
                 required
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
@@ -215,10 +339,10 @@ export default function TripsPage() {
                 placeholder="Vehicle Code"
                 value={form.vehicleCode}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    vehicleCode: e.target.value,
-                  })
+                  updateForm(
+                    "vehicleCode",
+                    e.target.value,
+                  )
                 }
                 required
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
@@ -230,25 +354,25 @@ export default function TripsPage() {
                 placeholder="Driver Code"
                 value={form.driverCode}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    driverCode: e.target.value,
-                  })
+                  updateForm(
+                    "driverCode",
+                    e.target.value,
+                  )
                 }
                 required
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
               />
 
-              {/* DATE — ALWAYS YYYY-MM-DD */}
+              {/* DATE */}
               <input
                 type="text"
                 placeholder="YYYY-MM-DD"
                 value={form.tripDate}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    tripDate: e.target.value,
-                  })
+                  updateForm(
+                    "tripDate",
+                    e.target.value,
+                  )
                 }
                 pattern="\d{4}-\d{2}-\d{2}"
                 maxLength={10}
@@ -262,33 +386,15 @@ export default function TripsPage() {
                 placeholder="Distance (km)"
                 value={form.distance}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    distance: e.target.value,
-                  })
+                  updateForm(
+                    "distance",
+                    e.target.value,
+                  )
                 }
                 min="0"
                 required
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
               />
-
-              {/* STATUS */}
-              <select
-                value={form.status}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    status: e.target.value,
-                  })
-                }
-                className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
-              >
-                <option value="Planned">Planned</option>
-                <option value="Scheduled">Scheduled</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
 
               {/* FUEL */}
               <input
@@ -296,23 +402,105 @@ export default function TripsPage() {
                 placeholder="Fuel Used (L)"
                 value={form.fuelUsed}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    fuelUsed: e.target.value,
-                  })
+                  updateForm(
+                    "fuelUsed",
+                    e.target.value,
+                  )
                 }
                 min="0"
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
               />
 
+              {/* REVENUE */}
+              <input
+                type="number"
+                placeholder="Revenue"
+                value={form.revenue}
+                onChange={(e) =>
+                  updateForm(
+                    "revenue",
+                    e.target.value,
+                  )
+                }
+                min="0"
+                className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+              />
+
+              {/* CARGO */}
+              <input
+                type="text"
+                placeholder="Cargo"
+                value={form.cargo}
+                onChange={(e) =>
+                  updateForm(
+                    "cargo",
+                    e.target.value,
+                  )
+                }
+                className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+              />
+
+              {/* STATUS */}
+              <select
+                value={form.status}
+                onChange={(e) =>
+                  updateForm(
+                    "status",
+                    e.target.value,
+                  )
+                }
+                className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+              >
+                <option value="Planned">
+                  Planned
+                </option>
+                <option value="Scheduled">
+                  Scheduled
+                </option>
+                <option value="In Progress">
+                  In Progress
+                </option>
+                <option value="Completed">
+                  Completed
+                </option>
+                <option value="Cancelled">
+                  Cancelled
+                </option>
+              </select>
+
+              {/* NOTES */}
+              <textarea
+                placeholder="Notes"
+                value={form.notes}
+                onChange={(e) =>
+                  updateForm(
+                    "notes",
+                    e.target.value,
+                  )
+                }
+                className="min-h-[48px] rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 sm:col-span-2 lg:col-span-2"
+              />
+
               {/* SAVE */}
-              <div className="sm:col-span-2 lg:col-span-4">
+              <div className="flex gap-3 sm:col-span-2 lg:col-span-4">
                 <button
                   type="submit"
                   className="rounded-lg bg-green-600 px-6 py-3 font-medium text-white hover:bg-green-700"
                 >
-                  Save Trip
+                  {editingTripId !== null
+                    ? "Update Trip"
+                    : "Save Trip"}
                 </button>
+
+                {editingTripId !== null && (
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="rounded-lg bg-slate-200 px-6 py-3 font-medium text-slate-700 hover:bg-slate-300"
+                  >
+                    Cancel Edit
+                  </button>
+                )}
               </div>
 
             </form>
@@ -378,14 +566,41 @@ export default function TripsPage() {
 
               <thead className="bg-slate-50 text-slate-500">
                 <tr>
-                  <th className="px-6 py-4">Trip ID</th>
-                  <th className="px-6 py-4">Vehicle</th>
-                  <th className="px-6 py-4">Driver</th>
-                  <th className="px-6 py-4">Origin</th>
-                  <th className="px-6 py-4">Destination</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Distance</th>
-                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">
+                    Trip
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Vehicle
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Driver
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Route
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Date
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Distance
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Revenue
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Status
+                  </th>
+
+                  <th className="px-6 py-4">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -394,7 +609,7 @@ export default function TripsPage() {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="px-6 py-8 text-center text-slate-500"
                     >
                       Loading trips...
@@ -403,7 +618,7 @@ export default function TripsPage() {
                 ) : trips.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="px-6 py-8 text-center text-slate-500"
                     >
                       No trips found.
@@ -415,8 +630,17 @@ export default function TripsPage() {
                       key={trip.id}
                       className="hover:bg-slate-50"
                     >
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {trip.tripCode}
+
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-slate-900">
+                          {trip.tripCode}
+                        </div>
+
+                        {trip.cargo && (
+                          <div className="mt-1 text-xs text-slate-400">
+                            Cargo: {trip.cargo}
+                          </div>
+                        )}
                       </td>
 
                       <td className="px-6 py-4 text-slate-600">
@@ -427,12 +651,14 @@ export default function TripsPage() {
                         {trip.driverCode}
                       </td>
 
-                      <td className="px-6 py-4 text-slate-600">
-                        {trip.origin}
-                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-700">
+                          {trip.origin}
+                        </div>
 
-                      <td className="px-6 py-4 text-slate-600">
-                        {trip.destination}
+                        <div className="text-xs text-slate-400">
+                          → {trip.destination}
+                        </div>
                       </td>
 
                       <td className="px-6 py-4 text-slate-600">
@@ -440,26 +666,61 @@ export default function TripsPage() {
                       </td>
 
                       <td className="px-6 py-4 text-slate-600">
-                        {Number(trip.distance).toLocaleString()} km
+                        {Number(
+                          trip.distance,
+                        ).toLocaleString()}{" "}
+                        km
+                      </td>
+
+                      <td className="px-6 py-4 font-medium text-slate-700">
+                        {Number(
+                          trip.revenue,
+                        ).toLocaleString()}
                       </td>
 
                       <td className="px-6 py-4">
-
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            trip.status === "Completed"
+                            trip.status ===
+                            "Completed"
                               ? "bg-green-100 text-green-700"
-                              : trip.status === "In Progress"
+                              : trip.status ===
+                                  "In Progress"
                                 ? "bg-blue-100 text-blue-700"
-                                : trip.status === "Cancelled"
+                                : trip.status ===
+                                    "Cancelled"
                                   ? "bg-red-100 text-red-700"
                                   : "bg-orange-100 text-orange-700"
                           }`}
                         >
                           {trip.status}
                         </span>
-
                       </td>
+
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+
+                          <button
+                            onClick={() =>
+                              handleEdit(trip)
+                            }
+                            className="rounded-md bg-blue-100 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-200"
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              handleDelete(trip.id)
+                            }
+                            className="rounded-md bg-red-100 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-200"
+                          >
+                            Delete
+                          </button>
+
+                        </div>
+                      </td>
+
                     </tr>
                   ))
                 )}

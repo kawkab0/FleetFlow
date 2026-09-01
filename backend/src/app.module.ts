@@ -18,9 +18,9 @@ import { PaymentsModule } from "./payments/payments.module";
 import { VehiclesModule } from "./vehicles/vehicles.module";
 import { DriversModule } from "./drivers/drivers.module";
 import { TripsModule } from "./trips/trips.module";
-import { FuelModule } from './fuel/fuel.module';
-import { MaintenanceModule } from './maintenance/maintenance.module';
-import { ExpensesModule } from './expenses/expenses.module';
+import { FuelModule } from "./fuel/fuel.module";
+import { MaintenanceModule } from "./maintenance/maintenance.module";
+import { ExpensesModule } from "./expenses/expenses.module";
 
 @Module({
   imports: [
@@ -39,8 +39,11 @@ import { ExpensesModule } from './expenses/expenses.module';
         username: configService.get<string>("DATABASE_USER"),
         password: configService.get<string>("DATABASE_PASSWORD"),
         database: configService.get<string>("DATABASE_NAME"),
+
         autoLoadEntities: true,
-        synchronize: true,
+
+        // Database schema is managed manually.
+        synchronize: false,
       }),
     }),
 

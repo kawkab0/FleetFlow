@@ -11,6 +11,8 @@ import {
 
 import { FuelService } from './fuel.service';
 import { Fuel } from './entities/fuel.entity';
+import { CreateFuelDto } from './dto/create-fuel.dto';
+import { UpdateFuelDto } from './dto/update-fuel.dto';
 
 @Controller('fuel')
 export class FuelController {
@@ -29,14 +31,14 @@ export class FuelController {
   }
 
   @Post()
-  create(@Body() fuel: Partial<Fuel>): Promise<Fuel> {
+  create(@Body() fuel: CreateFuelDto): Promise<Fuel> {
     return this.fuelService.create(fuel);
   }
 
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() fuel: Partial<Fuel>,
+    @Body() fuel: UpdateFuelDto,
   ): Promise<Fuel | null> {
     return this.fuelService.update(id, fuel);
   }

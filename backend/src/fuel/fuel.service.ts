@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Fuel } from './entities/fuel.entity';
+import { CreateFuelDto } from './dto/create-fuel.dto';
+import { UpdateFuelDto } from './dto/update-fuel.dto';
 
 @Injectable()
 export class FuelService {
@@ -25,7 +27,7 @@ export class FuelService {
     });
   }
 
-  create(fuel: Partial<Fuel>): Promise<Fuel> {
+  create(fuel: CreateFuelDto): Promise<Fuel> {
     const newFuel = this.fuelRepository.create(fuel);
 
     return this.fuelRepository.save(newFuel);
@@ -33,7 +35,7 @@ export class FuelService {
 
   async update(
     id: number,
-    fuel: Partial<Fuel>,
+    fuel: UpdateFuelDto,
   ): Promise<Fuel | null> {
     const existingFuel = await this.findOne(id);
 

@@ -1,48 +1,83 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Trip } from './entities/trip.entity';
+import { CreateTripDto } from './dto/create-trip.dto';
+import { UpdateTripDto } from './dto/update-trip.dto';
 
 @Injectable()
 export class TripsService {
   constructor(
     @InjectRepository(Trip)
-    private readonly tripRepository: Repository<Trip>,
+    private readonly tripsRepository: Repository<Trip>,
   ) {}
 
+  // =========================
+  // CREATE TRIP
+  // =========================
+
+  async create(createTripDto: CreateTripDto): Promise<Trip> {
+    const trip = this.tripsRepository.create(createTripDto);
+
+    return this.tripsRepository.save(trip);
+  }
+
+  // =========================
+  // GET ALL TRIPS
+  // =========================
+
   async findAll(): Promise<Trip[]> {
-    return this.tripRepository.find({
+    return this.tripsRepository.find({
       order: {
-        id: 'DESC',
+        tripDate: 'DESC',
       },
     });
   }
 
-  async findOne(id: number): Promise<Trip | null> {
-    return this.tripRepository.findOne({
+  // =========================
+  // GET ONE TRIP
+  // =========================
+
+  async findOne(id: number): Promise<Trip> {
+    const trip = await this.tripsRepository.findOne({
       where: { id },
     });
+
+    if (!trip) {
+      throw new NotFoundException(
+        `Trip with ID ${id} not found`,
+      );
+    }
+
+    return trip;
   }
 
-  async create(trip: Partial<Trip>): Promise<Trip> {
-    const newTrip = this.tripRepository.create(trip);
-
-    return this.tripRepository.save(newTrip);
-  }
+  // =========================
+  // UPDATE TRIP
+  // =========================
 
   async update(
     id: number,
-    trip: Partial<Trip>,
-  ): Promise<Trip | null> {
-    await this.tripRepository.update(id, trip);
+    updateTripDto: UpdateTripDto,
+  ): Promise<Trip> {
+    const trip = await this.findOne(id);
 
-    return this.tripRepository.findOne({
-      where: { id },
-    });
+    Object.assign(trip, updateTripDto);
+
+    return this.tripsRepository.save(trip);
   }
 
+  // =========================
+  // DELETE TRIP
+  // =========================
+
   async remove(id: number): Promise<void> {
-    await this.tripRepository.delete(id);
+    const trip = await this.findOne(id);
+
+    await this.tripsRepository.remove(trip);
   }
 }

@@ -18,6 +18,10 @@ const menuItems = [
   { name: "Intelligence", href: "/intelligence" },
   { name: "Profitability", href: "/profitability" },
   { name: "Fuel Intelligence", href: "/fuel-intelligence" },
+  {
+    name: "Maintenance Intelligence",
+    href: "/maintenance-intelligence",
+  },
 ];
 
 export default function Sidebar() {

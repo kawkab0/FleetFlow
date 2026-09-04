@@ -1,23 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface Vehicle {
   id: number;
-  vehicleCode?: string;
-  registrationNumber?: string;
-  type?: string;
-  model?: string;
+  vehicleCode: string;
+  vehicleType: string;
+  make: string;
+  model: string;
+  year: number;
+  plateNumber: string;
   status: string;
-  mileage?: string | number;
 }
 
 interface Driver {
   id: number;
   driverCode: string;
   name: string;
+  phone: string;
+  licenseNumber: string;
   status: string;
-  assignedVehicle?: string | null;
 }
 
 interface Trip {
@@ -29,8 +31,11 @@ interface Trip {
   driverCode: string;
   tripDate: string;
   distance: string | number;
-  status: string;
   fuelUsed: string | number;
+  revenue: string | number;
+  cargo: string;
+  status: string;
+  notes: string | null;
 }
 
 interface Fuel {
@@ -89,25 +94,9 @@ export default function ReportsPage() {
 
   const API_URL = "http://localhost:3001";
 
-  /*
-   * IMPORTANT:
-   * All dates are displayed as YYYY-MM-DD.
-   * Do NOT use toLocaleDateString() here because
-   * it can display dates using the computer's locale.
-   */
-  const formatDate = (date: string) => {
-    if (!date) {
-      return "";
-    }
-
-    return date.substring(0, 10);
-  };
-
-  const formatNumber = (value: number) => {
-    return value.toLocaleString("en-US", {
-      maximumFractionDigits: 2,
-    });
-  };
+  useEffect(() => {
+    fetchReportData();
+  }, []);
 
   const fetchReportData = async () => {
     try {
@@ -164,892 +153,790 @@ export default function ReportsPage() {
       setMaintenance(maintenanceData);
       setExpenses(expensesData);
     } catch (err) {
-      console.error("Reports error:", err);
-
-      setError(
-        "Unable to load report data. Make sure the backend is running.",
-      );
+      console.error(err);
+      setError("Unable to load report data.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchReportData();
-  }, []);
+  const formatDate = (date: string) => {
+    if (!date) return "";
+    return date.substring(0, 10);
+  };
 
-  /* =========================
-     VEHICLE STATISTICS
-  ========================= */
+  const formatNumber = (value: number) => {
+    return value.toLocaleString("en-US", {
+      maximumFractionDigits: 2,
+    });
+  };
 
-  const activeVehicles = vehicles.filter(
-    (vehicle) => vehicle.status === "Active",
-  ).length;
+  const reportMetrics = useMemo(() => {
+    const activeVehicles = vehicles.filter(
+      (vehicle) => vehicle.status.toLowerCase() === "active",
+    ).length;
 
-  const maintenanceVehicles = vehicles.filter(
-    (vehicle) => vehicle.status === "Maintenance",
-  ).length;
+    const maintenanceVehicles = vehicles.filter(
+      (vehicle) => vehicle.status.toLowerCase() === "maintenance",
+    ).length;
 
-  const inactiveVehicles = vehicles.filter(
-    (vehicle) =>
-      vehicle.status === "Inactive" ||
-      vehicle.status === "inactive",
-  ).length;
+    const inactiveVehicles = vehicles.filter(
+      (vehicle) => vehicle.status.toLowerCase() === "inactive",
+    ).length;
 
-  const vehicleUtilization =
-    vehicles.length > 0
-      ? Math.round((activeVehicles / vehicles.length) * 100)
-      : 0;
+    const vehicleUtilization =
+      vehicles.length > 0 ? (activeVehicles / vehicles.length) * 100 : 0;
 
-  /* =========================
-     DRIVER STATISTICS
-  ========================= */
+    const activeDrivers = drivers.filter(
+      (driver) => driver.status.toLowerCase() === "active",
+    ).length;
 
-  const activeDrivers = drivers.filter(
-    (driver) => driver.status === "Active",
-  ).length;
+    const driverUtilization =
+      drivers.length > 0 ? (activeDrivers / drivers.length) * 100 : 0;
 
-  const driverUtilization =
-    drivers.length > 0
-      ? Math.round((activeDrivers / drivers.length) * 100)
-      : 0;
+    const completedTrips = trips.filter(
+      (trip) => trip.status.toLowerCase() === "completed",
+    ).length;
 
-  /* =========================
-     TRIP STATISTICS
-  ========================= */
+    const activeTrips = trips.filter(
+      (trip) =>
+        trip.status.toLowerCase() === "in progress" ||
+        trip.status.toLowerCase() === "active",
+    ).length;
 
-  const completedTrips = trips.filter(
-    (trip) => trip.status === "Completed",
-  ).length;
+    const plannedTrips = trips.filter(
+      (trip) => trip.status.toLowerCase() === "planned",
+    ).length;
 
-  const activeTrips = trips.filter(
-    (trip) =>
-      trip.status === "In Progress" ||
-      trip.status === "Active",
-  ).length;
+    const tripCompletionRate =
+      trips.length > 0 ? (completedTrips / trips.length) * 100 : 0;
 
-  const plannedTrips = trips.filter(
-    (trip) =>
-      trip.status === "Planned" ||
-      trip.status === "Scheduled",
-  ).length;
+    const totalDistance = trips.reduce(
+      (sum, trip) => sum + Number(trip.distance || 0),
+      0,
+    );
 
-  const tripCompletionRate =
-    trips.length > 0
-      ? Math.round((completedTrips / trips.length) * 100)
-      : 0;
+    const totalFuelLiters = fuel.reduce(
+      (sum, record) => sum + Number(record.liters || 0),
+      0,
+    );
 
-  const totalDistance = trips.reduce(
-    (total, trip) => total + Number(trip.distance),
-    0,
-  );
+    const totalFuelCost = fuel.reduce(
+      (sum, record) => sum + Number(record.cost || 0),
+      0,
+    );
 
-  /* =========================
-     FUEL STATISTICS
-  ========================= */
+    const fuelEfficiency =
+      totalFuelLiters > 0 ? totalDistance / totalFuelLiters : 0;
 
-  const totalFuelLiters = fuel.reduce(
-    (total, record) => total + Number(record.liters),
-    0,
-  );
+    const completedMaintenance = maintenance.filter(
+      (record) => record.status.toLowerCase() === "completed",
+    ).length;
 
-  const totalFuelCost = fuel.reduce(
-    (total, record) => total + Number(record.cost),
-    0,
-  );
+    const pendingMaintenance = maintenance.filter(
+      (record) => record.status.toLowerCase() === "pending",
+    ).length;
 
-  const fuelEfficiency =
-    totalFuelLiters > 0
-      ? totalDistance / totalFuelLiters
-      : 0;
+    const totalMaintenanceCost = maintenance.reduce(
+      (sum, record) => sum + Number(record.cost || 0),
+      0,
+    );
 
-  /* =========================
-     MAINTENANCE STATISTICS
-  ========================= */
+    const totalExpenses = expenses.reduce(
+      (sum, expense) => sum + Number(expense.amount || 0),
+      0,
+    );
 
-  const completedMaintenance = maintenance.filter(
-    (record) => record.status === "Completed",
-  ).length;
+    const totalOperatingCost =
+      totalFuelCost + totalMaintenanceCost + totalExpenses;
 
-  const pendingMaintenance = maintenance.filter(
-    (record) =>
-      record.status === "Pending" ||
-      record.status === "In Progress",
-  ).length;
+    return {
+      activeVehicles,
+      maintenanceVehicles,
+      inactiveVehicles,
+      vehicleUtilization,
+      activeDrivers,
+      driverUtilization,
+      completedTrips,
+      activeTrips,
+      plannedTrips,
+      tripCompletionRate,
+      totalDistance,
+      totalFuelLiters,
+      totalFuelCost,
+      fuelEfficiency,
+      completedMaintenance,
+      pendingMaintenance,
+      totalMaintenanceCost,
+      totalExpenses,
+      totalOperatingCost,
+    };
+  }, [vehicles, drivers, trips, fuel, maintenance, expenses]);
 
-  const totalMaintenanceCost = maintenance.reduce(
-    (total, record) => total + Number(record.cost),
-    0,
-  );
+  const recentTrips = useMemo(() => {
+    return [...trips]
+      .sort(
+        (a, b) =>
+          new Date(b.tripDate).getTime() -
+          new Date(a.tripDate).getTime(),
+      )
+      .slice(0, 5);
+  }, [trips]);
 
-  /* =========================
-     EXPENSE STATISTICS
-  ========================= */
+  const recentFuel = useMemo(() => {
+    return [...fuel]
+      .sort(
+        (a, b) =>
+          new Date(b.fuelDate).getTime() -
+          new Date(a.fuelDate).getTime(),
+      )
+      .slice(0, 5);
+  }, [fuel]);
 
-  const totalExpenses = expenses.reduce(
-    (total, expense) => total + Number(expense.amount),
-    0,
-  );
+  const recentMaintenance = useMemo(() => {
+    return [...maintenance]
+      .sort(
+        (a, b) =>
+          new Date(b.maintenanceDate).getTime() -
+          new Date(a.maintenanceDate).getTime(),
+      )
+      .slice(0, 5);
+  }, [maintenance]);
 
-  const totalOperatingCost =
-    totalFuelCost +
-    totalMaintenanceCost +
-    totalExpenses;
+  const recentExpenses = useMemo(() => {
+    return [...expenses]
+      .sort(
+        (a, b) =>
+          new Date(b.expenseDate).getTime() -
+          new Date(a.expenseDate).getTime(),
+      )
+      .slice(0, 5);
+  }, [expenses]);
 
-  /* =========================
-     RECENT DATA
-  ========================= */
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-slate-950 p-8 text-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center">
+            <p className="text-lg text-slate-300">
+              Loading business intelligence reports...
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
-  const recentTrips = [...trips]
-    .sort(
-      (a, b) =>
-        new Date(b.tripDate).getTime() -
-        new Date(a.tripDate).getTime(),
-    )
-    .slice(0, 5);
+  if (error) {
+    return (
+      <main className="min-h-screen bg-slate-950 p-8 text-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="rounded-2xl border border-red-900 bg-red-950/40 p-8">
+            <h1 className="text-2xl font-bold">Reports Error</h1>
+            <p className="mt-2 text-red-300">{error}</p>
 
-  const recentFuel = [...fuel]
-    .sort(
-      (a, b) =>
-        new Date(b.fuelDate).getTime() -
-        new Date(a.fuelDate).getTime(),
-    )
-    .slice(0, 5);
-
-  const recentMaintenance = [...maintenance]
-    .sort(
-      (a, b) =>
-        new Date(b.maintenanceDate).getTime() -
-        new Date(a.maintenanceDate).getTime(),
-    )
-    .slice(0, 5);
-
-  const recentExpenses = [...expenses]
-    .sort(
-      (a, b) =>
-        new Date(b.expenseDate).getTime() -
-        new Date(a.expenseDate).getTime(),
-    )
-    .slice(0, 5);
+            <button
+              onClick={fetchReportData}
+              className="mt-5 rounded-lg bg-white px-5 py-2.5 font-semibold text-slate-900 hover:bg-slate-200"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-slate-100 p-8">
-      <div className="mx-auto max-w-7xl">
-
-        {/* HEADER */}
-        <header className="mb-8">
-          <p className="text-sm font-medium text-blue-600">
+    <main className="min-h-screen bg-slate-950 p-6 text-white md:p-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Header */}
+        <section>
+          <p className="text-sm font-semibold tracking-[0.25em] text-slate-400">
             BUSINESS INTELLIGENCE
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-slate-900">
+          <h1 className="mt-2 text-4xl font-bold tracking-tight">
             Reports
           </h1>
 
-          <p className="mt-2 text-slate-500">
-            Analyze FleetFlow operations, fleet performance,
-            fuel consumption, maintenance, and expenses.
+          <p className="mt-2 max-w-2xl text-slate-400">
+            FleetFlow operational performance, cost analysis, and fleet
+            intelligence.
           </p>
-        </header>
+        </section>
 
-        {/* ERROR */}
-        {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {/* KPI Cards */}
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <p className="text-sm text-slate-400">Fleet Utilization</p>
 
-        {/* KPI CARDS */}
-        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
-              Fleet Utilization
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-blue-600">
-              {loading ? "..." : `${vehicleUtilization}%`}
+            <p className="mt-3 text-3xl font-bold">
+              {formatNumber(reportMetrics.vehicleUtilization)}%
             </p>
 
             <p className="mt-2 text-sm text-slate-500">
-              {activeVehicles} of {vehicles.length} vehicles active
+              {reportMetrics.activeVehicles} of {vehicles.length} vehicles
+              active
             </p>
           </div>
 
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
-              Trip Completion
-            </p>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <p className="text-sm text-slate-400">Trip Completion</p>
 
-            <p className="mt-2 text-3xl font-bold text-green-600">
-              {loading ? "..." : `${tripCompletionRate}%`}
+            <p className="mt-3 text-3xl font-bold">
+              {formatNumber(reportMetrics.tripCompletionRate)}%
             </p>
 
             <p className="mt-2 text-sm text-slate-500">
-              {completedTrips} completed trips
+              {reportMetrics.completedTrips} completed trips
             </p>
           </div>
 
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
-              Fuel Efficiency
-            </p>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <p className="text-sm text-slate-400">Fuel Efficiency</p>
 
-            <p className="mt-2 text-3xl font-bold text-orange-600">
-              {loading
-                ? "..."
-                : `${formatNumber(fuelEfficiency)} km/L`}
+            <p className="mt-3 text-3xl font-bold">
+              {formatNumber(reportMetrics.fuelEfficiency)} km/L
             </p>
 
             <p className="mt-2 text-sm text-slate-500">
-              Fleet average
+              Based on recorded distance and fuel
             </p>
           </div>
 
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
-              Operating Cost
-            </p>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <p className="text-sm text-slate-400">Operating Cost</p>
 
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : formatNumber(totalOperatingCost)}
+            <p className="mt-3 text-3xl font-bold">
+              {formatNumber(reportMetrics.totalOperatingCost)}
             </p>
 
             <p className="mt-2 text-sm text-slate-500">
               Fuel + maintenance + expenses
             </p>
           </div>
-
         </section>
 
-        {/* OPERATIONS SUMMARY */}
-        <section className="mt-8 grid gap-6 lg:grid-cols-3">
+        {/* Operations Summary */}
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">Operations Summary</h2>
 
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Fleet Performance
-            </h2>
+          <div className="grid gap-5 lg:grid-cols-3">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <h3 className="text-lg font-semibold">Fleet Performance</h3>
 
-            <div className="mt-6 space-y-5">
+              <div className="mt-5 space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Total Vehicles</span>
+                  <span className="font-semibold">{vehicles.length}</span>
+                </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Active Vehicles
-                </span>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Active</span>
+                  <span className="font-semibold text-emerald-400">
+                    {reportMetrics.activeVehicles}
+                  </span>
+                </div>
 
-                <span className="font-semibold text-green-600">
-                  {activeVehicles}
-                </span>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Maintenance</span>
+                  <span className="font-semibold text-amber-400">
+                    {reportMetrics.maintenanceVehicles}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Inactive</span>
+                  <span className="font-semibold text-red-400">
+                    {reportMetrics.inactiveVehicles}
+                  </span>
+                </div>
               </div>
+            </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Maintenance
-                </span>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <h3 className="text-lg font-semibold">Trip Performance</h3>
 
-                <span className="font-semibold text-orange-600">
-                  {maintenanceVehicles}
-                </span>
+              <div className="mt-5 space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Total Trips</span>
+                  <span className="font-semibold">{trips.length}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Completed</span>
+                  <span className="font-semibold text-emerald-400">
+                    {reportMetrics.completedTrips}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Active</span>
+                  <span className="font-semibold text-blue-400">
+                    {reportMetrics.activeTrips}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Planned</span>
+                  <span className="font-semibold text-amber-400">
+                    {reportMetrics.plannedTrips}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Distance</span>
+                  <span className="font-semibold">
+                    {formatNumber(reportMetrics.totalDistance)} km
+                  </span>
+                </div>
               </div>
+            </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Inactive
-                </span>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <h3 className="text-lg font-semibold">Driver Performance</h3>
 
-                <span className="font-semibold text-slate-500">
-                  {inactiveVehicles}
-                </span>
+              <div className="mt-5 space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Total Drivers</span>
+                  <span className="font-semibold">{drivers.length}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Active Drivers</span>
+                  <span className="font-semibold text-emerald-400">
+                    {reportMetrics.activeDrivers}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Availability</span>
+                  <span className="font-semibold">
+                    {formatNumber(reportMetrics.driverUtilization)}%
+                  </span>
+                </div>
               </div>
-
             </div>
           </div>
-
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Trip Performance
-            </h2>
-
-            <div className="mt-6 space-y-5">
-
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Total Trips
-                </span>
-
-                <span className="font-semibold text-slate-900">
-                  {trips.length}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  In Progress
-                </span>
-
-                <span className="font-semibold text-blue-600">
-                  {activeTrips}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Planned
-                </span>
-
-                <span className="font-semibold text-orange-600">
-                  {plannedTrips}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Distance
-                </span>
-
-                <span className="font-semibold text-slate-900">
-                  {formatNumber(totalDistance)} km
-                </span>
-              </div>
-
-            </div>
-          </div>
-
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Driver Performance
-            </h2>
-
-            <div className="mt-6 space-y-5">
-
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Total Drivers
-                </span>
-
-                <span className="font-semibold text-slate-900">
-                  {drivers.length}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Active Drivers
-                </span>
-
-                <span className="font-semibold text-green-600">
-                  {activeDrivers}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-slate-600">
-                  Availability
-                </span>
-
-                <span className="font-semibold text-blue-600">
-                  {driverUtilization}%
-                </span>
-              </div>
-
-            </div>
-          </div>
-
         </section>
 
-        {/* COST ANALYSIS */}
-        <section className="mt-8 rounded-xl bg-white p-6 shadow-sm">
+        {/* Cost Analysis */}
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">Cost Analysis</h2>
 
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Cost Analysis
-            </h2>
+          <div className="grid gap-5 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">Fuel Cost</p>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Breakdown of fleet operating costs.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-
-            <div>
-              <p className="text-sm text-slate-500">
-                Fuel Cost
+              <p className="mt-3 text-3xl font-bold">
+                {formatNumber(reportMetrics.totalFuelCost)}
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-orange-600">
-                {formatNumber(totalFuelCost)}
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                {fuel.length} fuel records
+              <p className="mt-2 text-sm text-slate-500">
+                {formatNumber(reportMetrics.totalFuelLiters)} liters consumed
               </p>
             </div>
 
-            <div>
-              <p className="text-sm text-slate-500">
-                Maintenance Cost
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">Maintenance Cost</p>
+
+              <p className="mt-3 text-3xl font-bold">
+                {formatNumber(reportMetrics.totalMaintenanceCost)}
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-blue-600">
-                {formatNumber(totalMaintenanceCost)}
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                {maintenance.length} maintenance records
+              <p className="mt-2 text-sm text-slate-500">
+                {reportMetrics.completedMaintenance} completed /
+                {" "}
+                {reportMetrics.pendingMaintenance} pending
               </p>
             </div>
 
-            <div>
-              <p className="text-sm text-slate-500">
-                Other Expenses
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">Other Expenses</p>
+
+              <p className="mt-3 text-3xl font-bold">
+                {formatNumber(reportMetrics.totalExpenses)}
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-green-600">
-                {formatNumber(totalExpenses)}
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-2 text-sm text-slate-500">
                 {expenses.length} expense records
               </p>
             </div>
-
           </div>
-
         </section>
 
-        {/* PERFORMANCE BARS */}
-        <section className="mt-8 rounded-xl bg-white p-6 shadow-sm">
-
-          <h2 className="text-lg font-semibold text-slate-900">
+        {/* Performance Indicators */}
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">
             Performance Indicators
           </h2>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Current operational performance.
-          </p>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className="space-y-7">
+              <div>
+                <div className="mb-2 flex justify-between">
+                  <span className="text-sm text-slate-300">
+                    Fleet Utilization
+                  </span>
 
-          <div className="mt-6 space-y-6">
+                  <span className="text-sm font-semibold">
+                    {formatNumber(reportMetrics.vehicleUtilization)}%
+                  </span>
+                </div>
 
-            {/* FLEET */}
-            <div>
-              <div className="mb-2 flex justify-between text-sm">
-                <span className="text-slate-600">
-                  Fleet Utilization
-                </span>
-
-                <span className="font-medium text-slate-900">
-                  {vehicleUtilization}%
-                </span>
+                <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-blue-500"
+                    style={{
+                      width: `${Math.min(
+                        reportMetrics.vehicleUtilization,
+                        100,
+                      )}%`,
+                    }}
+                  />
+                </div>
               </div>
 
-              <div className="h-3 rounded-full bg-slate-200">
-                <div
-                  className="h-3 rounded-full bg-blue-600"
-                  style={{
-                    width: `${vehicleUtilization}%`,
-                  }}
-                />
+              <div>
+                <div className="mb-2 flex justify-between">
+                  <span className="text-sm text-slate-300">
+                    Trip Completion
+                  </span>
+
+                  <span className="text-sm font-semibold">
+                    {formatNumber(reportMetrics.tripCompletionRate)}%
+                  </span>
+                </div>
+
+                <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-emerald-500"
+                    style={{
+                      width: `${Math.min(
+                        reportMetrics.tripCompletionRate,
+                        100,
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex justify-between">
+                  <span className="text-sm text-slate-300">
+                    Driver Availability
+                  </span>
+
+                  <span className="text-sm font-semibold">
+                    {formatNumber(reportMetrics.driverUtilization)}%
+                  </span>
+                </div>
+
+                <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-purple-500"
+                    style={{
+                      width: `${Math.min(
+                        reportMetrics.driverUtilization,
+                        100,
+                      )}%`,
+                    }}
+                  />
+                </div>
               </div>
             </div>
-
-            {/* TRIPS */}
-            <div>
-              <div className="mb-2 flex justify-between text-sm">
-                <span className="text-slate-600">
-                  Trip Completion
-                </span>
-
-                <span className="font-medium text-slate-900">
-                  {tripCompletionRate}%
-                </span>
-              </div>
-
-              <div className="h-3 rounded-full bg-slate-200">
-                <div
-                  className="h-3 rounded-full bg-green-600"
-                  style={{
-                    width: `${tripCompletionRate}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* DRIVERS */}
-            <div>
-              <div className="mb-2 flex justify-between text-sm">
-                <span className="text-slate-600">
-                  Driver Availability
-                </span>
-
-                <span className="font-medium text-slate-900">
-                  {driverUtilization}%
-                </span>
-              </div>
-
-              <div className="h-3 rounded-full bg-slate-200">
-                <div
-                  className="h-3 rounded-full bg-orange-500"
-                  style={{
-                    width: `${driverUtilization}%`,
-                  }}
-                />
-              </div>
-            </div>
-
           </div>
-
         </section>
 
-        {/* RECENT TRIPS */}
-        <section className="mt-8 overflow-hidden rounded-xl bg-white shadow-sm">
+        {/* Recent Trips */}
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">Recent Trips</h2>
 
-          <div className="border-b border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Recent Trips
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Latest trips recorded in FleetFlow.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-
-            <table className="w-full text-left text-sm">
-
-              <thead className="bg-slate-50 text-slate-500">
+          <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
+            <table className="min-w-full text-left">
+              <thead className="border-b border-slate-800 text-sm text-slate-400">
                 <tr>
-                  <th className="px-6 py-4">
-                    Trip
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Vehicle
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Route
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Date
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Distance
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Status
-                  </th>
+                  <th className="px-5 py-4">Trip</th>
+                  <th className="px-5 py-4">Route</th>
+                  <th className="px-5 py-4">Vehicle</th>
+                  <th className="px-5 py-4">Driver</th>
+                  <th className="px-5 py-4">Date</th>
+                  <th className="px-5 py-4">Distance</th>
+                  <th className="px-5 py-4">Status</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
+                {recentTrips.map((trip) => (
+                  <tr
+                    key={trip.id}
+                    className="border-b border-slate-800 last:border-0"
+                  >
+                    <td className="px-5 py-4 font-semibold">
+                      {trip.tripCode}
+                    </td>
 
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-8 text-center text-slate-500"
-                    >
-                      Loading...
+                    <td className="px-5 py-4 text-slate-300">
+                      {trip.origin} → {trip.destination}
+                    </td>
+
+                    <td className="px-5 py-4">{trip.vehicleCode}</td>
+
+                    <td className="px-5 py-4">{trip.driverCode}</td>
+
+                    <td className="px-5 py-4 text-slate-400">
+                      {formatDate(trip.tripDate)}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {formatNumber(Number(trip.distance || 0))} km
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold">
+                        {trip.status}
+                      </span>
                     </td>
                   </tr>
-                ) : recentTrips.length === 0 ? (
+                ))}
+
+                {recentTrips.length === 0 && (
                   <tr>
                     <td
-                      colSpan={6}
-                      className="px-6 py-8 text-center text-slate-500"
+                      colSpan={7}
+                      className="px-5 py-8 text-center text-slate-500"
                     >
-                      No trips found.
+                      No trip records available.
                     </td>
                   </tr>
-                ) : (
-                  recentTrips.map((trip) => (
-                    <tr
-                      key={trip.id}
-                      className="hover:bg-slate-50"
-                    >
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {trip.tripCode}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {trip.vehicleCode}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {trip.origin} → {trip.destination}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {formatDate(trip.tripDate)}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {formatNumber(Number(trip.distance))} km
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            trip.status === "Completed"
-                              ? "bg-green-100 text-green-700"
-                              : trip.status === "In Progress" ||
-                                  trip.status === "Active"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-orange-100 text-orange-700"
-                          }`}
-                        >
-                          {trip.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
                 )}
-
               </tbody>
             </table>
-
           </div>
         </section>
 
-        {/* RECENT MAINTENANCE + EXPENSES */}
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+        {/* Maintenance Report */}
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">
+            Maintenance Report
+          </h2>
 
-          {/* MAINTENANCE */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
+          <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
+            <table className="min-w-full text-left">
+              <thead className="border-b border-slate-800 text-sm text-slate-400">
+                <tr>
+                  <th className="px-5 py-4">Maintenance</th>
+                  <th className="px-5 py-4">Type</th>
+                  <th className="px-5 py-4">Date</th>
+                  <th className="px-5 py-4">Mileage</th>
+                  <th className="px-5 py-4">Cost</th>
+                  <th className="px-5 py-4">Provider</th>
+                  <th className="px-5 py-4">Status</th>
+                </tr>
+              </thead>
 
-            <h2 className="text-lg font-semibold text-slate-900">
-              Maintenance Report
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Latest maintenance activity.
-            </p>
-
-            <div className="mt-6 space-y-5">
-
-              {recentMaintenance.length === 0 ? (
-                <p className="text-sm text-slate-500">
-                  No maintenance records found.
-                </p>
-              ) : (
-                recentMaintenance.map((record) => (
-                  <div
+              <tbody>
+                {recentMaintenance.map((record) => (
+                  <tr
                     key={record.id}
-                    className="flex items-start justify-between gap-4"
+                    className="border-b border-slate-800 last:border-0"
                   >
-                    <div>
-                      <p className="font-medium text-slate-800">
-                        {record.maintenanceCode} —{" "}
-                        {record.vehicleCode}
-                      </p>
+                    <td className="px-5 py-4">
+                      <div className="font-semibold">
+                        {record.maintenanceCode} — {record.vehicleCode}
+                      </div>
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        {record.maintenanceType}
-                      </p>
+                      <div className="mt-1 text-sm text-slate-500">
+                        {record.description}
+                      </div>
+                    </td>
 
-                      <p className="mt-1 text-xs text-slate-400">
-                        {formatDate(record.maintenanceDate)}
-                      </p>
-                    </div>
+                    <td className="px-5 py-4">
+                      {record.maintenanceType}
+                    </td>
 
-                    <div className="text-right">
-                      <p className="font-semibold text-slate-900">
-                        {formatNumber(Number(record.cost))}
-                      </p>
+                    <td className="px-5 py-4 text-slate-400">
+                      {formatDate(record.maintenanceDate)}
+                    </td>
 
-                      <span
-                        className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-medium ${
-                          record.status === "Completed"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-orange-100 text-orange-700"
-                        }`}
-                      >
+                    <td className="px-5 py-4">
+                      {formatNumber(Number(record.mileage || 0))}
+                    </td>
+
+                    <td className="px-5 py-4 font-semibold">
+                      {formatNumber(Number(record.cost || 0))}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {record.serviceProvider}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold">
                         {record.status}
                       </span>
-                    </div>
-                  </div>
-                ))
-              )}
+                    </td>
+                  </tr>
+                ))}
 
-            </div>
-
-            <div className="mt-6 border-t border-slate-100 pt-4 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-500">
-                  Pending maintenance
-                </span>
-
-                <span className="font-semibold text-orange-600">
-                  {pendingMaintenance}
-                </span>
-              </div>
-
-              <div className="mt-2 flex justify-between">
-                <span className="text-slate-500">
-                  Completed maintenance
-                </span>
-
-                <span className="font-semibold text-green-600">
-                  {completedMaintenance}
-                </span>
-              </div>
-            </div>
-
+                {recentMaintenance.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-5 py-8 text-center text-slate-500"
+                    >
+                      No maintenance records available.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-
-          {/* EXPENSES */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-
-            <h2 className="text-lg font-semibold text-slate-900">
-              Expense Report
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Latest fleet expenses.
-            </p>
-
-            <div className="mt-6 space-y-5">
-
-              {recentExpenses.length === 0 ? (
-                <p className="text-sm text-slate-500">
-                  No expense records found.
-                </p>
-              ) : (
-                recentExpenses.map((expense) => (
-                  <div
-                    key={expense.id}
-                    className="flex items-start justify-between gap-4"
-                  >
-                    <div>
-                      <p className="font-medium text-slate-800">
-                        {expense.expenseCode} —{" "}
-                        {expense.category}
-                      </p>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        {expense.description}
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        {formatDate(expense.expenseDate)}
-                      </p>
-                    </div>
-
-                    <p className="font-semibold text-slate-900">
-                      {formatNumber(Number(expense.amount))}
-                    </p>
-                  </div>
-                ))
-              )}
-
-            </div>
-
-          </div>
-
         </section>
 
-        {/* FUEL REPORT */}
-        <section className="mt-8 overflow-hidden rounded-xl bg-white shadow-sm">
+        {/* Expense Report */}
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">Expense Report</h2>
 
-          <div className="border-b border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Fuel Consumption Report
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Recent fuel usage and fuel costs.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-
-            <table className="w-full text-left text-sm">
-
-              <thead className="bg-slate-50 text-slate-500">
+          <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
+            <table className="min-w-full text-left">
+              <thead className="border-b border-slate-800 text-sm text-slate-400">
                 <tr>
-                  <th className="px-6 py-4">
-                    Fuel Code
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Vehicle
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Date
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Liters
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Cost
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Station
-                  </th>
+                  <th className="px-5 py-4">Expense</th>
+                  <th className="px-5 py-4">Date</th>
+                  <th className="px-5 py-4">Category</th>
+                  <th className="px-5 py-4">Description</th>
+                  <th className="px-5 py-4">Amount</th>
+                  <th className="px-5 py-4">Vendor</th>
+                  <th className="px-5 py-4">Status</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
+                {recentExpenses.map((expense) => (
+                  <tr
+                    key={expense.id}
+                    className="border-b border-slate-800 last:border-0"
+                  >
+                    <td className="px-5 py-4 font-semibold">
+                      {expense.expenseCode} — {expense.category}
+                    </td>
 
-                {recentFuel.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-8 text-center text-slate-500"
-                    >
-                      No fuel records found.
+                    <td className="px-5 py-4 text-slate-400">
+                      {formatDate(expense.expenseDate)}
+                    </td>
+
+                    <td className="px-5 py-4">{expense.category}</td>
+
+                    <td className="px-5 py-4 text-slate-300">
+                      {expense.description}
+                    </td>
+
+                    <td className="px-5 py-4 font-semibold">
+                      {formatNumber(Number(expense.amount || 0))}
+                    </td>
+
+                    <td className="px-5 py-4">{expense.vendor}</td>
+
+                    <td className="px-5 py-4">
+                      <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold">
+                        {expense.status}
+                      </span>
                     </td>
                   </tr>
-                ) : (
-                  recentFuel.map((record) => (
-                    <tr
-                      key={record.id}
-                      className="hover:bg-slate-50"
+                ))}
+
+                {recentExpenses.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-5 py-8 text-center text-slate-500"
                     >
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {record.fuelCode}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {record.vehicleCode}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {formatDate(record.fuelDate)}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {formatNumber(Number(record.liters))} L
-                      </td>
-
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {formatNumber(Number(record.cost))}
-                      </td>
-
-                      <td className="px-6 py-4 text-slate-600">
-                        {record.fuelStation}
-                      </td>
-                    </tr>
-                  ))
+                      No expense records available.
+                    </td>
+                  </tr>
                 )}
-
               </tbody>
             </table>
-
           </div>
         </section>
 
+        {/* Fuel Consumption Report */}
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">
+            Fuel Consumption Report
+          </h2>
+
+          <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
+            <table className="min-w-full text-left">
+              <thead className="border-b border-slate-800 text-sm text-slate-400">
+                <tr>
+                  <th className="px-5 py-4">Fuel</th>
+                  <th className="px-5 py-4">Vehicle</th>
+                  <th className="px-5 py-4">Driver</th>
+                  <th className="px-5 py-4">Date</th>
+                  <th className="px-5 py-4">Liters</th>
+                  <th className="px-5 py-4">Cost</th>
+                  <th className="px-5 py-4">Station</th>
+                  <th className="px-5 py-4">Odometer</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {recentFuel.map((record) => (
+                  <tr
+                    key={record.id}
+                    className="border-b border-slate-800 last:border-0"
+                  >
+                    <td className="px-5 py-4 font-semibold">
+                      {record.fuelCode}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {record.vehicleCode}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {record.driverCode}
+                    </td>
+
+                    <td className="px-5 py-4 text-slate-400">
+                      {formatDate(record.fuelDate)}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {formatNumber(Number(record.liters || 0))} L
+                    </td>
+
+                    <td className="px-5 py-4 font-semibold">
+                      {formatNumber(Number(record.cost || 0))}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {record.fuelStation}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {formatNumber(Number(record.odometer || 0))}
+                    </td>
+                  </tr>
+                ))}
+
+                {recentFuel.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="px-5 py-8 text-center text-slate-500"
+                    >
+                      No fuel records available.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </main>
   );

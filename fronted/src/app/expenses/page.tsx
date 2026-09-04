@@ -116,7 +116,6 @@ export default function ExpensesPage() {
       await fetchExpenses();
     } catch (error) {
       console.error("Error creating expense:", error);
-
       alert("Failed to create expense.");
     }
   };
@@ -130,8 +129,7 @@ export default function ExpensesPage() {
   };
 
   const totalAmount = expenses.reduce(
-    (total, expense) =>
-      total + Number(expense.amount),
+    (total, expense) => total + Number(expense.amount),
     0,
   );
 
@@ -186,7 +184,6 @@ export default function ExpensesPage() {
               onSubmit={handleCreateExpense}
               className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
             >
-
               {/* EXPENSE CODE */}
               <input
                 type="text"
@@ -264,9 +261,7 @@ export default function ExpensesPage() {
                 <option value="Toll">Toll</option>
                 <option value="Parking">Parking</option>
                 <option value="Repair">Repair</option>
-                <option value="Maintenance">
-                  Maintenance
-                </option>
+                <option value="Maintenance">Maintenance</option>
                 <option value="Insurance">Insurance</option>
                 <option value="License">License</option>
                 <option value="Parts">Parts</option>
@@ -332,13 +327,9 @@ export default function ExpensesPage() {
                 className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
               >
                 <option value="Cash">Cash</option>
-                <option value="Bank Transfer">
-                  Bank Transfer
-                </option>
+                <option value="Bank Transfer">Bank Transfer</option>
                 <option value="Card">Card</option>
-                <option value="Mobile Money">
-                  Mobile Money
-                </option>
+                <option value="Mobile Money">Mobile Money</option>
               </select>
 
               {/* STATUS */}
@@ -380,7 +371,6 @@ export default function ExpensesPage() {
                   Save Expense
                 </button>
               </div>
-
             </form>
           </div>
         )}
@@ -456,45 +446,16 @@ export default function ExpensesPage() {
 
               <thead className="bg-slate-50 text-slate-500">
                 <tr>
-                  <th className="px-6 py-4">
-                    Expense ID
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Vehicle
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Driver
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Date
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Category
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Description
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Amount
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Vendor
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Payment
-                  </th>
-
-                  <th className="px-6 py-4">
-                    Status
-                  </th>
+                  <th className="px-6 py-4">Expense ID</th>
+                  <th className="px-6 py-4">Vehicle</th>
+                  <th className="px-6 py-4">Driver</th>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Category</th>
+                  <th className="px-6 py-4">Description</th>
+                  <th className="px-6 py-4">Amount</th>
+                  <th className="px-6 py-4">Vendor</th>
+                  <th className="px-6 py-4">Payment</th>
+                  <th className="px-6 py-4">Status</th>
                 </tr>
               </thead>
 
@@ -549,11 +510,12 @@ export default function ExpensesPage() {
                       </td>
 
                       <td className="px-6 py-4 font-medium text-slate-900">
-                        {Number(
-                          expense.amount,
-                        ).toLocaleString(undefined, {
-                          maximumFractionDigits: 2,
-                        })}
+                        {Number(expense.amount).toLocaleString(
+                          undefined,
+                          {
+                            maximumFractionDigits: 2,
+                          },
+                        )}
                       </td>
 
                       <td className="px-6 py-4 text-slate-600">

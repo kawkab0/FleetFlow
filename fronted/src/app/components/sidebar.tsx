@@ -26,6 +26,10 @@ const menuItems = [
     name: "Recommendations",
     href: "/recommendations",
   },
+  {
+    name: "Alerts",
+    href: "/alerts",
+  },
 ];
 
 export default function Sidebar() {

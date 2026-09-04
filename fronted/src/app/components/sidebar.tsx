@@ -16,6 +16,8 @@ const menuItems = [
   { name: "Reports", href: "/reports" },
   { name: "Analytics", href: "/analytics" },
   { name: "Intelligence", href: "/intelligence" },
+  { name: "Profitability", href: "/profitability" },
+  { name: "Fuel Intelligence", href: "/fuel-intelligence" },
 ];
 
 export default function Sidebar() {
@@ -25,6 +27,7 @@ export default function Sidebar() {
     <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col bg-slate-900 text-white">
       <div className="border-b border-slate-700 p-6">
         <h1 className="text-2xl font-bold">FleetFlow</h1>
+
         <p className="mt-1 text-sm text-slate-400">
           ERP Management System
         </p>
@@ -51,8 +54,13 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-slate-700 p-4">
-        <p className="text-xs text-slate-500">FleetFlow ERP</p>
-        <p className="text-sm text-slate-300">v1.0.0</p>
+        <p className="text-xs text-slate-500">
+          FleetFlow ERP
+        </p>
+
+        <p className="text-sm text-slate-300">
+          v1.0.0
+        </p>
       </div>
     </aside>
   );

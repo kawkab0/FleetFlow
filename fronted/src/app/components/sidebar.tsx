@@ -14,6 +14,7 @@ const menuItems = [
   { name: "Inventory", href: "/inventory" },
   { name: "Suppliers", href: "/suppliers" },
   { name: "Reports", href: "/reports" },
+  { name: "Analytics", href: "/analytics" },
 ];
 
 export default function Sidebar() {

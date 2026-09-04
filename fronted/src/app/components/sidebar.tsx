@@ -30,6 +30,10 @@ const menuItems = [
     name: "Alerts",
     href: "/alerts",
   },
+  {
+    name: "Route Intelligence",
+    href: "/route-intelligence",
+  },
 ];
 
 export default function Sidebar() {

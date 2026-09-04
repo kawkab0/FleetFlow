@@ -15,6 +15,7 @@ const menuItems = [
   { name: "Suppliers", href: "/suppliers" },
   { name: "Reports", href: "/reports" },
   { name: "Analytics", href: "/analytics" },
+  { name: "Intelligence", href: "/intelligence" },
 ];
 
 export default function Sidebar() {
@@ -29,7 +30,7 @@ export default function Sidebar() {
         </p>
       </div>
 
-      <nav className="flex-1 space-y-2 p-4">
+      <nav className="flex-1 space-y-2 overflow-y-auto p-4">
         {menuItems.map((item) => {
           const active = pathname === item.href;
 

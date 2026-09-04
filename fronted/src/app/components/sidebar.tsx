@@ -34,6 +34,10 @@ const menuItems = [
     name: "Route Intelligence",
     href: "/route-intelligence",
   },
+  {
+    name: "Driver Intelligence",
+    href: "/driver-intelligence",
+  },
 ];
 
 export default function Sidebar() {

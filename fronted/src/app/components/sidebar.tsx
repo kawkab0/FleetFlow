@@ -22,6 +22,10 @@ const menuItems = [
     name: "Maintenance Intelligence",
     href: "/maintenance-intelligence",
   },
+  {
+    name: "Recommendations",
+    href: "/recommendations",
+  },
 ];
 
 export default function Sidebar() {

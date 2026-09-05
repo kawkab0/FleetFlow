@@ -21,6 +21,8 @@ import { TripsModule } from "./trips/trips.module";
 import { FuelModule } from "./fuel/fuel.module";
 import { MaintenanceModule } from "./maintenance/maintenance.module";
 import { ExpensesModule } from "./expenses/expenses.module";
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -63,6 +65,8 @@ import { ExpensesModule } from "./expenses/expenses.module";
     FuelModule,
     MaintenanceModule,
     ExpensesModule,
+    UsersModule,
+    AuthModule,
   ],
 
   controllers: [AppController],

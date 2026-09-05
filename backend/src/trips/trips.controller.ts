@@ -7,13 +7,20 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 
 import { TripsService } from './trips.service';
+
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+
 @Controller('trips')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class TripsController {
   constructor(
     private readonly tripsService: TripsService,
@@ -25,6 +32,7 @@ export class TripsController {
   // =========================
 
   @Post()
+  @Roles('Admin', 'Fleet Manager', 'Operations')
   create(@Body() createTripDto: CreateTripDto) {
     return this.tripsService.create(createTripDto);
   }
@@ -35,6 +43,7 @@ export class TripsController {
   // =========================
 
   @Get()
+  @Roles('Admin', 'Fleet Manager', 'Operations')
   findAll() {
     return this.tripsService.findAll();
   }
@@ -45,6 +54,7 @@ export class TripsController {
   // =========================
 
   @Get(':id')
+  @Roles('Admin', 'Fleet Manager', 'Operations')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.tripsService.findOne(id);
   }
@@ -55,6 +65,7 @@ export class TripsController {
   // =========================
 
   @Patch(':id')
+  @Roles('Admin', 'Fleet Manager', 'Operations')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTripDto: UpdateTripDto,
@@ -68,6 +79,7 @@ export class TripsController {
   // =========================
 
   @Delete(':id')
+  @Roles('Admin')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.tripsService.remove(id);
   }

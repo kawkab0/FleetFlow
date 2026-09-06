@@ -7,18 +7,25 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-} from "@nestjs/common";
+  UseGuards,
+} from '@nestjs/common';
 
-import { PurchaseDetailsService } from "./purchase-details.service";
-import { PurchaseDetail } from "./entities/purchase-detail.entity";
+import { PurchaseDetailsService } from './purchase-details.service';
+import { PurchaseDetail } from './entities/purchase-detail.entity';
 
-@Controller("purchase-details")
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+
+@Controller('purchase-details')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class PurchaseDetailsController {
   constructor(
     private readonly purchaseDetailsService: PurchaseDetailsService,
   ) {}
 
   @Post()
+  @Roles('Admin', 'Finance')
   create(
     @Body() detailData: Partial<PurchaseDetail>,
   ): Promise<PurchaseDetail> {
@@ -26,20 +33,23 @@ export class PurchaseDetailsController {
   }
 
   @Get()
+  @Roles('Admin', 'Finance')
   findAll(): Promise<PurchaseDetail[]> {
     return this.purchaseDetailsService.findAll();
   }
 
-  @Get(":id")
+  @Get(':id')
+  @Roles('Admin', 'Finance')
   findOne(
-    @Param("id", ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<PurchaseDetail> {
     return this.purchaseDetailsService.findOne(id);
   }
 
-  @Patch(":id")
+  @Patch(':id')
+  @Roles('Admin', 'Finance')
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() detailData: Partial<PurchaseDetail>,
   ): Promise<PurchaseDetail> {
     return this.purchaseDetailsService.update(
@@ -48,9 +58,10 @@ export class PurchaseDetailsController {
     );
   }
 
-  @Delete(":id")
+  @Delete(':id')
+  @Roles('Admin')
   remove(
-    @Param("id", ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<{ message: string }> {
     return this.purchaseDetailsService.remove(id);
   }

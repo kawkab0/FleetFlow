@@ -4,42 +4,63 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
-} from "@nestjs/common";
-import { InventoryService } from "./inventory.service";
-import { Inventory } from "./entities/inventory.entity";
+  UseGuards,
+} from '@nestjs/common';
 
-@Controller("inventory")
+import { InventoryService } from './inventory.service';
+import { Inventory } from './entities/inventory.entity';
+
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+
+@Controller('inventory')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class InventoryController {
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(
+    private readonly inventoryService: InventoryService,
+  ) {}
 
   @Get()
+  @Roles('Admin', 'Fleet Manager', 'Operations')
   findAll(): Promise<Inventory[]> {
     return this.inventoryService.findAll();
   }
 
-  @Get(":id")
-  findOne(@Param("id") id: string): Promise<Inventory | null> {
-    return this.inventoryService.findOne(Number(id));
+  @Get(':id')
+  @Roles('Admin', 'Fleet Manager', 'Operations')
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Inventory | null> {
+    return this.inventoryService.findOne(id);
   }
 
   @Post()
-  create(@Body() data: Partial<Inventory>): Promise<Inventory> {
+  @Roles('Admin', 'Fleet Manager', 'Operations')
+  create(
+    @Body() data: Partial<Inventory>,
+  ): Promise<Inventory> {
     return this.inventoryService.create(data);
   }
 
-  @Patch(":id")
+  @Patch(':id')
+  @Roles('Admin', 'Fleet Manager', 'Operations')
   update(
-    @Param("id") id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() data: Partial<Inventory>,
   ): Promise<Inventory | null> {
-    return this.inventoryService.update(Number(id), data);
+    return this.inventoryService.update(id, data);
   }
 
-  @Delete(":id")
-  async remove(@Param("id") id: string) {
-    const deleted = await this.inventoryService.remove(Number(id));
+  @Delete(':id')
+  @Roles('Admin')
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const deleted = await this.inventoryService.remove(id);
 
     return {
       success: deleted,

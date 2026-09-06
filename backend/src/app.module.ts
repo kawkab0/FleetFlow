@@ -23,6 +23,8 @@ import { MaintenanceModule } from "./maintenance/maintenance.module";
 import { ExpensesModule } from "./expenses/expenses.module";
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ReportsModule } from './reports/reports.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -67,6 +69,8 @@ import { AuthModule } from './auth/auth.module';
     ExpensesModule,
     UsersModule,
     AuthModule,
+    ReportsModule,
+    AnalyticsModule,
   ],
 
   controllers: [AppController],

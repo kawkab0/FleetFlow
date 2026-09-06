@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Supplier {
   id: number;
@@ -42,15 +43,8 @@ export default function SuppliersPage() {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/suppliers",
-      );
+      const data = await apiFetch("/suppliers");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch suppliers");
-      }
-
-      const data = await response.json();
       setSuppliers(data);
     } catch (error) {
       console.error("Failed to fetch suppliers:", error);
@@ -70,23 +64,16 @@ export default function SuppliersPage() {
     setSaving(true);
 
     try {
-      const url = editingSupplier
-        ? `http://localhost:3001/suppliers/${editingSupplier.id}`
-        : "http://localhost:3001/suppliers";
+      const endpoint = editingSupplier
+        ? `/suppliers/${editingSupplier.id}`
+        : "/suppliers";
 
       const method = editingSupplier ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(form),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save supplier");
-      }
 
       setForm(emptyForm);
       setEditingSupplier(null);
@@ -130,16 +117,9 @@ export default function SuppliersPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/suppliers/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete supplier");
-      }
+      await apiFetch(`/suppliers/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchSuppliers();
     } catch (error) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Expense {
   id: number;
@@ -38,15 +39,8 @@ export default function ExpensesPage() {
 
   const fetchExpenses = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/expenses",
-      );
+      const data = await apiFetch("/expenses");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch expenses");
-      }
-
-      const data = await response.json();
       setExpenses(data);
     } catch (error) {
       console.error("Error fetching expenses:", error);
@@ -70,32 +64,22 @@ export default function ExpensesPage() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/expenses",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            expenseCode: form.expenseCode,
-            vehicleCode: form.vehicleCode,
-            driverCode: form.driverCode,
-            expenseDate: form.expenseDate,
-            category: form.category,
-            description: form.description,
-            amount: Number(form.amount),
-            vendor: form.vendor,
-            paymentMethod: form.paymentMethod,
-            status: form.status,
-            notes: form.notes || null,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to create expense");
-      }
+      await apiFetch("/expenses", {
+        method: "POST",
+        body: JSON.stringify({
+          expenseCode: form.expenseCode,
+          vehicleCode: form.vehicleCode,
+          driverCode: form.driverCode,
+          expenseDate: form.expenseDate,
+          category: form.category,
+          description: form.description,
+          amount: Number(form.amount),
+          vendor: form.vendor,
+          paymentMethod: form.paymentMethod,
+          status: form.status,
+          notes: form.notes || null,
+        }),
+      });
 
       setForm({
         expenseCode: "",

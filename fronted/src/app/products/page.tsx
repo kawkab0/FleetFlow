@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Product {
   id: number;
@@ -45,15 +46,8 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/products",
-      );
+      const data = await apiFetch("/products");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch products");
-      }
-
-      const data = await response.json();
       setProducts(data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -73,17 +67,14 @@ export default function ProductsPage() {
     setSaving(true);
 
     try {
-      const url = editingProduct
-        ? `http://localhost:3001/products/${editingProduct.id}`
-        : "http://localhost:3001/products";
+      const endpoint = editingProduct
+        ? `/products/${editingProduct.id}`
+        : "/products";
 
       const method = editingProduct ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           name: form.name,
           price: Number(form.price),
@@ -94,10 +85,6 @@ export default function ProductsPage() {
           status: form.status,
         }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save product");
-      }
 
       setForm(emptyForm);
       setEditingProduct(null);
@@ -142,16 +129,9 @@ export default function ProductsPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/products/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete product");
-      }
+      await apiFetch(`/products/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchProducts();
     } catch (error) {

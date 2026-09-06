@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 type Vehicle = {
   id: number;
@@ -12,8 +13,6 @@ type Vehicle = {
   mileage: number;
   driver: string;
 };
-
-const API_URL = "http://localhost:3001/vehicles";
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -45,13 +44,8 @@ export default function VehiclesPage() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(API_URL);
+      const data = await apiFetch("/vehicles");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch vehicles");
-      }
-
-      const data = await response.json();
       setVehicles(data);
     } catch (err) {
       console.error(err);
@@ -119,23 +113,16 @@ export default function VehiclesPage() {
         driver: form.driver || "Unassigned",
       };
 
-      const url = editingVehicle
-        ? `${API_URL}/${editingVehicle.id}`
-        : API_URL;
+      const endpoint = editingVehicle
+        ? `/vehicles/${editingVehicle.id}`
+        : "/vehicles";
 
       const method = editingVehicle ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(vehicleData),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save vehicle");
-      }
 
       setShowModal(false);
       setEditingVehicle(null);
@@ -159,13 +146,9 @@ export default function VehiclesPage() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
+      await apiFetch(`/vehicles/${id}`, {
         method: "DELETE",
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete vehicle");
-      }
 
       await fetchVehicles();
     } catch (err) {

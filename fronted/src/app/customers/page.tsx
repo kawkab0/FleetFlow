@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Customer {
   id: number;
@@ -45,15 +46,7 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/customers",
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch customers");
-      }
-
-      const data = await response.json();
+      const data = await apiFetch("/customers");
       setCustomers(data);
     } catch (error) {
       console.error("Failed to fetch customers:", error);
@@ -66,30 +59,21 @@ export default function CustomersPage() {
     fetchCustomers();
   }, []);
 
-  const handleSubmit = async (
-    event: React.FormEvent,
-  ) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
 
     try {
-      const url = editingCustomer
-        ? `http://localhost:3001/customers/${editingCustomer.id}`
-        : "http://localhost:3001/customers";
+      const endpoint = editingCustomer
+        ? `/customers/${editingCustomer.id}`
+        : "/customers";
 
       const method = editingCustomer ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(form),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save customer");
-      }
 
       setForm(emptyForm);
       setEditingCustomer(null);
@@ -134,16 +118,9 @@ export default function CustomersPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/customers/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete customer");
-      }
+      await apiFetch(`/customers/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchCustomers();
     } catch (error) {

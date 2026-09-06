@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -92,8 +93,6 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_URL = "http://localhost:3001";
-
   useEffect(() => {
     fetchReportData();
   }, []);
@@ -104,33 +103,6 @@ export default function ReportsPage() {
       setError("");
 
       const [
-        vehiclesResponse,
-        driversResponse,
-        tripsResponse,
-        fuelResponse,
-        maintenanceResponse,
-        expensesResponse,
-      ] = await Promise.all([
-        fetch(`${API_URL}/vehicles`),
-        fetch(`${API_URL}/drivers`),
-        fetch(`${API_URL}/trips`),
-        fetch(`${API_URL}/fuel`),
-        fetch(`${API_URL}/maintenance`),
-        fetch(`${API_URL}/expenses`),
-      ]);
-
-      if (
-        !vehiclesResponse.ok ||
-        !driversResponse.ok ||
-        !tripsResponse.ok ||
-        !fuelResponse.ok ||
-        !maintenanceResponse.ok ||
-        !expensesResponse.ok
-      ) {
-        throw new Error("Failed to load report data.");
-      }
-
-      const [
         vehiclesData,
         driversData,
         tripsData,
@@ -138,12 +110,12 @@ export default function ReportsPage() {
         maintenanceData,
         expensesData,
       ] = await Promise.all([
-        vehiclesResponse.json(),
-        driversResponse.json(),
-        tripsResponse.json(),
-        fuelResponse.json(),
-        maintenanceResponse.json(),
-        expensesResponse.json(),
+        apiFetch("/vehicles"),
+        apiFetch("/drivers"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
       ]);
 
       setVehicles(vehiclesData);
@@ -154,7 +126,12 @@ export default function ReportsPage() {
       setExpenses(expensesData);
     } catch (err) {
       console.error(err);
-      setError("Unable to load report data.");
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unable to load report data.");
+      }
     } finally {
       setLoading(false);
     }
@@ -333,6 +310,7 @@ export default function ReportsPage() {
         <div className="mx-auto max-w-7xl">
           <div className="rounded-2xl border border-red-900 bg-red-950/40 p-8">
             <h1 className="text-2xl font-bold">Reports Error</h1>
+
             <p className="mt-2 text-red-300">{error}</p>
 
             <button
@@ -350,7 +328,6 @@ export default function ReportsPage() {
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white md:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
-        {/* Header */}
         <section>
           <p className="text-sm font-semibold tracking-[0.25em] text-slate-400">
             BUSINESS INTELLIGENCE
@@ -366,7 +343,6 @@ export default function ReportsPage() {
           </p>
         </section>
 
-        {/* KPI Cards */}
         <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
             <p className="text-sm text-slate-400">Fleet Utilization</p>
@@ -418,7 +394,6 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        {/* Operations Summary */}
         <section>
           <h2 className="mb-4 text-2xl font-bold">Operations Summary</h2>
 
@@ -521,7 +496,6 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        {/* Cost Analysis */}
         <section>
           <h2 className="mb-4 text-2xl font-bold">Cost Analysis</h2>
 
@@ -546,8 +520,7 @@ export default function ReportsPage() {
               </p>
 
               <p className="mt-2 text-sm text-slate-500">
-                {reportMetrics.completedMaintenance} completed /
-                {" "}
+                {reportMetrics.completedMaintenance} completed /{" "}
                 {reportMetrics.pendingMaintenance} pending
               </p>
             </div>
@@ -566,7 +539,6 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        {/* Performance Indicators */}
         <section>
           <h2 className="mb-4 text-2xl font-bold">
             Performance Indicators
@@ -649,7 +621,6 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        {/* Recent Trips */}
         <section>
           <h2 className="mb-4 text-2xl font-bold">Recent Trips</h2>
 
@@ -716,7 +687,6 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        {/* Maintenance Report */}
         <section>
           <h2 className="mb-4 text-2xl font-bold">
             Maintenance Report
@@ -795,7 +765,6 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        {/* Expense Report */}
         <section>
           <h2 className="mb-4 text-2xl font-bold">Expense Report</h2>
 
@@ -862,7 +831,6 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        {/* Fuel Consumption Report */}
         <section>
           <h2 className="mb-4 text-2xl font-bold">
             Fuel Consumption Report

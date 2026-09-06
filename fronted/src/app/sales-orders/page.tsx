@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface SalesOrder {
   id: number;
@@ -45,19 +46,9 @@ export default function SalesOrdersPage() {
 
   const fetchData = async () => {
     try {
-      const [ordersResponse, customersResponse] =
-        await Promise.all([
-          fetch("http://localhost:3001/sales-orders"),
-          fetch("http://localhost:3001/customers"),
-        ]);
-
-      if (!ordersResponse.ok || !customersResponse.ok) {
-        throw new Error("Failed to fetch sales order data");
-      }
-
       const [ordersData, customersData] = await Promise.all([
-        ordersResponse.json(),
-        customersResponse.json(),
+        apiFetch("/sales-orders"),
+        apiFetch("/customers"),
       ]);
 
       setOrders(ordersData);
@@ -127,17 +118,14 @@ export default function SalesOrdersPage() {
     setSaving(true);
 
     try {
-      const url = editingOrder
-        ? `http://localhost:3001/sales-orders/${editingOrder.id}`
-        : "http://localhost:3001/sales-orders";
+      const endpoint = editingOrder
+        ? `/sales-orders/${editingOrder.id}`
+        : "/sales-orders";
 
       const method = editingOrder ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           orderNumber: form.orderNumber,
           customerId: Number(form.customerId),
@@ -148,10 +136,6 @@ export default function SalesOrdersPage() {
           totalAmount: Number(form.totalAmount),
         }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save sales order");
-      }
 
       setForm(emptyForm);
       setEditingOrder(null);
@@ -196,16 +180,9 @@ export default function SalesOrdersPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/sales-orders/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete sales order");
-      }
+      await apiFetch(`/sales-orders/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchData();
     } catch (error) {

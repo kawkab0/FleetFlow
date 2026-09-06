@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -70,24 +71,10 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_URL = "http://localhost:3001";
-
   const fetchAnalyticsData = async () => {
     try {
       setLoading(true);
       setError("");
-
-      const responses = await Promise.all([
-        fetch(`${API_URL}/vehicles`),
-        fetch(`${API_URL}/trips`),
-        fetch(`${API_URL}/fuel`),
-        fetch(`${API_URL}/maintenance`),
-        fetch(`${API_URL}/expenses`),
-      ]);
-
-      if (responses.some((response) => !response.ok)) {
-        throw new Error("Failed to load analytics data.");
-      }
 
       const [
         vehiclesData,
@@ -95,9 +82,13 @@ export default function AnalyticsPage() {
         fuelData,
         maintenanceData,
         expensesData,
-      ] = await Promise.all(
-        responses.map((response) => response.json()),
-      );
+      ] = await Promise.all([
+        apiFetch("/vehicles"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
+      ]);
 
       setVehicles(vehiclesData);
       setTrips(tripsData);
@@ -107,9 +98,13 @@ export default function AnalyticsPage() {
     } catch (err) {
       console.error("Analytics error:", err);
 
-      setError(
-        "Unable to load analytics data. Make sure the backend is running.",
-      );
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to load analytics data. Make sure the backend is running.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -238,10 +233,6 @@ export default function AnalyticsPage() {
       ? (activeTrips / activeVehicles) * 100
       : 0;
 
-  /*
-   * VEHICLE PERFORMANCE
-   */
-
   const vehiclePerformance = useMemo(() => {
     return vehicles
       .map((vehicle) => {
@@ -314,10 +305,6 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.revenue - a.revenue);
   }, [vehicles, trips, fuel, maintenance, expenses]);
 
-  /*
-   * EXPENSE BREAKDOWN
-   */
-
   const expenseBreakdown = useMemo(() => {
     const grouped: Record<string, number> = {};
 
@@ -336,10 +323,6 @@ export default function AnalyticsPage() {
       }))
       .sort((a, b) => b.amount - a.amount);
   }, [expenses]);
-
-  /*
-   * MONTHLY ANALYSIS
-   */
 
   const monthlyAnalysis = useMemo(() => {
     const months: Record<
@@ -450,10 +433,6 @@ export default function AnalyticsPage() {
       .sort((a, b) => a.month.localeCompare(b.month));
   }, [trips, fuel, maintenance, expenses]);
 
-  /*
-   * BUSINESS INSIGHTS
-   */
-
   const insights = useMemo(() => {
     const results: {
       title: string;
@@ -553,8 +532,6 @@ export default function AnalyticsPage() {
     <main className="min-h-screen bg-slate-100 p-6 md:p-8">
       <div className="mx-auto max-w-7xl">
 
-        {/* HEADER */}
-
         <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold tracking-wide text-blue-600">
@@ -581,15 +558,11 @@ export default function AnalyticsPage() {
           </button>
         </header>
 
-        {/* ERROR */}
-
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             {error}
           </div>
         )}
-
-        {/* KPI CARDS */}
 
         <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
@@ -664,8 +637,6 @@ export default function AnalyticsPage() {
           </div>
 
         </section>
-
-        {/* PERFORMANCE CARDS */}
 
         <section className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
@@ -750,8 +721,6 @@ export default function AnalyticsPage() {
           </div>
 
         </section>
-
-        {/* REVENUE VS COST */}
 
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -846,8 +815,6 @@ export default function AnalyticsPage() {
             </div>
           )}
         </section>
-
-        {/* VEHICLE PERFORMANCE */}
 
         <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
@@ -946,11 +913,7 @@ export default function AnalyticsPage() {
           </div>
         </section>
 
-        {/* COST ANALYSIS */}
-
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
-
-          {/* COST CATEGORIES */}
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -1027,8 +990,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* EXPENSE BREAKDOWN */}
-
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
             <h2 className="text-lg font-semibold text-slate-900">
@@ -1080,8 +1041,6 @@ export default function AnalyticsPage() {
           </div>
 
         </section>
-
-        {/* BUSINESS INSIGHTS */}
 
         <section className="mt-8 rounded-2xl bg-slate-900 p-6 shadow-sm">
 
@@ -1141,8 +1100,6 @@ export default function AnalyticsPage() {
 
           </div>
         </section>
-
-        {/* DATA SUMMARY */}
 
         <section className="mt-8 mb-4 rounded-2xl bg-white p-6 shadow-sm">
 

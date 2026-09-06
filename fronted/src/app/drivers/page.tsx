@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Driver {
   id: number;
@@ -13,8 +14,6 @@ interface Driver {
   hireDate: string | null;
   assignedVehicle: string | null;
 }
-
-const API_URL = "http://localhost:3001/drivers";
 
 export default function DriversPage() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -46,15 +45,7 @@ export default function DriversPage() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(API_URL, {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch drivers");
-      }
-
-      const data = await response.json();
+      const data = await apiFetch("/drivers");
 
       setDrivers(data);
     } catch (err) {
@@ -81,16 +72,10 @@ export default function DriversPage() {
       return "";
     }
 
-    // If backend returns:
-    // 2026-08-31
-    // keep it exactly as it is.
     if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return date;
     }
 
-    // If backend happens to return:
-    // 2026-08-31T00:00:00.000Z
-    // extract only the date portion.
     const match = date.match(/^(\d{4}-\d{2}-\d{2})/);
 
     if (match) {
@@ -157,24 +142,10 @@ export default function DriversPage() {
 
       console.log("Sending driver data:", driverData);
 
-      const response = await fetch(API_URL, {
+      await apiFetch("/drivers", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(driverData),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-
-        console.error(
-          "Backend error:",
-          errorText
-        );
-
-        throw new Error("Failed to create driver");
-      }
 
       setShowModal(false);
 

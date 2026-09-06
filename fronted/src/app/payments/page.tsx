@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Payment {
   id: number;
@@ -51,28 +52,11 @@ export default function PaymentsPage() {
 
   const fetchData = async () => {
     try {
-      const [
-        paymentsResponse,
-        salesOrdersResponse,
-      ] = await Promise.all([
-        fetch("http://localhost:3001/payments"),
-        fetch("http://localhost:3001/sales-orders"),
-      ]);
-
-      if (
-        !paymentsResponse.ok ||
-        !salesOrdersResponse.ok
-      ) {
-        throw new Error("Failed to fetch payment data");
-      }
-
-      const [
-        paymentsData,
-        salesOrdersData,
-      ] = await Promise.all([
-        paymentsResponse.json(),
-        salesOrdersResponse.json(),
-      ]);
+      const [paymentsData, salesOrdersData] =
+        await Promise.all([
+          apiFetch("/payments"),
+          apiFetch("/sales-orders"),
+        ]);
 
       setPayments(paymentsData);
       setSalesOrders(salesOrdersData);
@@ -106,17 +90,14 @@ export default function PaymentsPage() {
     setSaving(true);
 
     try {
-      const url = editingPayment
-        ? `http://localhost:3001/payments/${editingPayment.id}`
-        : "http://localhost:3001/payments";
+      const endpoint = editingPayment
+        ? `/payments/${editingPayment.id}`
+        : "/payments";
 
       const method = editingPayment ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           salesOrderId: Number(form.salesOrderId),
           amount: Number(form.amount),
@@ -127,10 +108,6 @@ export default function PaymentsPage() {
           notes: form.notes,
         }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save payment");
-      }
 
       setForm(emptyForm);
       setEditingPayment(null);
@@ -175,16 +152,9 @@ export default function PaymentsPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/payments/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete payment");
-      }
+      await apiFetch(`/payments/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchData();
     } catch (error) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Fuel {
   id: number;
@@ -36,13 +37,8 @@ export default function FuelPage() {
 
   const fetchFuel = async () => {
     try {
-      const response = await fetch("http://localhost:3001/fuel");
+      const data = await apiFetch("/fuel");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch fuel records");
-      }
-
-      const data = await response.json();
       setFuelRecords(data);
     } catch (error) {
       console.error("Error fetching fuel records:", error);
@@ -64,11 +60,8 @@ export default function FuelPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/fuel", {
+      await apiFetch("/fuel", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           fuelCode: form.fuelCode,
           vehicleCode: form.vehicleCode,
@@ -82,10 +75,6 @@ export default function FuelPage() {
           notes: form.notes || null,
         }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to create fuel record");
-      }
 
       setForm({
         fuelCode: "",
@@ -212,7 +201,7 @@ export default function FuelPage() {
                 className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
               />
 
-              {/* DATE - ALWAYS YYYY-MM-DD */}
+              {/* DATE */}
               <input
                 type="text"
                 placeholder="YYYY-MM-DD"

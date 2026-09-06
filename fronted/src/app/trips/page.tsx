@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Trip {
   id: number;
@@ -59,13 +60,8 @@ export default function TripsPage() {
 
   const fetchTrips = async () => {
     try {
-      const response = await fetch("http://localhost:3001/trips");
+      const data = await apiFetch("/trips");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch trips");
-      }
-
-      const data = await response.json();
       setTrips(data);
     } catch (error) {
       console.error("Error fetching trips:", error);
@@ -114,29 +110,18 @@ export default function TripsPage() {
     };
 
     try {
-      const url =
+      const endpoint =
         editingTripId !== null
-          ? `http://localhost:3001/trips/${editingTripId}`
-          : "http://localhost:3001/trips";
+          ? `/trips/${editingTripId}`
+          : "/trips";
 
       const method =
         editingTripId !== null ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(tripData),
       });
-
-      if (!response.ok) {
-        throw new Error(
-          editingTripId !== null
-            ? "Failed to update trip"
-            : "Failed to create trip",
-        );
-      }
 
       setForm(emptyForm);
       setEditingTripId(null);
@@ -189,16 +174,9 @@ export default function TripsPage() {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/trips/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete trip");
-      }
+      await apiFetch(`/trips/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchTrips();
 
@@ -541,7 +519,7 @@ export default function TripsPage() {
           </div>
 
           <div className="rounded-xl bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm font-bold text-slate-500">
               Completed
             </p>
 

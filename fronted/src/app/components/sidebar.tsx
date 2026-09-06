@@ -1,18 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const menuItems = [
   { name: "Dashboard", href: "/" },
+
   { name: "Vehicles", href: "/vehicles" },
   { name: "Drivers", href: "/drivers" },
   { name: "Trips", href: "/trips" },
   { name: "Fuel", href: "/fuel" },
   { name: "Maintenance", href: "/maintenance" },
   { name: "Expenses", href: "/expenses" },
-  { name: "Inventory", href: "/inventory" },
+
+  { name: "Customers", href: "/customers" },
+  { name: "Products", href: "/products" },
   { name: "Suppliers", href: "/suppliers" },
+  { name: "Warehouses", href: "/warehouses" },
+  { name: "Inventory", href: "/inventory" },
+  { name: "Purchases", href: "/purchases" },
+  { name: "Orders", href: "/sales-orders" },
+  { name: "Payments", href: "/payments" },
+
   { name: "Reports", href: "/reports" },
   { name: "Analytics", href: "/analytics" },
   { name: "Intelligence", href: "/intelligence" },
@@ -42,11 +51,24 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  function handleLogout() {
+    localStorage.removeItem("fleetflow_token");
+    localStorage.removeItem("fleetflow_user");
+
+    document.cookie =
+      "fleetflow_token=; path=/; max-age=0; SameSite=Lax";
+
+    router.push("/login");
+  }
 
   return (
     <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col bg-slate-900 text-white">
       <div className="border-b border-slate-700 p-6">
-        <h1 className="text-2xl font-bold">FleetFlow</h1>
+        <h1 className="text-2xl font-bold">
+          FleetFlow
+        </h1>
 
         <p className="mt-1 text-sm text-slate-400">
           ERP Management System
@@ -74,6 +96,13 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-slate-700 p-4">
+        <button
+          onClick={handleLogout}
+          className="mb-4 w-full rounded-lg border border-red-800 px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-950 hover:text-red-300"
+        >
+          Logout
+        </button>
+
         <p className="text-xs text-slate-500">
           FleetFlow ERP
         </p>

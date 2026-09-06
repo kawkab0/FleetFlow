@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Warehouse {
   id: number;
@@ -45,15 +46,7 @@ export default function WarehousesPage() {
 
   const fetchWarehouses = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/warehouses",
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch warehouses");
-      }
-
-      const data = await response.json();
+      const data = await apiFetch("/warehouses");
       setWarehouses(data);
     } catch (error) {
       console.error("Failed to fetch warehouses:", error);
@@ -66,30 +59,21 @@ export default function WarehousesPage() {
     fetchWarehouses();
   }, []);
 
-  const handleSubmit = async (
-    event: React.FormEvent,
-  ) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
 
     try {
-      const url = editingWarehouse
-        ? `http://localhost:3001/warehouses/${editingWarehouse.id}`
-        : "http://localhost:3001/warehouses";
+      const endpoint = editingWarehouse
+        ? `/warehouses/${editingWarehouse.id}`
+        : "/warehouses";
 
       const method = editingWarehouse ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(form),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save warehouse");
-      }
 
       setForm(emptyForm);
       setEditingWarehouse(null);
@@ -134,16 +118,9 @@ export default function WarehousesPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/warehouses/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete warehouse");
-      }
+      await apiFetch(`/warehouses/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchWarehouses();
     } catch (error) {

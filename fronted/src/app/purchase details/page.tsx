@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface PurchaseDetail {
   id: number;
@@ -51,33 +52,13 @@ export default function PurchaseDetailsPage() {
   const fetchData = async () => {
     try {
       const [
-        detailsResponse,
-        purchasesResponse,
-        productsResponse,
-      ] = await Promise.all([
-        fetch("http://localhost:3001/purchase-details"),
-        fetch("http://localhost:3001/purchases"),
-        fetch("http://localhost:3001/products"),
-      ]);
-
-      if (
-        !detailsResponse.ok ||
-        !purchasesResponse.ok ||
-        !productsResponse.ok
-      ) {
-        throw new Error(
-          "Failed to fetch purchase details data"
-        );
-      }
-
-      const [
         detailsData,
         purchasesData,
         productsData,
       ] = await Promise.all([
-        detailsResponse.json(),
-        purchasesResponse.json(),
-        productsResponse.json(),
+        apiFetch("/purchase-details"),
+        apiFetch("/purchases"),
+        apiFetch("/products"),
       ]);
 
       setDetails(detailsData);
@@ -138,17 +119,14 @@ export default function PurchaseDetailsPage() {
       const quantity = Number(form.quantity);
       const unitPrice = Number(form.unitPrice);
 
-      const url = editingDetail
-        ? `http://localhost:3001/purchase-details/${editingDetail.id}`
-        : "http://localhost:3001/purchase-details";
+      const endpoint = editingDetail
+        ? `/purchase-details/${editingDetail.id}`
+        : "/purchase-details";
 
       const method = editingDetail ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           purchaseId: Number(form.purchaseId),
           productId: Number(form.productId),
@@ -157,12 +135,6 @@ export default function PurchaseDetailsPage() {
           totalPrice: quantity * unitPrice,
         }),
       });
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to save purchase detail"
-        );
-      }
 
       setForm(emptyForm);
       setEditingDetail(null);
@@ -204,18 +176,9 @@ export default function PurchaseDetailsPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/purchase-details/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to delete purchase detail"
-        );
-      }
+      await apiFetch(`/purchase-details/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchData();
     } catch (error) {

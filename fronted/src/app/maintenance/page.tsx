@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Maintenance {
   id: number;
@@ -36,15 +37,8 @@ export default function MaintenancePage() {
 
   const fetchMaintenance = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/maintenance",
-      );
+      const data = await apiFetch("/maintenance");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch maintenance records");
-      }
-
-      const data = await response.json();
       setRecords(data);
     } catch (error) {
       console.error(
@@ -71,33 +65,21 @@ export default function MaintenancePage() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/maintenance",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            maintenanceCode: form.maintenanceCode,
-            vehicleCode: form.vehicleCode,
-            maintenanceDate: form.maintenanceDate,
-            maintenanceType: form.maintenanceType,
-            description: form.description,
-            mileage: Number(form.mileage),
-            cost: Number(form.cost),
-            serviceProvider: form.serviceProvider,
-            status: form.status,
-            notes: form.notes || null,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to create maintenance record",
-        );
-      }
+      await apiFetch("/maintenance", {
+        method: "POST",
+        body: JSON.stringify({
+          maintenanceCode: form.maintenanceCode,
+          vehicleCode: form.vehicleCode,
+          maintenanceDate: form.maintenanceDate,
+          maintenanceType: form.maintenanceType,
+          description: form.description,
+          mileage: Number(form.mileage),
+          cost: Number(form.cost),
+          serviceProvider: form.serviceProvider,
+          status: form.status,
+          notes: form.notes || null,
+        }),
+      });
 
       setForm({
         maintenanceCode: "",

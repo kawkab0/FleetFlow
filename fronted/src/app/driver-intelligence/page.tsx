@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Driver {
   id: number;
@@ -73,8 +74,6 @@ interface DriverAnalysis {
   reasons: string[];
 }
 
-const API = "http://localhost:3001";
-
 function num(value: number | string | undefined | null): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -101,36 +100,15 @@ export default function DriverIntelligencePage() {
       setError("");
 
       const [
-        driversResponse,
-        tripsResponse,
-        fuelResponse,
-        expensesResponse,
-      ] = await Promise.all([
-        fetch(`${API}/drivers`),
-        fetch(`${API}/trips`),
-        fetch(`${API}/fuel`),
-        fetch(`${API}/expenses`),
-      ]);
-
-      if (
-        !driversResponse.ok ||
-        !tripsResponse.ok ||
-        !fuelResponse.ok ||
-        !expensesResponse.ok
-      ) {
-        throw new Error("Failed to load driver intelligence data.");
-      }
-
-      const [
         driversData,
         tripsData,
         fuelData,
         expensesData,
       ] = await Promise.all([
-        driversResponse.json(),
-        tripsResponse.json(),
-        fuelResponse.json(),
-        expensesResponse.json(),
+        apiFetch("/drivers"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/expenses"),
       ]);
 
       setDrivers(Array.isArray(driversData) ? driversData : []);
@@ -140,9 +118,13 @@ export default function DriverIntelligencePage() {
     } catch (err) {
       console.error(err);
 
-      setError(
-        "Unable to load driver intelligence data. Make sure the backend is running on port 3001.",
-      );
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to load driver intelligence data. Make sure the backend is running on port 3001.",
+        );
+      }
     } finally {
       setLoading(false);
     }

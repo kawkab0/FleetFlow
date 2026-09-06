@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Purchase {
   id: number;
@@ -58,31 +59,13 @@ export default function PurchasesPage() {
   const fetchData = async () => {
     try {
       const [
-        purchasesResponse,
-        suppliersResponse,
-        warehousesResponse,
-      ] = await Promise.all([
-        fetch("http://localhost:3001/purchases"),
-        fetch("http://localhost:3001/suppliers"),
-        fetch("http://localhost:3001/warehouses"),
-      ]);
-
-      if (
-        !purchasesResponse.ok ||
-        !suppliersResponse.ok ||
-        !warehousesResponse.ok
-      ) {
-        throw new Error("Failed to fetch purchase data");
-      }
-
-      const [
         purchasesData,
         suppliersData,
         warehousesData,
       ] = await Promise.all([
-        purchasesResponse.json(),
-        suppliersResponse.json(),
-        warehousesResponse.json(),
+        apiFetch("/purchases"),
+        apiFetch("/suppliers"),
+        apiFetch("/warehouses"),
       ]);
 
       setPurchases(purchasesData);
@@ -102,7 +85,7 @@ export default function PurchasesPage() {
   const getSupplierName = (supplierId: number) => {
     return (
       suppliers.find(
-        (supplier) => supplier.id === supplierId
+        (supplier) => supplier.id === supplierId,
       )?.name || `Supplier #${supplierId}`
     );
   };
@@ -110,29 +93,26 @@ export default function PurchasesPage() {
   const getWarehouseName = (warehouseId: number) => {
     return (
       warehouses.find(
-        (warehouse) => warehouse.id === warehouseId
+        (warehouse) => warehouse.id === warehouseId,
       )?.name || `Warehouse #${warehouseId}`
     );
   };
 
   const handleSubmit = async (
-    event: React.FormEvent
+    event: React.FormEvent,
   ) => {
     event.preventDefault();
     setSaving(true);
 
     try {
-      const url = editingPurchase
-        ? `http://localhost:3001/purchases/${editingPurchase.id}`
-        : "http://localhost:3001/purchases";
+      const endpoint = editingPurchase
+        ? `/purchases/${editingPurchase.id}`
+        : "/purchases";
 
       const method = editingPurchase ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           supplierId: Number(form.supplierId),
           warehouseId: Number(form.warehouseId),
@@ -143,10 +123,6 @@ export default function PurchasesPage() {
           notes: form.notes,
         }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save purchase");
-      }
 
       setForm(emptyForm);
       setEditingPurchase(null);
@@ -181,7 +157,7 @@ export default function PurchasesPage() {
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this purchase?"
+      "Are you sure you want to delete this purchase?",
     );
 
     if (!confirmed) {
@@ -191,16 +167,9 @@ export default function PurchasesPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/purchases/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete purchase");
-      }
+      await apiFetch(`/purchases/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchData();
     } catch (error) {
@@ -240,12 +209,12 @@ export default function PurchasesPage() {
   const totalAmount = purchases.reduce(
     (total, purchase) =>
       total + Number(purchase.totalAmount || 0),
-    0
+    0,
   );
 
   const pendingPurchases = purchases.filter(
     (purchase) =>
-      purchase.status.toLowerCase() === "pending"
+      purchase.status.toLowerCase() === "pending",
   ).length;
 
   return (
@@ -549,13 +518,13 @@ export default function PurchasesPage() {
 
                       <td className="px-6 py-4 text-sm text-slate-600">
                         {getSupplierName(
-                          purchase.supplierId
+                          purchase.supplierId,
                         )}
                       </td>
 
                       <td className="px-6 py-4 text-sm text-slate-600">
                         {getWarehouseName(
-                          purchase.warehouseId
+                          purchase.warehouseId,
                         )}
                       </td>
 
@@ -566,22 +535,20 @@ export default function PurchasesPage() {
                       <td className="px-6 py-4 text-sm font-semibold text-slate-900">
                         $
                         {Number(
-                          purchase.totalAmount
+                          purchase.totalAmount,
                         ).toFixed(2)}
                       </td>
 
                       <td className="px-6 py-4">
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            purchase.status
-                              .toLowerCase() ===
+                            purchase.status.toLowerCase() ===
                             "pending"
                               ? "bg-amber-50 text-amber-600"
-                              : purchase.status
-                                  .toLowerCase() ===
-                                "received"
-                              ? "bg-emerald-50 text-emerald-600"
-                              : "bg-red-50 text-red-600"
+                              : purchase.status.toLowerCase() ===
+                                  "received"
+                                ? "bg-emerald-50 text-emerald-600"
+                                : "bg-red-50 text-red-600"
                           }`}
                         >
                           {purchase.status}
@@ -594,7 +561,7 @@ export default function PurchasesPage() {
                             type="button"
                             onClick={() =>
                               handleEdit(
-                                purchase
+                                purchase,
                               )
                             }
                             className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
@@ -606,7 +573,7 @@ export default function PurchasesPage() {
                             type="button"
                             onClick={() =>
                               handleDelete(
-                                purchase.id
+                                purchase.id,
                               )
                             }
                             disabled={
@@ -623,7 +590,7 @@ export default function PurchasesPage() {
                         </div>
                       </td>
                     </tr>
-                  )
+                  ),
                 )}
               </tbody>
             </table>

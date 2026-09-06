@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface SalesOrderDetail {
   id: number;
@@ -51,33 +52,13 @@ export default function SalesOrderDetailsPage() {
   const fetchData = async () => {
     try {
       const [
-        detailsResponse,
-        ordersResponse,
-        productsResponse,
-      ] = await Promise.all([
-        fetch("http://localhost:3001/sales-order-details"),
-        fetch("http://localhost:3001/sales-orders"),
-        fetch("http://localhost:3001/products"),
-      ]);
-
-      if (
-        !detailsResponse.ok ||
-        !ordersResponse.ok ||
-        !productsResponse.ok
-      ) {
-        throw new Error(
-          "Failed to fetch sales order details data"
-        );
-      }
-
-      const [
         detailsData,
         ordersData,
         productsData,
       ] = await Promise.all([
-        detailsResponse.json(),
-        ordersResponse.json(),
-        productsResponse.json(),
+        apiFetch("/sales-order-details"),
+        apiFetch("/sales-orders"),
+        apiFetch("/products"),
       ]);
 
       setDetails(detailsData);
@@ -137,17 +118,14 @@ export default function SalesOrderDetailsPage() {
       const quantity = Number(form.quantity);
       const unitPrice = Number(form.unitPrice);
 
-      const url = editingDetail
-        ? `http://localhost:3001/sales-order-details/${editingDetail.id}`
-        : "http://localhost:3001/sales-order-details";
+      const endpoint = editingDetail
+        ? `/sales-order-details/${editingDetail.id}`
+        : "/sales-order-details";
 
       const method = editingDetail ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           salesOrderId: Number(form.salesOrderId),
           productId: Number(form.productId),
@@ -156,12 +134,6 @@ export default function SalesOrderDetailsPage() {
           totalPrice: quantity * unitPrice,
         }),
       });
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to save sales order detail"
-        );
-      }
 
       setForm(emptyForm);
       setEditingDetail(null);
@@ -203,18 +175,12 @@ export default function SalesOrderDetailsPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/sales-order-details/${id}`,
+      await apiFetch(
+        `/sales-order-details/${id}`,
         {
           method: "DELETE",
         }
       );
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to delete sales order detail"
-        );
-      }
 
       await fetchData();
     } catch (error) {
@@ -545,4 +511,3 @@ export default function SalesOrderDetailsPage() {
     </main>
   );
 }
-

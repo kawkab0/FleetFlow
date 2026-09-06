@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Inventory {
   id: number;
@@ -49,26 +50,11 @@ export default function InventoryPage() {
 
   const fetchData = async () => {
     try {
-      const [inventoryResponse, productsResponse, warehousesResponse] =
-        await Promise.all([
-          fetch("http://localhost:3001/inventory"),
-          fetch("http://localhost:3001/products"),
-          fetch("http://localhost:3001/warehouses"),
-        ]);
-
-      if (
-        !inventoryResponse.ok ||
-        !productsResponse.ok ||
-        !warehousesResponse.ok
-      ) {
-        throw new Error("Failed to fetch inventory data");
-      }
-
       const [inventoryData, productsData, warehousesData] =
         await Promise.all([
-          inventoryResponse.json(),
-          productsResponse.json(),
-          warehousesResponse.json(),
+          apiFetch("/inventory"),
+          apiFetch("/products"),
+          apiFetch("/warehouses"),
         ]);
 
       setInventory(inventoryData);
@@ -92,17 +78,14 @@ export default function InventoryPage() {
     setSaving(true);
 
     try {
-      const url = editingInventory
-        ? `http://localhost:3001/inventory/${editingInventory.id}`
-        : "http://localhost:3001/inventory";
+      const endpoint = editingInventory
+        ? `/inventory/${editingInventory.id}`
+        : "/inventory";
 
       const method = editingInventory ? "PATCH" : "POST";
 
-      const response = await fetch(url, {
+      await apiFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           productId: Number(form.productId),
           warehouseId: Number(form.warehouseId),
@@ -110,10 +93,6 @@ export default function InventoryPage() {
           reorderLevel: Number(form.reorderLevel),
         }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save inventory");
-      }
 
       setForm(emptyForm);
       setEditingInventory(null);
@@ -155,16 +134,9 @@ export default function InventoryPage() {
     setDeletingId(id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/inventory/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete inventory");
-      }
+      await apiFetch(`/inventory/${id}`, {
+        method: "DELETE",
+      });
 
       await fetchData();
     } catch (error) {

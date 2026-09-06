@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Trip {
   id: number;
@@ -63,8 +64,6 @@ interface RouteAnalysis {
   performance: "Excellent" | "Good" | "Average" | "Poor";
 }
 
-const API = "http://localhost:3001";
-
 function num(value: number | string | undefined | null): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -90,30 +89,17 @@ export default function RouteIntelligencePage() {
       setLoading(true);
       setError("");
 
-      const [tripsRes, fuelRes, maintenanceRes, expensesRes] =
-        await Promise.all([
-          fetch(`${API}/trips`),
-          fetch(`${API}/fuel`),
-          fetch(`${API}/maintenance`),
-          fetch(`${API}/expenses`),
-        ]);
-
-      if (
-        !tripsRes.ok ||
-        !fuelRes.ok ||
-        !maintenanceRes.ok ||
-        !expensesRes.ok
-      ) {
-        throw new Error("Failed to load route intelligence data.");
-      }
-
-      const [tripsData, fuelData, maintenanceData, expensesData] =
-        await Promise.all([
-          tripsRes.json(),
-          fuelRes.json(),
-          maintenanceRes.json(),
-          expensesRes.json(),
-        ]);
+      const [
+        tripsData,
+        fuelData,
+        maintenanceData,
+        expensesData,
+      ] = await Promise.all([
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
+      ]);
 
       setTrips(Array.isArray(tripsData) ? tripsData : []);
       setFuel(Array.isArray(fuelData) ? fuelData : []);
@@ -123,9 +109,14 @@ export default function RouteIntelligencePage() {
       setExpenses(Array.isArray(expensesData) ? expensesData : []);
     } catch (err) {
       console.error(err);
-      setError(
-        "Unable to load route intelligence data. Make sure the backend is running on port 3001.",
-      );
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to load route intelligence data. Make sure the backend is running on port 3001.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -198,7 +189,8 @@ export default function RouteIntelligencePage() {
     });
 
     routeMap.forEach((routeData) => {
-      const vehicles = routeVehicles.get(routeData.route) || new Set();
+      const vehicles =
+        routeVehicles.get(routeData.route) || new Set();
 
       fuel.forEach((record) => {
         if (vehicles.has(record.vehicleCode)) {
@@ -224,7 +216,8 @@ export default function RouteIntelligencePage() {
         routeData.maintenanceCost +
         routeData.otherExpenses;
 
-      routeData.profit = routeData.revenue - routeData.totalCost;
+      routeData.profit =
+        routeData.revenue - routeData.totalCost;
 
       routeData.margin =
         routeData.revenue > 0
@@ -246,9 +239,15 @@ export default function RouteIntelligencePage() {
           ? routeData.distance / routeData.fuelLiters
           : 0;
 
-      if (routeData.profit > 0 && routeData.margin >= 30) {
+      if (
+        routeData.profit > 0 &&
+        routeData.margin >= 30
+      ) {
         routeData.performance = "Excellent";
-      } else if (routeData.profit >= 0 && routeData.margin >= 15) {
+      } else if (
+        routeData.profit >= 0 &&
+        routeData.margin >= 15
+      ) {
         routeData.performance = "Good";
       } else if (routeData.profit >= 0) {
         routeData.performance = "Average";
@@ -263,16 +262,23 @@ export default function RouteIntelligencePage() {
   }, [trips, fuel, maintenance, expenses]);
 
   const summary = useMemo(() => {
-    const revenue = routes.reduce((sum, route) => sum + route.revenue, 0);
+    const revenue = routes.reduce(
+      (sum, route) => sum + route.revenue,
+      0,
+    );
+
     const totalCost = routes.reduce(
       (sum, route) => sum + route.totalCost,
       0,
     );
+
     const profit = revenue - totalCost;
+
     const distance = routes.reduce(
       (sum, route) => sum + route.distance,
       0,
     );
+
     const fuelLiters = routes.reduce(
       (sum, route) => sum + route.fuelLiters,
       0,
@@ -288,12 +294,16 @@ export default function RouteIntelligencePage() {
 
     const bestRoute =
       routes.length > 0
-        ? [...routes].sort((a, b) => b.profit - a.profit)[0]
+        ? [...routes].sort(
+            (a, b) => b.profit - a.profit,
+          )[0]
         : null;
 
     const worstRoute =
       routes.length > 0
-        ? [...routes].sort((a, b) => a.profit - b.profit)[0]
+        ? [...routes].sort(
+            (a, b) => a.profit - b.profit,
+          )[0]
         : null;
 
     return {
@@ -306,10 +316,14 @@ export default function RouteIntelligencePage() {
       lossMakingRoutes,
       bestRoute,
       worstRoute,
-      margin: revenue > 0 ? (profit / revenue) * 100 : 0,
-      costPerKm: distance > 0 ? totalCost / distance : 0,
+      margin:
+        revenue > 0 ? (profit / revenue) * 100 : 0,
+      costPerKm:
+        distance > 0 ? totalCost / distance : 0,
       fuelEfficiency:
-        fuelLiters > 0 ? distance / fuelLiters : 0,
+        fuelLiters > 0
+          ? distance / fuelLiters
+          : 0,
     };
   }, [routes]);
 
@@ -357,7 +371,10 @@ export default function RouteIntelligencePage() {
       (a, b) => b.costPerKm - a.costPerKm,
     )[0];
 
-    if (expensiveRoute && expensiveRoute.costPerKm > 0) {
+    if (
+      expensiveRoute &&
+      expensiveRoute.costPerKm > 0
+    ) {
       result.push({
         title: "Highest cost per kilometer",
         description: `${expensiveRoute.route} has the highest estimated operating cost per kilometer at ${money(
@@ -367,7 +384,10 @@ export default function RouteIntelligencePage() {
       });
     }
 
-    if (summary.profitableRoutes > summary.lossMakingRoutes) {
+    if (
+      summary.profitableRoutes >
+      summary.lossMakingRoutes
+    ) {
       result.push({
         title: "Route portfolio is mostly profitable",
         description: `${summary.profitableRoutes} of ${routes.length} analyzed routes are generating positive results.`,
@@ -393,8 +413,8 @@ export default function RouteIntelligencePage() {
             </h1>
 
             <p className="mt-2 text-slate-500">
-              Analyze route profitability, efficiency, costs, and
-              operational performance.
+              Analyze route profitability, efficiency, costs,
+              and operational performance.
             </p>
           </div>
 
@@ -420,9 +440,11 @@ export default function RouteIntelligencePage() {
             <p className="text-sm font-medium text-slate-500">
               Route Revenue
             </p>
+
             <p className="mt-2 text-2xl font-bold">
               {money(summary.revenue)}
             </p>
+
             <p className="mt-2 text-xs text-slate-400">
               Revenue from completed trips
             </p>
@@ -432,9 +454,11 @@ export default function RouteIntelligencePage() {
             <p className="text-sm font-medium text-slate-500">
               Route Operating Cost
             </p>
+
             <p className="mt-2 text-2xl font-bold">
               {money(summary.totalCost)}
             </p>
+
             <p className="mt-2 text-xs text-slate-400">
               Fuel + maintenance + expenses
             </p>
@@ -444,6 +468,7 @@ export default function RouteIntelligencePage() {
             <p className="text-sm font-medium text-slate-500">
               Route Profit / Loss
             </p>
+
             <p
               className={`mt-2 text-2xl font-bold ${
                 summary.profit >= 0
@@ -453,6 +478,7 @@ export default function RouteIntelligencePage() {
             >
               {money(summary.profit)}
             </p>
+
             <p className="mt-2 text-xs text-slate-400">
               Estimated route-level result
             </p>
@@ -462,9 +488,11 @@ export default function RouteIntelligencePage() {
             <p className="text-sm font-medium text-slate-500">
               Average Cost / KM
             </p>
+
             <p className="mt-2 text-2xl font-bold">
               {money(summary.costPerKm)}
             </p>
+
             <p className="mt-2 text-xs text-slate-400">
               Operating cost per kilometer
             </p>
@@ -477,13 +505,17 @@ export default function RouteIntelligencePage() {
             <p className="text-sm text-slate-500">
               Routes Analyzed
             </p>
-            <p className="mt-2 text-3xl font-bold">{routes.length}</p>
+
+            <p className="mt-2 text-3xl font-bold">
+              {routes.length}
+            </p>
           </div>
 
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
             <p className="text-sm text-emerald-700">
               Profitable Routes
             </p>
+
             <p className="mt-2 text-3xl font-bold text-emerald-700">
               {summary.profitableRoutes}
             </p>
@@ -493,6 +525,7 @@ export default function RouteIntelligencePage() {
             <p className="text-sm text-red-700">
               Loss-Making Routes
             </p>
+
             <p className="mt-2 text-3xl font-bold text-red-700">
               {summary.lossMakingRoutes}
             </p>
@@ -502,6 +535,7 @@ export default function RouteIntelligencePage() {
             <p className="text-sm text-slate-500">
               Fleet Route Efficiency
             </p>
+
             <p className="mt-2 text-3xl font-bold">
               {summary.fuelEfficiency > 0
                 ? `${summary.fuelEfficiency.toFixed(2)} km/L`
@@ -518,6 +552,7 @@ export default function RouteIntelligencePage() {
                 <p className="text-sm font-semibold uppercase tracking-wider text-emerald-600">
                   Top Performer
                 </p>
+
                 <h2 className="mt-1 text-xl font-bold">
                   Most Profitable Route
                 </h2>
@@ -539,6 +574,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Profit
                     </p>
+
                     <p className="mt-1 font-bold text-emerald-600">
                       {money(summary.bestRoute.profit)}
                     </p>
@@ -548,6 +584,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Margin
                     </p>
+
                     <p className="mt-1 font-bold">
                       {summary.bestRoute.margin.toFixed(1)}%
                     </p>
@@ -557,6 +594,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Revenue / KM
                     </p>
+
                     <p className="mt-1 font-bold">
                       {money(summary.bestRoute.revenuePerKm)}
                     </p>
@@ -566,6 +604,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Cost / KM
                     </p>
+
                     <p className="mt-1 font-bold">
                       {money(summary.bestRoute.costPerKm)}
                     </p>
@@ -585,6 +624,7 @@ export default function RouteIntelligencePage() {
                 <p className="text-sm font-semibold uppercase tracking-wider text-red-600">
                   Needs Attention
                 </p>
+
                 <h2 className="mt-1 text-xl font-bold">
                   Lowest Performing Route
                 </h2>
@@ -606,6 +646,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Profit / Loss
                     </p>
+
                     <p
                       className={`mt-1 font-bold ${
                         summary.worstRoute.profit < 0
@@ -621,6 +662,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Margin
                     </p>
+
                     <p className="mt-1 font-bold">
                       {summary.worstRoute.margin.toFixed(1)}%
                     </p>
@@ -630,6 +672,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Revenue / KM
                     </p>
+
                     <p className="mt-1 font-bold">
                       {money(summary.worstRoute.revenuePerKm)}
                     </p>
@@ -639,6 +682,7 @@ export default function RouteIntelligencePage() {
                     <p className="text-xs text-slate-500">
                       Cost / KM
                     </p>
+
                     <p className="mt-1 font-bold">
                       {money(summary.worstRoute.costPerKm)}
                     </p>
@@ -659,12 +703,14 @@ export default function RouteIntelligencePage() {
             <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
               Route Performance
             </p>
+
             <h2 className="mt-1 text-xl font-bold">
               Route Profitability Analysis
             </h2>
+
             <p className="mt-1 text-sm text-slate-500">
-              Compare revenue, operating cost, profitability, and
-              efficiency across completed routes.
+              Compare revenue, operating cost, profitability,
+              and efficiency across completed routes.
             </p>
           </div>
 
@@ -780,14 +826,16 @@ export default function RouteIntelligencePage() {
               {
                 label: "Maintenance Cost",
                 value: routes.reduce(
-                  (sum, route) => sum + route.maintenanceCost,
+                  (sum, route) =>
+                    sum + route.maintenanceCost,
                   0,
                 ),
               },
               {
                 label: "Other Expenses",
                 value: routes.reduce(
-                  (sum, route) => sum + route.otherExpenses,
+                  (sum, route) =>
+                    sum + route.otherExpenses,
                   0,
                 ),
               },
@@ -820,7 +868,10 @@ export default function RouteIntelligencePage() {
                     <div
                       className="h-full rounded-full bg-slate-800"
                       style={{
-                        width: `${Math.min(percentage, 100)}%`,
+                        width: `${Math.min(
+                          percentage,
+                          100,
+                        )}%`,
                       }}
                     />
                   </div>
@@ -842,8 +893,8 @@ export default function RouteIntelligencePage() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              FleetFlow identifies route-level opportunities and
-              risks from your operational data.
+              FleetFlow identifies route-level opportunities
+              and risks from your operational data.
             </p>
           </div>
 
@@ -904,7 +955,10 @@ export default function RouteIntelligencePage() {
 
           <div className="mt-6 grid gap-5 md:grid-cols-4">
             <div>
-              <p className="text-sm font-bold">01. Route Mapping</p>
+              <p className="text-sm font-bold">
+                01. Route Mapping
+              </p>
+
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 Completed trips are grouped by origin and
                 destination.
@@ -912,7 +966,10 @@ export default function RouteIntelligencePage() {
             </div>
 
             <div>
-              <p className="text-sm font-bold">02. Cost Analysis</p>
+              <p className="text-sm font-bold">
+                02. Cost Analysis
+              </p>
+
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 Fuel, maintenance, and operating expenses are
                 incorporated into route economics.
@@ -920,7 +977,10 @@ export default function RouteIntelligencePage() {
             </div>
 
             <div>
-              <p className="text-sm font-bold">03. Performance</p>
+              <p className="text-sm font-bold">
+                03. Performance
+              </p>
+
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 Revenue/km, cost/km, margin, profit, and fuel
                 efficiency are calculated.
@@ -928,10 +988,13 @@ export default function RouteIntelligencePage() {
             </div>
 
             <div>
-              <p className="text-sm font-bold">04. Decisions</p>
+              <p className="text-sm font-bold">
+                04. Decisions
+              </p>
+
               <p className="mt-2 text-sm leading-6 text-slate-400">
-                FleetFlow highlights profitable routes and routes
-                requiring management attention.
+                FleetFlow highlights profitable routes and
+                routes requiring management attention.
               </p>
             </div>
           </div>
@@ -939,7 +1002,9 @@ export default function RouteIntelligencePage() {
 
         {/* FOOTER */}
         <div className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-6 text-xs text-slate-400 md:flex-row">
-          <p>FleetFlow ERP • Route Intelligence</p>
+          <p>
+            FleetFlow ERP • Route Intelligence
+          </p>
 
           <p>
             Data sources: Trips • Fuel • Maintenance • Expenses

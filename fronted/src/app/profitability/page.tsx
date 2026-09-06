@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -75,40 +76,51 @@ export default function ProfitabilityPage() {
       setLoading(true);
       setError("");
 
-      const responses = await Promise.all([
-        fetch("http://localhost:3001/vehicles"),
-        fetch("http://localhost:3001/trips"),
-        fetch("http://localhost:3001/fuel"),
-        fetch("http://localhost:3001/maintenance"),
-        fetch("http://localhost:3001/expenses"),
-      ]);
-
-      if (responses.some((response) => !response.ok)) {
-        throw new Error("Failed to load profitability data.");
-      }
-
       const [
         vehiclesData,
         tripsData,
         fuelData,
         maintenanceData,
         expensesData,
-      ] = await Promise.all(
-        responses.map((response) => response.json()),
+      ] = await Promise.all([
+        apiFetch("/vehicles"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
+      ]);
+
+      setVehicles(
+        Array.isArray(vehiclesData) ? vehiclesData : [],
       );
 
-      setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
-      setTrips(Array.isArray(tripsData) ? tripsData : []);
-      setFuel(Array.isArray(fuelData) ? fuelData : []);
-      setMaintenance(
-        Array.isArray(maintenanceData) ? maintenanceData : [],
+      setTrips(
+        Array.isArray(tripsData) ? tripsData : [],
       );
-      setExpenses(Array.isArray(expensesData) ? expensesData : []);
+
+      setFuel(
+        Array.isArray(fuelData) ? fuelData : [],
+      );
+
+      setMaintenance(
+        Array.isArray(maintenanceData)
+          ? maintenanceData
+          : [],
+      );
+
+      setExpenses(
+        Array.isArray(expensesData) ? expensesData : [],
+      );
     } catch (err) {
       console.error(err);
-      setError(
-        "Could not load profitability data. Make sure the backend is running on port 3001.",
-      );
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Could not load profitability data. Make sure the backend is running on port 3001.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -198,7 +210,8 @@ export default function ProfitabilityPage() {
 
     const profit = revenue - totalCost;
 
-    const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+    const margin =
+      revenue > 0 ? (profit / revenue) * 100 : 0;
 
     const profitableVehicles = profitability.filter(
       (item) => item.profit > 0,
@@ -221,7 +234,9 @@ export default function ProfitabilityPage() {
   const topVehicle = profitability[0];
 
   const worstVehicle =
-    [...profitability].sort((a, b) => a.profit - b.profit)[0];
+    [...profitability].sort(
+      (a, b) => a.profit - b.profit,
+    )[0];
 
   const costBreakdown = useMemo(() => {
     const fuelCost = profitability.reduce(
@@ -407,21 +422,30 @@ export default function ProfitabilityPage() {
 
                 <div className="mt-5 grid grid-cols-3 gap-3">
                   <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400">Revenue</p>
+                    <p className="text-xs text-slate-400">
+                      Revenue
+                    </p>
+
                     <p className="mt-1 font-semibold text-slate-800">
                       {formatMoney(topVehicle.revenue)}
                     </p>
                   </div>
 
                   <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400">Cost</p>
+                    <p className="text-xs text-slate-400">
+                      Cost
+                    </p>
+
                     <p className="mt-1 font-semibold text-slate-800">
                       {formatMoney(topVehicle.totalCost)}
                     </p>
                   </div>
 
                   <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400">Margin</p>
+                    <p className="text-xs text-slate-400">
+                      Margin
+                    </p>
+
                     <p className="mt-1 font-semibold text-slate-800">
                       {topVehicle.margin.toFixed(1)}%
                     </p>
@@ -456,21 +480,30 @@ export default function ProfitabilityPage() {
 
                 <div className="mt-5 grid grid-cols-3 gap-3">
                   <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400">Revenue</p>
+                    <p className="text-xs text-slate-400">
+                      Revenue
+                    </p>
+
                     <p className="mt-1 font-semibold text-slate-800">
                       {formatMoney(worstVehicle.revenue)}
                     </p>
                   </div>
 
                   <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400">Cost</p>
+                    <p className="text-xs text-slate-400">
+                      Cost
+                    </p>
+
                     <p className="mt-1 font-semibold text-slate-800">
                       {formatMoney(worstVehicle.totalCost)}
                     </p>
                   </div>
 
                   <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-400">Margin</p>
+                    <p className="text-xs text-slate-400">
+                      Margin
+                    </p>
+
                     <p className="mt-1 font-semibold text-red-600">
                       {worstVehicle.margin.toFixed(1)}%
                     </p>

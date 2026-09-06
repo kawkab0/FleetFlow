@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -40,8 +41,6 @@ interface VehicleFuelAnalysis {
   reasons: string[];
 }
 
-const API_URL = "http://localhost:3001";
-
 function number(value: unknown): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -59,28 +58,34 @@ export default function FuelIntelligencePage() {
       setLoading(true);
       setError("");
 
-      const [vehiclesRes, tripsRes, fuelRes] = await Promise.all([
-        fetch(`${API_URL}/vehicles`),
-        fetch(`${API_URL}/trips`),
-        fetch(`${API_URL}/fuel`),
-      ]);
+      const [vehiclesData, tripsData, fuelData] =
+        await Promise.all([
+          apiFetch("/vehicles"),
+          apiFetch("/trips"),
+          apiFetch("/fuel"),
+        ]);
 
-      if (!vehiclesRes.ok || !tripsRes.ok || !fuelRes.ok) {
-        throw new Error("Failed to load fuel intelligence data.");
-      }
+      setVehicles(
+        Array.isArray(vehiclesData) ? vehiclesData : [],
+      );
 
-      const [vehiclesData, tripsData, fuelData] = await Promise.all([
-        vehiclesRes.json(),
-        tripsRes.json(),
-        fuelRes.json(),
-      ]);
+      setTrips(
+        Array.isArray(tripsData) ? tripsData : [],
+      );
 
-      setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
-      setTrips(Array.isArray(tripsData) ? tripsData : []);
-      setFuel(Array.isArray(fuelData) ? fuelData : []);
+      setFuel(
+        Array.isArray(fuelData) ? fuelData : [],
+      );
     } catch (err) {
       console.error(err);
-      setError("Could not connect to the FleetFlow backend.");
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Could not connect to the FleetFlow backend.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -96,26 +101,26 @@ export default function FuelIntelligencePage() {
         vehicle.vehicleCode || `Vehicle #${vehicle.id}`;
 
       const vehicleTrips = trips.filter(
-        (trip) => trip.vehicleCode === vehicleCode
+        (trip) => trip.vehicleCode === vehicleCode,
       );
 
       const vehicleFuel = fuel.filter(
-        (record) => record.vehicleCode === vehicleCode
+        (record) => record.vehicleCode === vehicleCode,
       );
 
       const fuelLiters = vehicleFuel.reduce(
         (sum, record) => sum + number(record.liters),
-        0
+        0,
       );
 
       const fuelCost = vehicleFuel.reduce(
         (sum, record) => sum + number(record.cost),
-        0
+        0,
       );
 
       const distance = vehicleTrips.reduce(
         (sum, trip) => sum + number(trip.distance),
-        0
+        0,
       );
 
       const fuelEfficiency =
@@ -131,7 +136,10 @@ export default function FuelIntelligencePage() {
       if (fuelEfficiency > 0 && fuelEfficiency < 3) {
         riskScore += 35;
         reasons.push("Very poor fuel efficiency");
-      } else if (fuelEfficiency > 0 && fuelEfficiency < 4) {
+      } else if (
+        fuelEfficiency > 0 &&
+        fuelEfficiency < 4
+      ) {
         riskScore += 20;
         reasons.push("Below-average fuel efficiency");
       }
@@ -151,24 +159,31 @@ export default function FuelIntelligencePage() {
         reasons.push("High fuel cost per kilometer");
       } else if (costPerKm >= 30) {
         riskScore += 15;
-        reasons.push("Elevated fuel cost per kilometer");
+        reasons.push(
+          "Elevated fuel cost per kilometer",
+        );
       }
 
       // No recorded distance
       if (fuelLiters > 0 && distance === 0) {
         riskScore += 20;
-        reasons.push("Fuel recorded without trip distance");
+        reasons.push(
+          "Fuel recorded without trip distance",
+        );
       }
 
       // No fuel records
       if (vehicleTrips.length > 0 && fuelLiters === 0) {
         riskScore += 15;
-        reasons.push("Trips recorded without fuel data");
+        reasons.push(
+          "Trips recorded without fuel data",
+        );
       }
 
       riskScore = Math.min(riskScore, 100);
 
-      let riskLevel: VehicleFuelAnalysis["riskLevel"] = "Low";
+      let riskLevel: VehicleFuelAnalysis["riskLevel"] =
+        "Low";
 
       if (riskScore >= 70) {
         riskLevel = "Critical";
@@ -179,7 +194,9 @@ export default function FuelIntelligencePage() {
       }
 
       if (reasons.length === 0) {
-        reasons.push("Fuel performance is within normal range");
+        reasons.push(
+          "Fuel performance is within normal range",
+        );
       }
 
       return {
@@ -201,17 +218,17 @@ export default function FuelIntelligencePage() {
   const totals = useMemo(() => {
     const fuelLiters = analysis.reduce(
       (sum, item) => sum + item.fuelLiters,
-      0
+      0,
     );
 
     const fuelCost = analysis.reduce(
       (sum, item) => sum + item.fuelCost,
-      0
+      0,
     );
 
     const distance = analysis.reduce(
       (sum, item) => sum + item.distance,
-      0
+      0,
     );
 
     const efficiency =
@@ -230,38 +247,38 @@ export default function FuelIntelligencePage() {
   }, [analysis]);
 
   const criticalCount = analysis.filter(
-    (item) => item.riskLevel === "Critical"
+    (item) => item.riskLevel === "Critical",
   ).length;
 
   const highCount = analysis.filter(
-    (item) => item.riskLevel === "High"
+    (item) => item.riskLevel === "High",
   ).length;
 
   const mediumCount = analysis.filter(
-    (item) => item.riskLevel === "Medium"
+    (item) => item.riskLevel === "Medium",
   ).length;
 
   const lowCount = analysis.filter(
-    (item) => item.riskLevel === "Low"
+    (item) => item.riskLevel === "Low",
   ).length;
 
   const highestFuelConsumer =
     [...analysis].sort(
-      (a, b) => b.fuelCost - a.fuelCost
+      (a, b) => b.fuelCost - a.fuelCost,
     )[0];
 
   const worstEfficiency =
     [...analysis]
       .filter((item) => item.fuelEfficiency > 0)
       .sort(
-        (a, b) => a.fuelEfficiency - b.fuelEfficiency
+        (a, b) => a.fuelEfficiency - b.fuelEfficiency,
       )[0];
 
   const mostEfficient =
     [...analysis]
       .filter((item) => item.fuelEfficiency > 0)
       .sort(
-        (a, b) => b.fuelEfficiency - a.fuelEfficiency
+        (a, b) => b.fuelEfficiency - a.fuelEfficiency,
       )[0];
 
   function formatMoney(value: number) {
@@ -271,14 +288,19 @@ export default function FuelIntelligencePage() {
     })} ETB`;
   }
 
-  function formatNumber(value: number, decimals = 2) {
+  function formatNumber(
+    value: number,
+    decimals = 2,
+  ) {
     return value.toLocaleString(undefined, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     });
   }
 
-  function riskBadge(level: VehicleFuelAnalysis["riskLevel"]) {
+  function riskBadge(
+    level: VehicleFuelAnalysis["riskLevel"],
+  ) {
     const styles = {
       Critical: "bg-red-100 text-red-700",
       High: "bg-orange-100 text-orange-700",
@@ -318,7 +340,9 @@ export default function FuelIntelligencePage() {
               Fuel Intelligence
             </h1>
 
-            <p className="mt-2 text-red-600">{error}</p>
+            <p className="mt-2 text-red-600">
+              {error}
+            </p>
 
             <button
               onClick={loadData}
@@ -335,7 +359,6 @@ export default function FuelIntelligencePage() {
   return (
     <main className="min-h-screen bg-slate-100 p-8">
       <div className="mx-auto max-w-7xl space-y-8">
-
         {/* HEADER */}
         <section className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
@@ -499,11 +522,16 @@ export default function FuelIntelligencePage() {
                 </h3>
 
                 <p className="mt-2 text-sm text-slate-500">
-                  {formatMoney(highestFuelConsumer.fuelCost)}
+                  {formatMoney(
+                    highestFuelConsumer.fuelCost,
+                  )}
                 </p>
 
                 <p className="mt-1 text-xs text-slate-400">
-                  {formatNumber(highestFuelConsumer.fuelLiters)} liters
+                  {formatNumber(
+                    highestFuelConsumer.fuelLiters,
+                  )}{" "}
+                  liters
                 </p>
               </>
             ) : (
@@ -525,7 +553,10 @@ export default function FuelIntelligencePage() {
                 </h3>
 
                 <p className="mt-2 text-sm text-slate-500">
-                  {formatNumber(worstEfficiency.fuelEfficiency)} km/L
+                  {formatNumber(
+                    worstEfficiency.fuelEfficiency,
+                  )}{" "}
+                  km/L
                 </p>
 
                 <p className="mt-1 text-xs text-slate-400">
@@ -551,7 +582,10 @@ export default function FuelIntelligencePage() {
                 </h3>
 
                 <p className="mt-2 text-sm text-slate-500">
-                  {formatNumber(mostEfficient.fuelEfficiency)} km/L
+                  {formatNumber(
+                    mostEfficient.fuelEfficiency,
+                  )}{" "}
+                  km/L
                 </p>
 
                 <p className="mt-1 text-xs text-slate-400">
@@ -619,7 +653,10 @@ export default function FuelIntelligencePage() {
 
                 <tbody className="divide-y divide-slate-100">
                   {[...analysis]
-                    .sort((a, b) => b.riskScore - a.riskScore)
+                    .sort(
+                      (a, b) =>
+                        b.riskScore - a.riskScore,
+                    )
                     .map((item) => (
                       <tr
                         key={item.vehicleCode}
@@ -641,7 +678,10 @@ export default function FuelIntelligencePage() {
 
                         <td className="px-6 py-4">
                           <div className="text-sm font-medium text-slate-700">
-                            {formatNumber(item.fuelLiters)} L
+                            {formatNumber(
+                              item.fuelLiters,
+                            )}{" "}
+                            L
                           </div>
 
                           <div className="text-xs text-slate-400">
@@ -650,7 +690,11 @@ export default function FuelIntelligencePage() {
                         </td>
 
                         <td className="px-6 py-4 text-sm text-slate-600">
-                          {formatNumber(item.distance, 0)} km
+                          {formatNumber(
+                            item.distance,
+                            0,
+                          )}{" "}
+                          km
                         </td>
 
                         <td className="px-6 py-4">
@@ -665,20 +709,26 @@ export default function FuelIntelligencePage() {
                             }`}
                           >
                             {item.fuelEfficiency > 0
-                              ? `${formatNumber(item.fuelEfficiency)} km/L`
+                              ? `${formatNumber(
+                                  item.fuelEfficiency,
+                                )} km/L`
                               : "N/A"}
                           </span>
                         </td>
 
                         <td className="px-6 py-4 text-sm font-medium text-slate-700">
                           {item.costPerKm > 0
-                            ? formatMoney(item.costPerKm)
+                            ? formatMoney(
+                                item.costPerKm,
+                              )
                             : "N/A"}
                         </td>
 
                         <td className="px-6 py-4">
                           <div className="flex flex-col items-start gap-2">
-                            {riskBadge(item.riskLevel)}
+                            {riskBadge(
+                              item.riskLevel,
+                            )}
 
                             <span className="text-xs text-slate-400">
                               Score: {item.riskScore}/100
@@ -709,9 +759,12 @@ export default function FuelIntelligencePage() {
               .filter(
                 (item) =>
                   item.riskLevel === "Critical" ||
-                  item.riskLevel === "High"
+                  item.riskLevel === "High",
               )
-              .sort((a, b) => b.riskScore - a.riskScore)
+              .sort(
+                (a, b) =>
+                  b.riskScore - a.riskScore,
+              )
               .map((item) => (
                 <div
                   key={item.vehicleCode}
@@ -741,7 +794,7 @@ export default function FuelIntelligencePage() {
             {analysis.filter(
               (item) =>
                 item.riskLevel === "Critical" ||
-                item.riskLevel === "High"
+                item.riskLevel === "High",
             ).length === 0 && (
               <div className="rounded-xl bg-green-50 p-5 text-sm text-green-700 md:col-span-2">
                 No high-risk fuel issues detected.
@@ -763,9 +816,11 @@ export default function FuelIntelligencePage() {
           <div className="mt-6 grid gap-6 md:grid-cols-4">
             <div>
               <p className="text-lg font-bold">01</p>
+
               <h3 className="mt-2 font-semibold">
                 Collect Data
               </h3>
+
               <p className="mt-1 text-sm text-slate-400">
                 Fuel records and trip distances are collected
                 from FleetFlow.
@@ -774,9 +829,11 @@ export default function FuelIntelligencePage() {
 
             <div>
               <p className="text-lg font-bold">02</p>
+
               <h3 className="mt-2 font-semibold">
                 Calculate Efficiency
               </h3>
+
               <p className="mt-1 text-sm text-slate-400">
                 Fuel consumption is compared against vehicle
                 distance.
@@ -785,9 +842,11 @@ export default function FuelIntelligencePage() {
 
             <div>
               <p className="text-lg font-bold">03</p>
+
               <h3 className="mt-2 font-semibold">
                 Detect Anomalies
               </h3>
+
               <p className="mt-1 text-sm text-slate-400">
                 Unusual costs and inefficient fuel usage are
                 automatically flagged.
@@ -796,9 +855,11 @@ export default function FuelIntelligencePage() {
 
             <div>
               <p className="text-lg font-bold">04</p>
+
               <h3 className="mt-2 font-semibold">
                 Recommend Action
               </h3>
+
               <p className="mt-1 text-sm text-slate-400">
                 Managers can identify vehicles that require
                 investigation or optimization.

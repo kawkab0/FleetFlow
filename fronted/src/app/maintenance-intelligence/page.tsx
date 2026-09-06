@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -51,8 +52,6 @@ interface MaintenanceAnalysis {
   reasons: string[];
 }
 
-const API_URL = "http://localhost:3001";
-
 function number(value: unknown): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -89,36 +88,15 @@ export default function MaintenanceIntelligencePage() {
       setError("");
 
       const [
-        vehiclesResponse,
-        tripsResponse,
-        maintenanceResponse,
-        fuelResponse,
-      ] = await Promise.all([
-        fetch(`${API_URL}/vehicles`),
-        fetch(`${API_URL}/trips`),
-        fetch(`${API_URL}/maintenance`),
-        fetch(`${API_URL}/fuel`),
-      ]);
-
-      if (
-        !vehiclesResponse.ok ||
-        !tripsResponse.ok ||
-        !maintenanceResponse.ok ||
-        !fuelResponse.ok
-      ) {
-        throw new Error("Failed to load maintenance data.");
-      }
-
-      const [
         vehiclesData,
         tripsData,
         maintenanceData,
         fuelData,
       ] = await Promise.all([
-        vehiclesResponse.json(),
-        tripsResponse.json(),
-        maintenanceResponse.json(),
-        fuelResponse.json(),
+        apiFetch("/vehicles"),
+        apiFetch("/trips"),
+        apiFetch("/maintenance"),
+        apiFetch("/fuel"),
       ]);
 
       setVehicles(
@@ -140,9 +118,14 @@ export default function MaintenanceIntelligencePage() {
       );
     } catch (err) {
       console.error(err);
-      setError(
-        "Could not connect to the FleetFlow backend."
-      );
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Could not connect to the FleetFlow backend."
+        );
+      }
     } finally {
       setLoading(false);
     }

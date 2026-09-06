@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -81,38 +82,51 @@ export default function IntelligencePage() {
       setLoading(true);
       setError("");
 
-      const responses = await Promise.all([
-        fetch("http://localhost:3001/vehicles"),
-        fetch("http://localhost:3001/trips"),
-        fetch("http://localhost:3001/fuel"),
-        fetch("http://localhost:3001/maintenance"),
-        fetch("http://localhost:3001/expenses"),
-      ]);
-
-      if (responses.some((response) => !response.ok)) {
-        throw new Error("Failed to load FleetFlow data.");
-      }
-
       const [
         vehiclesData,
         tripsData,
         fuelData,
         maintenanceData,
         expensesData,
-      ] = await Promise.all(responses.map((response) => response.json()));
+      ] = await Promise.all([
+        apiFetch("/vehicles"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
+      ]);
 
-      setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
-      setTrips(Array.isArray(tripsData) ? tripsData : []);
-      setFuel(Array.isArray(fuelData) ? fuelData : []);
-      setMaintenance(
-        Array.isArray(maintenanceData) ? maintenanceData : [],
+      setVehicles(
+        Array.isArray(vehiclesData) ? vehiclesData : [],
       );
-      setExpenses(Array.isArray(expensesData) ? expensesData : []);
+
+      setTrips(
+        Array.isArray(tripsData) ? tripsData : [],
+      );
+
+      setFuel(
+        Array.isArray(fuelData) ? fuelData : [],
+      );
+
+      setMaintenance(
+        Array.isArray(maintenanceData)
+          ? maintenanceData
+          : [],
+      );
+
+      setExpenses(
+        Array.isArray(expensesData) ? expensesData : [],
+      );
     } catch (err) {
       console.error(err);
-      setError(
-        "Could not load intelligence data. Make sure the backend is running on port 3001.",
-      );
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Could not load intelligence data. Make sure the backend is running on port 3001.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -201,7 +215,10 @@ export default function IntelligencePage() {
       if (fuelEfficiency > 0 && fuelEfficiency < 3) {
         riskScore += 30;
         reasons.push("Poor fuel efficiency");
-      } else if (fuelEfficiency > 0 && fuelEfficiency < 4) {
+      } else if (
+        fuelEfficiency > 0 &&
+        fuelEfficiency < 4
+      ) {
         riskScore += 15;
         reasons.push("Below-average fuel efficiency");
       }
@@ -399,21 +416,30 @@ export default function IntelligencePage() {
         {/* Financial Summary */}
         <div className="mt-6 grid gap-5 md:grid-cols-3">
           <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-            <p className="text-sm text-slate-400">Fleet Revenue</p>
+            <p className="text-sm text-slate-400">
+              Fleet Revenue
+            </p>
+
             <p className="mt-2 text-2xl font-bold">
               {money(summary.totalRevenue)}
             </p>
           </div>
 
           <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-            <p className="text-sm text-slate-400">Fleet Operating Cost</p>
+            <p className="text-sm text-slate-400">
+              Fleet Operating Cost
+            </p>
+
             <p className="mt-2 text-2xl font-bold">
               {money(summary.totalCost)}
             </p>
           </div>
 
           <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-            <p className="text-sm text-slate-400">Fleet Result</p>
+            <p className="text-sm text-slate-400">
+              Fleet Result
+            </p>
+
             <p
               className={`mt-2 text-2xl font-bold ${
                 summary.totalResult >= 0
@@ -598,7 +624,9 @@ export default function IntelligencePage() {
                                   ? "bg-yellow-500"
                                   : "bg-emerald-500"
                           }`}
-                          style={{ width: `${item.riskScore}%` }}
+                          style={{
+                            width: `${item.riskScore}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -650,10 +678,14 @@ export default function IntelligencePage() {
                 key={number}
                 className="rounded-xl bg-white p-4 shadow-sm"
               >
-                <p className="text-xs font-bold text-blue-600">{number}</p>
+                <p className="text-xs font-bold text-blue-600">
+                  {number}
+                </p>
+
                 <h3 className="mt-2 font-semibold text-slate-900">
                   {title}
                 </h3>
+
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   {description}
                 </p>

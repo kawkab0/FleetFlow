@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -44,8 +45,6 @@ interface Alert {
   vehicleCode?: string;
 }
 
-const API = "http://localhost:3001";
-
 function num(value: unknown): number {
   const result = Number(value);
   return Number.isFinite(result) ? result : 0;
@@ -77,41 +76,17 @@ export default function AlertsPage() {
       setError("");
 
       const [
-        vehiclesResponse,
-        tripsResponse,
-        fuelResponse,
-        maintenanceResponse,
-        expensesResponse,
-      ] = await Promise.all([
-        fetch(`${API}/vehicles`),
-        fetch(`${API}/trips`),
-        fetch(`${API}/fuel`),
-        fetch(`${API}/maintenance`),
-        fetch(`${API}/expenses`),
-      ]);
-
-      if (
-        !vehiclesResponse.ok ||
-        !tripsResponse.ok ||
-        !fuelResponse.ok ||
-        !maintenanceResponse.ok ||
-        !expensesResponse.ok
-      ) {
-        throw new Error("Failed to load FleetFlow data.");
-      }
-
-      const [
         vehiclesData,
         tripsData,
         fuelData,
         maintenanceData,
         expensesData,
       ] = await Promise.all([
-        vehiclesResponse.json(),
-        tripsResponse.json(),
-        fuelResponse.json(),
-        maintenanceResponse.json(),
-        expensesResponse.json(),
+        apiFetch("/vehicles"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
       ]);
 
       setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
@@ -123,9 +98,14 @@ export default function AlertsPage() {
       setExpenses(Array.isArray(expensesData) ? expensesData : []);
     } catch (err) {
       console.error(err);
-      setError(
-        "Unable to load alert data. Make sure the backend is running on port 3001.",
-      );
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to load alert data. Make sure the backend is running on port 3001.",
+        );
+      }
     } finally {
       setLoading(false);
     }

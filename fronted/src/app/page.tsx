@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface Vehicle {
   id: number;
@@ -90,25 +91,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_URL = "http://localhost:3001";
-
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError("");
-
-      const responses = await Promise.all([
-        fetch(`${API_URL}/vehicles`),
-        fetch(`${API_URL}/drivers`),
-        fetch(`${API_URL}/trips`),
-        fetch(`${API_URL}/fuel`),
-        fetch(`${API_URL}/maintenance`),
-        fetch(`${API_URL}/expenses`),
-      ]);
-
-      if (responses.some((response) => !response.ok)) {
-        throw new Error("Failed to load dashboard data.");
-      }
 
       const [
         vehiclesData,
@@ -117,9 +103,14 @@ export default function Home() {
         fuelData,
         maintenanceData,
         expensesData,
-      ] = await Promise.all(
-        responses.map((response) => response.json()),
-      );
+      ] = await Promise.all([
+        apiFetch("/vehicles"),
+        apiFetch("/drivers"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
+      ]);
 
       setVehicles(vehiclesData);
       setDrivers(driversData);
@@ -130,9 +121,13 @@ export default function Home() {
     } catch (err) {
       console.error("Dashboard error:", err);
 
-      setError(
-        "Unable to load dashboard data. Make sure the backend is running.",
-      );
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to load dashboard data. Make sure the backend is running on port 3001.",
+        );
+      }
     } finally {
       setLoading(false);
     }

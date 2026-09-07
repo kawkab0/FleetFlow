@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 
 interface LoginResponse {
   accessToken: string;
@@ -14,8 +13,6 @@ interface LoginResponse {
 }
 
 export default function LoginPage() {
-  const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -29,65 +26,81 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "http://localhost:3001/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
         },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Invalid email or password",
+          Array.isArray(data.message)
+            ? data.message.join(", ")
+            : data.message || "Invalid email or password",
         );
       }
 
       const loginData = data as LoginResponse;
 
-      // Keep the token in localStorage for frontend API requests.
+      // Save JWT for authenticated API requests.
       localStorage.setItem(
         "fleetflow_token",
         loginData.accessToken,
       );
 
-      // Keep the logged-in user's information.
+      // Save logged-in user information.
       localStorage.setItem(
         "fleetflow_user",
         JSON.stringify(loginData.user),
       );
 
-      // Store the JWT in a browser cookie so Next.js middleware
-      // can detect that the user is authenticated.
-      document.cookie = `fleetflow_token=${loginData.accessToken}; path=/; max-age=86400; SameSite=Lax`;
+      // Save JWT in cookie so Next.js middleware
+      // recognizes the authenticated session.
+      document.cookie =
+        `fleetflow_token=${loginData.accessToken}; ` +
+        "path=/; " +
+        "max-age=86400; " +
+        "SameSite=Lax";
 
-      router.push("/");
+      // Force a full navigation so the middleware
+      // immediately receives the new authentication cookie.
+      window.location.href = "/";
     } catch (error) {
+      console.error("Login error:", error);
+
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError("Something went wrong. Please try again.");
+        setError(
+          "Something went wrong. Please try again.",
+        );
       }
-    } finally {
+
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6">
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6">
       <div className="w-full max-w-md">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
-          <div className="text-center mb-8">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+
+          <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-white">
               FleetFlow
             </h1>
 
-            <p className="text-slate-400 mt-2">
+            <p className="mt-2 text-slate-400">
               Logistics ERP System
             </p>
           </div>
@@ -97,16 +110,19 @@ export default function LoginPage() {
               Sign in
             </h2>
 
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="mt-1 text-sm text-slate-400">
               Enter your credentials to access FleetFlow.
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form
+            onSubmit={handleLogin}
+            className="space-y-5"
+          >
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-slate-300 mb-2"
+                className="mb-2 block text-sm font-medium text-slate-300"
               >
                 Email
               </label>
@@ -127,7 +143,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-slate-300 mb-2"
+                className="mb-2 block text-sm font-medium text-slate-300"
               >
                 Password
               </label>
@@ -165,10 +181,11 @@ export default function LoginPage() {
               FleetFlow Authentication
             </p>
 
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="mt-1 text-xs text-slate-400">
               Secure role-based access for FleetFlow users.
             </p>
           </div>
+
         </div>
       </div>
     </main>

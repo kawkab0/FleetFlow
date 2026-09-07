@@ -2,56 +2,177 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-const menuItems = [
-  { name: "Dashboard", href: "/" },
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
 
-  { name: "Vehicles", href: "/vehicles" },
-  { name: "Drivers", href: "/drivers" },
-  { name: "Trips", href: "/trips" },
-  { name: "Fuel", href: "/fuel" },
-  { name: "Maintenance", href: "/maintenance" },
-  { name: "Expenses", href: "/expenses" },
+type MenuItem = {
+  name: string;
+  href: string;
+  roles: string[];
+};
 
-  { name: "Customers", href: "/customers" },
-  { name: "Products", href: "/products" },
-  { name: "Suppliers", href: "/suppliers" },
-  { name: "Warehouses", href: "/warehouses" },
-  { name: "Inventory", href: "/inventory" },
-  { name: "Purchases", href: "/purchases" },
-  { name: "Orders", href: "/sales-orders" },
-  { name: "Payments", href: "/payments" },
+const ALL_ROLES = [
+  "Admin",
+  "Fleet Manager",
+  "Operations",
+  "Finance",
+  "Viewer",
+];
 
-  { name: "Reports", href: "/reports" },
-  { name: "Analytics", href: "/analytics" },
-  { name: "Intelligence", href: "/intelligence" },
-  { name: "Profitability", href: "/profitability" },
-  { name: "Fuel Intelligence", href: "/fuel-intelligence" },
+const menuItems: MenuItem[] = [
+  {
+    name: "Dashboard",
+    href: "/",
+    roles: ALL_ROLES,
+  },
+
+  {
+    name: "Vehicles",
+    href: "/vehicles",
+    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+  },
+  {
+    name: "Drivers",
+    href: "/drivers",
+    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+  },
+  {
+    name: "Trips",
+    href: "/trips",
+    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+  },
+  {
+    name: "Fuel",
+    href: "/fuel",
+    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+  },
+  {
+    name: "Maintenance",
+    href: "/maintenance",
+    roles: ["Admin", "Fleet Manager", "Viewer"],
+  },
+  {
+    name: "Expenses",
+    href: "/expenses",
+    roles: ["Admin", "Finance", "Viewer"],
+  },
+
+  {
+    name: "Customers",
+    href: "/customers",
+    roles: ["Admin", "Operations", "Viewer"],
+  },
+  {
+    name: "Products",
+    href: "/products",
+    roles: ["Admin", "Operations", "Viewer"],
+  },
+  {
+    name: "Suppliers",
+    href: "/suppliers",
+    roles: ["Admin", "Operations", "Viewer"],
+  },
+  {
+    name: "Warehouses",
+    href: "/warehouses",
+    roles: ["Admin", "Operations", "Viewer"],
+  },
+  {
+    name: "Inventory",
+    href: "/inventory",
+    roles: ["Admin", "Operations", "Viewer"],
+  },
+  {
+    name: "Purchases",
+    href: "/purchases",
+    roles: ["Admin", "Operations", "Finance", "Viewer"],
+  },
+  {
+    name: "Orders",
+    href: "/sales-orders",
+    roles: ["Admin", "Operations", "Finance", "Viewer"],
+  },
+  {
+    name: "Payments",
+    href: "/payments",
+    roles: ["Admin", "Finance", "Viewer"],
+  },
+
+  {
+    name: "Reports",
+    href: "/reports",
+    roles: ALL_ROLES,
+  },
+  {
+    name: "Analytics",
+    href: "/analytics",
+    roles: ALL_ROLES,
+  },
+  {
+    name: "Intelligence",
+    href: "/intelligence",
+    roles: ALL_ROLES,
+  },
+  {
+    name: "Profitability",
+    href: "/profitability",
+    roles: ["Admin", "Fleet Manager", "Finance", "Viewer"],
+  },
+  {
+    name: "Fuel Intelligence",
+    href: "/fuel-intelligence",
+    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+  },
   {
     name: "Maintenance Intelligence",
     href: "/maintenance-intelligence",
+    roles: ["Admin", "Fleet Manager", "Viewer"],
   },
   {
     name: "Recommendations",
     href: "/recommendations",
+    roles: ALL_ROLES,
   },
   {
     name: "Alerts",
     href: "/alerts",
+    roles: ALL_ROLES,
   },
   {
     name: "Route Intelligence",
     href: "/route-intelligence",
+    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
   },
   {
     name: "Driver Intelligence",
     href: "/driver-intelligence",
+    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
   },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("fleetflow_user");
+
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        setUser(null);
+      }
+    }
+  }, []);
 
   function handleLogout() {
     localStorage.removeItem("fleetflow_token");
@@ -63,6 +184,10 @@ export default function Sidebar() {
     router.push("/login");
   }
 
+  const visibleMenuItems = menuItems.filter((item) =>
+    user ? item.roles.includes(user.role) : false,
+  );
+
   return (
     <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col bg-slate-900 text-white">
       <div className="border-b border-slate-700 p-6">
@@ -73,10 +198,22 @@ export default function Sidebar() {
         <p className="mt-1 text-sm text-slate-400">
           ERP Management System
         </p>
+
+        {user && (
+          <div className="mt-4 rounded-lg bg-slate-800 p-3">
+            <p className="text-sm font-medium text-white">
+              {user.name}
+            </p>
+
+            <p className="mt-1 text-xs text-blue-400">
+              {user.role}
+            </p>
+          </div>
+        )}
       </div>
 
       <nav className="flex-1 space-y-2 overflow-y-auto p-4">
-        {menuItems.map((item) => {
+        {visibleMenuItems.map((item) => {
           const active = pathname === item.href;
 
           return (

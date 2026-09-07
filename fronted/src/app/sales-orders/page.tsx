@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+import ProtectedPage from "@/app/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
 
 interface SalesOrder {
@@ -56,7 +58,7 @@ export default function SalesOrdersPage() {
     } catch (error) {
       console.error(
         "Failed to fetch sales order data:",
-        error
+        error,
       );
     } finally {
       setLoading(false);
@@ -104,7 +106,7 @@ export default function SalesOrdersPage() {
   };
 
   const handleSubmit = async (
-    event: React.FormEvent
+    event: React.FormEvent,
   ) => {
     event.preventDefault();
 
@@ -130,7 +132,7 @@ export default function SalesOrdersPage() {
           orderNumber: form.orderNumber,
           customerId: Number(form.customerId),
           orderDate: convertDateToBackendFormat(
-            form.orderDate
+            form.orderDate,
           ),
           status: form.status,
           totalAmount: Number(form.totalAmount),
@@ -156,7 +158,7 @@ export default function SalesOrdersPage() {
       orderNumber: order.orderNumber,
       customerId: String(order.customerId),
       orderDate: convertDateToDisplayFormat(
-        order.orderDate
+        order.orderDate,
       ),
       status: order.status,
       totalAmount: String(order.totalAmount),
@@ -170,7 +172,7 @@ export default function SalesOrdersPage() {
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this sales order?"
+      "Are you sure you want to delete this sales order?",
     );
 
     if (!confirmed) {
@@ -201,7 +203,7 @@ export default function SalesOrdersPage() {
   const getCustomerName = (customerId: number) => {
     return (
       customers.find(
-        (customer) => customer.id === customerId
+        (customer) => customer.id === customerId,
       )?.name || `Customer #${customerId}`
     );
   };
@@ -225,316 +227,334 @@ export default function SalesOrdersPage() {
   const totalOrders = orders.length;
 
   const pendingOrders = orders.filter(
-    (order) => order.status === "Pending"
+    (order) => order.status === "Pending",
   ).length;
 
   const totalSales = orders.reduce(
     (total, order) =>
       total + Number(order.totalAmount || 0),
-    0
+    0,
   );
 
   return (
-    <main className="ml-64 min-h-screen bg-slate-50 p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">
-          Sales Orders
-        </h1>
+    <ProtectedPage permission="orders">
+      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">
+            Sales Orders
+          </h1>
 
-        <p className="mt-2 text-slate-500">
-          Manage customer orders, order status, and sales totals.
-        </p>
-      </div>
-
-      <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">
-            Total Orders
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {totalOrders}
+          <p className="mt-2 text-slate-500">
+            Manage customer orders, order status, and sales totals.
           </p>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">
-            Pending Orders
-          </p>
+        <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">
+              Total Orders
+            </p>
 
-          <p className="mt-2 text-3xl font-bold text-amber-600">
-            {pendingOrders}
-          </p>
-        </div>
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {totalOrders}
+            </p>
+          </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">
-            Total Sales
-          </p>
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">
+              Pending Orders
+            </p>
 
-          <p className="mt-2 text-3xl font-bold text-blue-600">
-            ${totalSales.toFixed(2)}
-          </p>
-        </div>
-      </div>
+            <p className="mt-2 text-3xl font-bold text-amber-600">
+              {pendingOrders}
+            </p>
+          </div>
 
-      <div className="mb-8 rounded-xl bg-white p-6 shadow-sm">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-900">
-            {editingOrder
-              ? "Edit Sales Order"
-              : "Add Sales Order"}
-          </h2>
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">
+              Total Sales
+            </p>
 
-          {editingOrder && (
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="text-sm font-medium text-slate-500 hover:text-slate-900"
-            >
-              Cancel Edit
-            </button>
-          )}
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2"
-        >
-          <input
-            type="text"
-            placeholder="Order number"
-            value={form.orderNumber}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                orderNumber: e.target.value,
-              })
-            }
-            required
-            className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-          />
-
-          <select
-            value={form.customerId}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                customerId: e.target.value,
-              })
-            }
-            required
-            className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
-          >
-            <option value="">Select customer</option>
-
-            {customers.map((customer) => (
-              <option
-                key={customer.id}
-                value={customer.id}
-              >
-                {customer.name}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            placeholder="MM/DD/YYYY"
-            value={form.orderDate}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                orderDate: e.target.value,
-              })
-            }
-            required
-            maxLength={10}
-            className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-          />
-
-          <select
-            value={form.status}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                status: e.target.value,
-              })
-            }
-            className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
-          >
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-
-          <input
-            type="number"
-            placeholder="Total amount"
-            value={form.totalAmount}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                totalAmount: e.target.value,
-              })
-            }
-            required
-            min="0"
-            step="0.01"
-            className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-          />
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving
-              ? "Saving..."
-              : editingOrder
-                ? "Update Order"
-                : "Add Order"}
-          </button>
-
-          {editingOrder && (
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="rounded-lg border border-slate-300 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-          )}
-        </form>
-      </div>
-
-      <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
-        <input
-          type="text"
-          placeholder="Search by order number, customer, or status..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-        />
-      </div>
-
-      {loading ? (
-        <p className="text-slate-500">
-          Loading sales orders...
-        </p>
-      ) : filteredOrders.length === 0 ? (
-        <div className="rounded-xl bg-white p-8 text-center shadow-sm">
-          <p className="text-slate-500">
-            No sales orders match your search.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Order
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Customer
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Order Date
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Status
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Total
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredOrders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="border-t border-slate-100 hover:bg-slate-50"
-                  >
-                    <td className="px-6 py-4">
-                      <p className="font-semibold text-slate-900">
-                        {order.orderNumber}
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        ID: {order.id}
-                      </p>
-                    </td>
-
-                    <td className="px-6 py-4 text-sm text-slate-600">
-                      {getCustomerName(order.customerId)}
-                    </td>
-
-                    <td className="px-6 py-4 text-sm text-slate-600">
-                      {order.orderDate
-                        ? convertDateToDisplayFormat(
-                            order.orderDate
-                          )
-                        : "—"}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                        {order.status}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                      ${Number(order.totalAmount).toFixed(2)}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleEdit(order)
-                          }
-                          className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleDelete(order.id)
-                          }
-                          disabled={
-                            deletingId === order.id
-                          }
-                          className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
-                        >
-                          {deletingId === order.id
-                            ? "Deleting..."
-                            : "Delete"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <p className="mt-2 text-3xl font-bold text-blue-600">
+              ${totalSales.toFixed(2)}
+            </p>
           </div>
         </div>
-      )}
-    </main>
+
+        <div className="mb-8 rounded-xl bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-slate-900">
+              {editingOrder
+                ? "Edit Sales Order"
+                : "Add Sales Order"}
+            </h2>
+
+            {editingOrder && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="text-sm font-medium text-slate-500 hover:text-slate-900"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          >
+            <input
+              type="text"
+              placeholder="Order number"
+              value={form.orderNumber}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  orderNumber: e.target.value,
+                })
+              }
+              required
+              className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+            />
+
+            <select
+              value={form.customerId}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  customerId: e.target.value,
+                })
+              }
+              required
+              className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+            >
+              <option value="">
+                Select customer
+              </option>
+
+              {customers.map((customer) => (
+                <option
+                  key={customer.id}
+                  value={customer.id}
+                >
+                  {customer.name}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="text"
+              placeholder="MM/DD/YYYY"
+              value={form.orderDate}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  orderDate: e.target.value,
+                })
+              }
+              required
+              maxLength={10}
+              className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+            />
+
+            <select
+              value={form.status}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  status: e.target.value,
+                })
+              }
+              className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+            >
+              <option value="Pending">
+                Pending
+              </option>
+
+              <option value="Processing">
+                Processing
+              </option>
+
+              <option value="Shipped">
+                Shipped
+              </option>
+
+              <option value="Delivered">
+                Delivered
+              </option>
+
+              <option value="Cancelled">
+                Cancelled
+              </option>
+            </select>
+
+            <input
+              type="number"
+              placeholder="Total amount"
+              value={form.totalAmount}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  totalAmount: e.target.value,
+                })
+              }
+              required
+              min="0"
+              step="0.01"
+              className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+            />
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving
+                ? "Saving..."
+                : editingOrder
+                  ? "Update Order"
+                  : "Add Order"}
+            </button>
+
+            {editingOrder && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="rounded-lg border border-slate-300 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            )}
+          </form>
+        </div>
+
+        <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
+          <input
+            type="text"
+            placeholder="Search by order number, customer, or status..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+          />
+        </div>
+
+        {loading ? (
+          <p className="text-slate-500">
+            Loading sales orders...
+          </p>
+        ) : filteredOrders.length === 0 ? (
+          <div className="rounded-xl bg-white p-8 text-center shadow-sm">
+            <p className="text-slate-500">
+              No sales orders match your search.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Order
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Customer
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Order Date
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Status
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Total
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredOrders.map((order) => (
+                    <tr
+                      key={order.id}
+                      className="border-t border-slate-100 hover:bg-slate-50"
+                    >
+                      <td className="px-6 py-4">
+                        <p className="font-semibold text-slate-900">
+                          {order.orderNumber}
+                        </p>
+
+                        <p className="mt-1 text-xs text-slate-400">
+                          ID: {order.id}
+                        </p>
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {getCustomerName(order.customerId)}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {order.orderDate
+                          ? convertDateToDisplayFormat(
+                              order.orderDate,
+                            )
+                          : "—"}
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                          {order.status}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 text-sm font-semibold text-slate-900">
+                        ${Number(order.totalAmount).toFixed(2)}
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleEdit(order)
+                            }
+                            className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleDelete(order.id)
+                            }
+                            disabled={
+                              deletingId === order.id
+                            }
+                            className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                          >
+                            {deletingId === order.id
+                              ? "Deleting..."
+                              : "Delete"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </main>
+    </ProtectedPage>
   );
 }

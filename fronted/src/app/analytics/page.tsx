@@ -1,1168 +1,941 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import ProtectedPage from "@/app/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
 
-interface Vehicle {
-  id: number;
-  vehicleCode?: string;
-  registration?: string;
-  type?: string;
-  model?: string;
-  status: string;
-  mileage?: string | number;
+interface FleetKpis {
+  totalTrips: number;
+  completedTrips: number;
+  plannedTrips: number;
+  activeTrips: number;
+  completionRate: number;
+  totalDistance: number;
+  totalRevenue: number;
+  fuelCost: number;
+  maintenanceCost: number;
+  expenseCost: number;
+  totalOperatingCost: number;
+  profit: number;
+  profitMargin: number;
+  totalFuelLiters: number;
+  fuelEfficiency: number;
+  costPerKm: number;
+  revenuePerKm: number;
 }
 
-interface Trip {
-  id: number;
-  tripCode: string;
-  origin: string;
-  destination: string;
+interface VehicleAnalytics {
   vehicleCode: string;
-  driverCode: string;
-  tripDate: string;
-  distance: string | number;
-  fuelUsed: string | number;
-  revenue: string | number;
-  status: string;
+  tripsCount: number;
+  completedTrips: number;
+  distance: number;
+  revenue: number;
+  fuelLiters: number;
+  fuelCost: number;
+  maintenanceCost: number;
+  expenseCost: number;
+  totalCost: number;
+  profit: number;
+  profitMargin: number;
+  fuelEfficiency: number;
+  costPerKm: number;
+  revenuePerKm: number;
 }
 
-interface Fuel {
-  id: number;
-  fuelCode: string;
-  vehicleCode: string;
-  driverCode: string;
-  fuelDate: string;
-  liters: string | number;
-  cost: string | number;
-  fuelStation: string;
-  odometer: string | number;
-}
-
-interface Maintenance {
-  id: number;
-  maintenanceCode: string;
-  vehicleCode: string;
-  maintenanceDate: string;
-  maintenanceType: string;
-  cost: string | number;
-  status: string;
-}
-
-interface Expense {
-  id: number;
-  expenseCode: string;
-  vehicleCode: string;
-  driverCode: string;
-  expenseDate: string;
+interface ExpenseBreakdown {
   category: string;
-  amount: string | number;
-  vendor: string;
-  status: string;
+  amount: number;
+}
+
+interface MonthlyAnalytics {
+  month: string;
+  trips: number;
+  distance: number;
+  revenue: number;
+  fuelCost: number;
+  maintenanceCost: number;
+  expenseCost: number;
+  totalCost: number;
+  profit: number;
+  costPerKm: number;
+  revenuePerKm: number;
+}
+
+interface Insight {
+  title: string;
+  description: string;
+  type: "success" | "warning" | "info";
 }
 
 export default function AnalyticsPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [fuel, setFuel] = useState<Fuel[]>([]);
-  const [maintenance, setMaintenance] = useState<Maintenance[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [kpis, setKpis] = useState<FleetKpis | null>(null);
+  const [vehiclePerformance, setVehiclePerformance] = useState<
+    VehicleAnalytics[]
+  >([]);
+  const [expenseBreakdown, setExpenseBreakdown] = useState<
+    ExpenseBreakdown[]
+  >([]);
+  const [monthlyAnalytics, setMonthlyAnalytics] = useState<
+    MonthlyAnalytics[]
+  >([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchAnalyticsData = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const [
-        vehiclesData,
-        tripsData,
-        fuelData,
-        maintenanceData,
-        expensesData,
-      ] = await Promise.all([
-        apiFetch("/vehicles"),
-        apiFetch("/trips"),
-        apiFetch("/fuel"),
-        apiFetch("/maintenance"),
-        apiFetch("/expenses"),
-      ]);
-
-      setVehicles(vehiclesData);
-      setTrips(tripsData);
-      setFuel(fuelData);
-      setMaintenance(maintenanceData);
-      setExpenses(expensesData);
-    } catch (err) {
-      console.error("Analytics error:", err);
-
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(
-          "Unable to load analytics data. Make sure the backend is running.",
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    async function fetchAnalyticsData() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const [
+          kpisData,
+          vehiclesData,
+          expensesData,
+          monthlyData,
+        ] = await Promise.all([
+          apiFetch("/analytics/kpis"),
+          apiFetch("/analytics/vehicles"),
+          apiFetch("/analytics/expenses"),
+          apiFetch("/analytics/monthly"),
+        ]);
+
+        setKpis(kpisData);
+        setVehiclePerformance(vehiclesData);
+        setExpenseBreakdown(expensesData);
+        setMonthlyAnalytics(monthlyData);
+      } catch (err) {
+        console.error("Analytics error:", err);
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load analytics data.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchAnalyticsData();
   }, []);
 
-  const formatNumber = (value: number) => {
-    return value.toLocaleString("en-US", {
-      maximumFractionDigits: 2,
-    });
-  };
+  const fleetSize = vehiclePerformance.length;
 
-  const formatDate = (date: string) => {
-    if (!date) return "";
-    return String(date).substring(0, 10);
-  };
+  const netOperatingResult = kpis?.profit ?? 0;
 
-  const status = (value: string) =>
-    value?.toLowerCase().trim() || "";
-
-  const totalRevenue = useMemo(
-    () =>
-      trips.reduce(
-        (total, trip) =>
-          total + Number(trip.revenue || 0),
-        0,
-      ),
-    [trips],
-  );
-
-  const totalDistance = useMemo(
-    () =>
-      trips.reduce(
-        (total, trip) =>
-          total + Number(trip.distance || 0),
-        0,
-      ),
-    [trips],
-  );
-
-  const totalFuelLiters = useMemo(
-    () =>
-      fuel.reduce(
-        (total, record) =>
-          total + Number(record.liters || 0),
-        0,
-      ),
-    [fuel],
-  );
-
-  const totalFuelCost = useMemo(
-    () =>
-      fuel.reduce(
-        (total, record) =>
-          total + Number(record.cost || 0),
-        0,
-      ),
-    [fuel],
-  );
-
-  const totalMaintenanceCost = useMemo(
-    () =>
-      maintenance.reduce(
-        (total, record) =>
-          total + Number(record.cost || 0),
-        0,
-      ),
-    [maintenance],
-  );
-
-  const totalExpenses = useMemo(
-    () =>
-      expenses.reduce(
-        (total, expense) =>
-          total + Number(expense.amount || 0),
-        0,
-      ),
-    [expenses],
-  );
-
-  const totalOperatingCost =
-    totalFuelCost +
-    totalMaintenanceCost +
-    totalExpenses;
-
-  const netOperatingResult =
-    totalRevenue - totalOperatingCost;
-
-  const fuelEfficiency =
-    totalFuelLiters > 0
-      ? totalDistance / totalFuelLiters
-      : 0;
-
-  const costPerKm =
-    totalDistance > 0
-      ? totalOperatingCost / totalDistance
-      : 0;
-
-  const completedTrips = trips.filter(
-    (trip) => status(trip.status) === "completed",
-  ).length;
-
-  const completionRate =
-    trips.length > 0
-      ? (completedTrips / trips.length) * 100
-      : 0;
-
-  const activeVehicles = vehicles.filter(
-    (vehicle) => status(vehicle.status) === "active",
-  ).length;
-
-  const activeTrips = trips.filter((trip) => {
-    const currentStatus = status(trip.status);
-
-    return (
-      currentStatus === "active" ||
-      currentStatus === "in progress"
-    );
-  }).length;
+  const fuelEfficiency = kpis?.fuelEfficiency ?? 0;
 
   const fleetUtilization =
-    activeVehicles > 0
-      ? (activeTrips / activeVehicles) * 100
+    kpis && kpis.totalTrips > 0
+      ? (kpis.completedTrips / kpis.totalTrips) * 100
       : 0;
 
-  const vehiclePerformance = useMemo(() => {
-    return vehicles
-      .map((vehicle) => {
-        const code =
-          vehicle.vehicleCode ||
-          vehicle.registration ||
-          `Vehicle ${vehicle.id}`;
-
-        const vehicleTrips = trips.filter(
-          (trip) => trip.vehicleCode === code,
-        );
-
-        const distance = vehicleTrips.reduce(
-          (total, trip) =>
-            total + Number(trip.distance || 0),
-          0,
-        );
-
-        const revenue = vehicleTrips.reduce(
-          (total, trip) =>
-            total + Number(trip.revenue || 0),
-          0,
-        );
-
-        const vehicleFuel = fuel.filter(
-          (record) => record.vehicleCode === code,
-        );
-
-        const fuelCost = vehicleFuel.reduce(
-          (total, record) =>
-            total + Number(record.cost || 0),
-          0,
-        );
-
-        const maintenanceCost = maintenance
-          .filter(
-            (record) => record.vehicleCode === code,
-          )
-          .reduce(
-            (total, record) =>
-              total + Number(record.cost || 0),
-            0,
-          );
-
-        const vehicleExpenses = expenses
-          .filter(
-            (expense) => expense.vehicleCode === code,
-          )
-          .reduce(
-            (total, expense) =>
-              total + Number(expense.amount || 0),
-            0,
-          );
-
-        const totalCost =
-          fuelCost +
-          maintenanceCost +
-          vehicleExpenses;
-
-        return {
-          code,
-          status: vehicle.status,
-          trips: vehicleTrips.length,
-          distance,
-          revenue,
-          cost: totalCost,
-          result: revenue - totalCost,
-        };
-      })
-      .sort((a, b) => b.revenue - a.revenue);
-  }, [vehicles, trips, fuel, maintenance, expenses]);
-
-  const expenseBreakdown = useMemo(() => {
-    const grouped: Record<string, number> = {};
-
-    expenses.forEach((expense) => {
-      const category = expense.category || "Other";
-
-      grouped[category] =
-        (grouped[category] || 0) +
-        Number(expense.amount || 0);
-    });
-
-    return Object.entries(grouped)
-      .map(([category, amount]) => ({
-        category,
-        amount,
-      }))
-      .sort((a, b) => b.amount - a.amount);
-  }, [expenses]);
-
-  const monthlyAnalysis = useMemo(() => {
-    const months: Record<
-      string,
-      {
-        revenue: number;
-        fuel: number;
-        maintenance: number;
-        expenses: number;
-      }
-    > = {};
-
-    trips.forEach((trip) => {
-      const month = formatDate(trip.tripDate).substring(0, 7);
-
-      if (!month) return;
-
-      if (!months[month]) {
-        months[month] = {
-          revenue: 0,
-          fuel: 0,
-          maintenance: 0,
-          expenses: 0,
-        };
-      }
-
-      months[month].revenue += Number(
-        trip.revenue || 0,
-      );
-    });
-
-    fuel.forEach((record) => {
-      const month = formatDate(record.fuelDate).substring(
-        0,
-        7,
-      );
-
-      if (!month) return;
-
-      if (!months[month]) {
-        months[month] = {
-          revenue: 0,
-          fuel: 0,
-          maintenance: 0,
-          expenses: 0,
-        };
-      }
-
-      months[month].fuel += Number(record.cost || 0);
-    });
-
-    maintenance.forEach((record) => {
-      const month = formatDate(
-        record.maintenanceDate,
-      ).substring(0, 7);
-
-      if (!month) return;
-
-      if (!months[month]) {
-        months[month] = {
-          revenue: 0,
-          fuel: 0,
-          maintenance: 0,
-          expenses: 0,
-        };
-      }
-
-      months[month].maintenance += Number(
-        record.cost || 0,
-      );
-    });
-
-    expenses.forEach((expense) => {
-      const month = formatDate(
-        expense.expenseDate,
-      ).substring(0, 7);
-
-      if (!month) return;
-
-      if (!months[month]) {
-        months[month] = {
-          revenue: 0,
-          fuel: 0,
-          maintenance: 0,
-          expenses: 0,
-        };
-      }
-
-      months[month].expenses += Number(
-        expense.amount || 0,
-      );
-    });
-
-    return Object.entries(months)
-      .map(([month, values]) => ({
-        month,
-        ...values,
-        totalCost:
-          values.fuel +
-          values.maintenance +
-          values.expenses,
-        result:
-          values.revenue -
-          values.fuel -
-          values.maintenance -
-          values.expenses,
-      }))
-      .sort((a, b) => a.month.localeCompare(b.month));
-  }, [trips, fuel, maintenance, expenses]);
-
-  const insights = useMemo(() => {
-    const results: {
-      title: string;
-      description: string;
-      type: "positive" | "warning" | "danger" | "info";
-    }[] = [];
-
-    if (netOperatingResult < 0) {
-      results.push({
-        title: "Negative operating result",
-        description:
-          "Recorded operating costs currently exceed recorded trip revenue.",
-        type: "danger",
-      });
-    } else if (netOperatingResult > 0) {
-      results.push({
-        title: "Positive operating result",
-        description:
-          "Recorded trip revenue currently exceeds operating costs.",
-        type: "positive",
-      });
+  const insights = useMemo<Insight[]>(() => {
+    if (!kpis) {
+      return [];
     }
 
-    if (fuelEfficiency > 0 && fuelEfficiency < 3) {
+    const results: Insight[] = [];
+
+    if (kpis.profit > 0) {
       results.push({
-        title: "Fuel efficiency requires attention",
+        title: "Fleet is profitable",
+        description: `The fleet generated a positive operating profit of ${kpis.profit.toFixed(
+          2,
+        )}.`,
+        type: "success",
+      });
+    } else {
+      results.push({
+        title: "Profitability requires attention",
         description:
-          "Current recorded fuel efficiency is below 3 km/L.",
+          "Operating costs are currently higher than fleet revenue.",
         type: "warning",
       });
     }
 
-    if (fleetUtilization > 80) {
+    if (kpis.profitMargin >= 20) {
       results.push({
-        title: "High fleet utilization",
+        title: "Strong profit margin",
+        description: `The current profit margin is ${kpis.profitMargin.toFixed(
+          1,
+        )}%, indicating strong operational performance.`,
+        type: "success",
+      });
+    } else if (kpis.profitMargin > 0) {
+      results.push({
+        title: "Profit margin could improve",
+        description: `The current profit margin is ${kpis.profitMargin.toFixed(
+          1,
+        )}%.`,
+        type: "warning",
+      });
+    }
+
+    if (kpis.completionRate >= 80) {
+      results.push({
+        title: "Strong trip completion",
+        description: `${kpis.completionRate.toFixed(
+          1,
+        )}% of recorded trips have been completed.`,
+        type: "success",
+      });
+    } else {
+      results.push({
+        title: "Trip completion needs attention",
+        description: `Only ${kpis.completionRate.toFixed(
+          1,
+        )}% of recorded trips are completed.`,
+        type: "warning",
+      });
+    }
+
+    if (fuelEfficiency > 5) {
+      results.push({
+        title: "Good fuel efficiency",
+        description: `Fleet fuel efficiency is ${fuelEfficiency.toFixed(
+          2,
+        )} km/L.`,
+        type: "success",
+      });
+    } else if (fuelEfficiency > 0) {
+      results.push({
+        title: "Fuel efficiency opportunity",
+        description: `Fleet fuel efficiency is ${fuelEfficiency.toFixed(
+          2,
+        )} km/L. Improving fuel consumption could reduce operating costs.`,
+        type: "warning",
+      });
+    }
+
+    if (kpis.costPerKm > kpis.revenuePerKm) {
+      results.push({
+        title: "Cost per kilometer is high",
         description:
-          "A large percentage of active vehicles are currently assigned to active trips.",
+          "Operating cost per kilometer is currently higher than revenue per kilometer.",
+        type: "warning",
+      });
+    }
+
+    if (kpis.activeTrips > 0) {
+      results.push({
+        title: "Active trips detected",
+        description: `${kpis.activeTrips} trip${
+          kpis.activeTrips === 1 ? "" : "s"
+        } currently have an active or in-progress status.`,
         type: "info",
       });
     }
 
-    if (maintenanceDueCount() > 0) {
-      results.push({
-        title: "Maintenance workload detected",
-        description:
-          `${maintenanceDueCount()} maintenance record${
-            maintenanceDueCount() === 1 ? "" : "s"
-          } require attention.`,
-        type: "warning",
-      });
-    }
-
-    if (results.length === 0) {
-      results.push({
-        title: "Operations look stable",
-        description:
-          "No major performance issues were detected from the available data.",
-        type: "positive",
-      });
-    }
-
-    return results.slice(0, 4);
+    return results;
   }, [
-    netOperatingResult,
+    kpis,
     fuelEfficiency,
-    fleetUtilization,
-    maintenance,
   ]);
 
-  function maintenanceDueCount() {
-    return maintenance.filter((record) => {
-      const currentStatus = status(record.status);
+  const maxMonthlyRevenue = Math.max(
+    ...monthlyAnalytics.map((item) => item.revenue),
+    1,
+  );
 
-      return (
-        currentStatus === "pending" ||
-        currentStatus === "in progress"
-      );
-    }).length;
+  const maxMonthlyProfit = Math.max(
+    ...monthlyAnalytics.map((item) => Math.abs(item.profit)),
+    1,
+  );
+
+  const totalExpenseBreakdown = expenseBreakdown.reduce(
+    (sum, item) => sum + item.amount,
+    0,
+  );
+
+  if (loading) {
+    return (
+      <ProtectedPage permission="analytics">
+        <main className="min-h-screen bg-slate-950 px-8 py-10 text-white">
+          <div className="flex min-h-[70vh] items-center justify-center">
+            <div className="text-center">
+              <div className="text-xl font-semibold">
+                Loading analytics...
+              </div>
+
+              <p className="mt-2 text-sm text-slate-400">
+                Preparing FleetFlow business intelligence.
+              </p>
+            </div>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
   }
 
-  const maxMonthlyValue = Math.max(
-    ...monthlyAnalysis.map((item) =>
-      Math.max(
-        item.revenue,
-        item.totalCost,
-      ),
-    ),
-    1,
-  );
-
-  const maxExpenseValue = Math.max(
-    ...expenseBreakdown.map((item) => item.amount),
-    1,
-  );
-
-  return (
-    <main className="min-h-screen bg-slate-100 p-6 md:p-8">
-      <div className="mx-auto max-w-7xl">
-
-        <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-semibold tracking-wide text-blue-600">
-              FLEETFLOW ERP
-            </p>
-
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-              Advanced Analytics
+  if (error) {
+    return (
+      <ProtectedPage permission="analytics">
+        <main className="min-h-screen bg-slate-950 px-8 py-10 text-white">
+          <div className="mx-auto max-w-3xl rounded-2xl border border-red-900 bg-red-950/40 p-8">
+            <h1 className="text-2xl font-bold text-red-300">
+              Analytics Error
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">
-              Analyze fleet performance, financial results,
-              fuel efficiency, operating costs, and vehicle
-              profitability.
-            </p>
-          </div>
-
-          <button
-            onClick={fetchAnalyticsData}
-            disabled={loading}
-            className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading ? "Refreshing..." : "Refresh Data"}
-          </button>
-        </header>
-
-        {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Total Revenue
+            <p className="mt-3 text-sm leading-6 text-red-200">
+              {error}
             </p>
 
-            <p className="mt-3 text-3xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : formatNumber(totalRevenue)}
-            </p>
-
-            <p className="mt-2 text-sm text-green-600">
-              From recorded trips
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Operating Cost
-            </p>
-
-            <p className="mt-3 text-3xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : formatNumber(totalOperatingCost)}
-            </p>
-
-            <p className="mt-2 text-sm text-slate-500">
-              All operating categories
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Net Result
-            </p>
-
-            <p
-              className={`mt-3 text-3xl font-bold ${
-                netOperatingResult >= 0
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-6 rounded-lg bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
             >
-              {loading
-                ? "..."
-                : formatNumber(netOperatingResult)}
-            </p>
+              Retry
+            </button>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
+  }
 
-            <p className="mt-2 text-sm text-slate-500">
-              Revenue minus operating cost
+  return (
+    <ProtectedPage permission="analytics">
+      <main className="min-h-screen bg-slate-950 px-8 py-10 text-white">
+        <div className="mx-auto max-w-7xl">
+          {/* HEADER */}
+          <div className="mb-10">
+            <h1 className="text-4xl font-bold tracking-tight">
+              Business Analytics
+            </h1>
+
+            <p className="mt-2 text-slate-400">
+              Fleet performance, financial efficiency, and
+              operational intelligence.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Cost / KM
-            </p>
+          {/* KPI CARDS */}
+          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Total Trips
+              </p>
 
-            <p className="mt-3 text-3xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : formatNumber(costPerKm)}
-            </p>
+              <p className="mt-3 text-3xl font-bold">
+                {kpis?.totalTrips ?? 0}
+              </p>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Operating cost per kilometer
-            </p>
-          </div>
-
-        </section>
-
-        <section className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Fleet Utilization
-            </p>
-
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : `${formatNumber(fleetUtilization)}%`}
-            </p>
-
-            <div className="mt-4 h-2 rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-blue-600"
-                style={{
-                  width: `${Math.min(
-                    fleetUtilization,
-                    100,
-                  )}%`,
-                }}
-              />
+              <p className="mt-2 text-xs text-slate-500">
+                {kpis?.completedTrips ?? 0} completed
+              </p>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Trip Completion
-            </p>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Total Revenue
+              </p>
 
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : `${formatNumber(completionRate)}%`}
-            </p>
+              <p className="mt-3 text-3xl font-bold">
+                ${Number(kpis?.totalRevenue ?? 0).toFixed(2)}
+              </p>
 
-            <div className="mt-4 h-2 rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-green-600"
-                style={{
-                  width: `${Math.min(
-                    completionRate,
-                    100,
-                  )}%`,
-                }}
-              />
+              <p className="mt-2 text-xs text-slate-500">
+                ${Number(kpis?.revenuePerKm ?? 0).toFixed(2)} / km
+              </p>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Fuel Efficiency
-            </p>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Operating Cost
+              </p>
 
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : `${formatNumber(fuelEfficiency)} km/L`}
-            </p>
+              <p className="mt-3 text-3xl font-bold">
+                ${Number(kpis?.totalOperatingCost ?? 0).toFixed(2)}
+              </p>
 
-            <p className="mt-4 text-xs text-slate-400">
-              Total distance ÷ total fuel
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Total Distance
-            </p>
-
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {loading
-                ? "..."
-                : `${formatNumber(totalDistance)} km`}
-            </p>
-
-            <p className="mt-4 text-xs text-slate-400">
-              Across all recorded trips
-            </p>
-          </div>
-
-        </section>
-
-        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">
-              Revenue vs Operating Cost
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Monthly financial performance based on recorded data.
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="py-12 text-center text-sm text-slate-500">
-              Loading financial analysis...
+              <p className="mt-2 text-xs text-slate-500">
+                ${Number(kpis?.costPerKm ?? 0).toFixed(2)} / km
+              </p>
             </div>
-          ) : monthlyAnalysis.length === 0 ? (
-            <div className="py-12 text-center text-sm text-slate-500">
-              No financial data available.
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Operating Profit
+              </p>
+
+              <p
+                className={`mt-3 text-3xl font-bold ${
+                  netOperatingResult >= 0
+                    ? "text-emerald-400"
+                    : "text-red-400"
+                }`}
+              >
+                ${Number(netOperatingResult).toFixed(2)}
+              </p>
+
+              <p className="mt-2 text-xs text-slate-500">
+                {Number(kpis?.profitMargin ?? 0).toFixed(1)}% margin
+              </p>
             </div>
-          ) : (
-            <div className="mt-8 space-y-7">
-              {monthlyAnalysis.map((item) => (
-                <div key={item.month}>
+          </section>
 
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="font-medium text-slate-700">
-                      {item.month}
-                    </span>
+          {/* SECONDARY KPI ROW */}
+          <section className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Fleet Size
+              </p>
 
-                    <span
-                      className={`font-semibold ${
-                        item.result >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      Result: {formatNumber(item.result)}
-                    </span>
-                  </div>
+              <p className="mt-3 text-3xl font-bold">
+                {fleetSize}
+              </p>
 
-                  <div className="space-y-3">
+              <p className="mt-2 text-xs text-slate-500">
+                Vehicles with recorded activity
+              </p>
+            </div>
 
-                    <div>
-                      <div className="mb-1 flex justify-between text-xs text-slate-500">
-                        <span>Revenue</span>
-                        <span>
-                          {formatNumber(item.revenue)}
-                        </span>
-                      </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Completion Rate
+              </p>
 
-                      <div className="h-3 rounded-full bg-slate-100">
-                        <div
-                          className="h-full rounded-full bg-green-500"
-                          style={{
-                            width: `${
-                              (item.revenue /
-                                maxMonthlyValue) *
-                              100
-                            }%`,
-                          }}
-                        />
-                      </div>
+              <p className="mt-3 text-3xl font-bold">
+                {Number(kpis?.completionRate ?? 0).toFixed(1)}%
+              </p>
+
+              <p className="mt-2 text-xs text-slate-500">
+                Completed trips
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Fuel Efficiency
+              </p>
+
+              <p className="mt-3 text-3xl font-bold">
+                {Number(fuelEfficiency).toFixed(2)}
+              </p>
+
+              <p className="mt-2 text-xs text-slate-500">
+                km per liter
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Active Trips
+              </p>
+
+              <p className="mt-3 text-3xl font-bold">
+                {kpis?.activeTrips ?? 0}
+              </p>
+
+              <p className="mt-2 text-xs text-slate-500">
+                Currently active or in progress
+              </p>
+            </div>
+          </section>
+
+          {/* BUSINESS INSIGHTS */}
+          <section className="mt-10">
+            <div className="mb-5">
+              <h2 className="text-2xl font-bold">
+                Business Insights
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-400">
+                Automatically generated observations from fleet
+                performance data.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {insights.map((insight, index) => (
+                <div
+                  key={`${insight.title}-${index}`}
+                  className={`rounded-2xl border p-6 ${
+                    insight.type === "success"
+                      ? "border-emerald-900 bg-emerald-950/30"
+                      : insight.type === "warning"
+                        ? "border-amber-900 bg-amber-950/30"
+                        : "border-blue-900 bg-blue-950/30"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="text-xl">
+                      {insight.type === "success"
+                        ? "✓"
+                        : insight.type === "warning"
+                          ? "!"
+                          : "i"}
                     </div>
 
                     <div>
-                      <div className="mb-1 flex justify-between text-xs text-slate-500">
-                        <span>Operating Cost</span>
-                        <span>
-                          {formatNumber(item.totalCost)}
-                        </span>
-                      </div>
+                      <h3 className="font-semibold">
+                        {insight.title}
+                      </h3>
 
-                      <div className="h-3 rounded-full bg-slate-100">
-                        <div
-                          className="h-full rounded-full bg-red-400"
-                          style={{
-                            width: `${
-                              (item.totalCost /
-                                maxMonthlyValue) *
-                              100
-                            }%`,
-                          }}
-                        />
-                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">
+                        {insight.description}
+                      </p>
                     </div>
-
                   </div>
                 </div>
               ))}
             </div>
-          )}
-        </section>
+          </section>
 
-        <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          {/* MONTHLY PERFORMANCE */}
+          <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">
+                Monthly Performance
+              </h2>
 
-          <div className="border-b border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Vehicle Performance
-            </h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Revenue and profit trends over time.
+              </p>
+            </div>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Revenue, operating cost, and result by vehicle.
-            </p>
-          </div>
+            {monthlyAnalytics.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-700 p-10 text-center text-slate-500">
+                No monthly analytics data available.
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {monthlyAnalytics.map((month) => {
+                  const revenueWidth =
+                    (month.revenue / maxMonthlyRevenue) * 100;
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+                  const profitWidth =
+                    (Math.abs(month.profit) / maxMonthlyProfit) *
+                    100;
 
-              <thead className="bg-slate-50 text-slate-500">
-                <tr>
-                  <th className="px-6 py-4">Vehicle</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Trips</th>
-                  <th className="px-6 py-4">Distance</th>
-                  <th className="px-6 py-4">Revenue</th>
-                  <th className="px-6 py-4">Cost</th>
-                  <th className="px-6 py-4">Result</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-100">
-
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-6 py-10 text-center text-slate-500"
-                    >
-                      Loading vehicle analysis...
-                    </td>
-                  </tr>
-                ) : vehiclePerformance.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-6 py-10 text-center text-slate-500"
-                    >
-                      No vehicles found.
-                    </td>
-                  </tr>
-                ) : (
-                  vehiclePerformance.map((vehicle) => (
-                    <tr
-                      key={vehicle.code}
-                      className="hover:bg-slate-50"
-                    >
-                      <td className="px-6 py-4 font-semibold text-slate-900">
-                        {vehicle.code}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                          {vehicle.status}
+                  return (
+                    <div key={month.month}>
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-sm font-medium">
+                          {month.month}
                         </span>
-                      </td>
 
-                      <td className="px-6 py-4 text-slate-600">
-                        {vehicle.trips}
-                      </td>
+                        <span className="text-xs text-slate-400">
+                          {month.trips} trips
+                        </span>
+                      </div>
 
-                      <td className="px-6 py-4 text-slate-600">
-                        {formatNumber(vehicle.distance)} km
-                      </td>
+                      <div className="space-y-2">
+                        <div>
+                          <div className="mb-1 flex justify-between text-xs text-slate-500">
+                            <span>Revenue</span>
 
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {formatNumber(vehicle.revenue)}
-                      </td>
+                            <span>
+                              ${Number(month.revenue).toFixed(2)}
+                            </span>
+                          </div>
 
-                      <td className="px-6 py-4 text-slate-600">
-                        {formatNumber(vehicle.cost)}
-                      </td>
+                          <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                            <div
+                              className="h-full rounded-full bg-blue-500"
+                              style={{
+                                width: `${revenueWidth}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
 
-                      <td
-                        className={`px-6 py-4 font-semibold ${
-                          vehicle.result >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {formatNumber(vehicle.result)}
-                      </td>
+                        <div>
+                          <div className="mb-1 flex justify-between text-xs text-slate-500">
+                            <span>Profit</span>
+
+                            <span>
+                              ${Number(month.profit).toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                            <div
+                              className={`h-full rounded-full ${
+                                month.profit >= 0
+                                  ? "bg-emerald-500"
+                                  : "bg-red-500"
+                              }`}
+                              style={{
+                                width: `${profitWidth}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* VEHICLE PERFORMANCE */}
+          <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">
+                Vehicle Performance
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-400">
+                Financial and operational performance by vehicle.
+              </p>
+            </div>
+
+            {vehiclePerformance.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-700 p-10 text-center text-slate-500">
+                No vehicle analytics data available.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[1000px] text-left">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-sm text-slate-400">
+                      <th className="px-4 py-4">
+                        Vehicle
+                      </th>
+
+                      <th className="px-4 py-4">
+                        Trips
+                      </th>
+
+                      <th className="px-4 py-4">
+                        Distance
+                      </th>
+
+                      <th className="px-4 py-4">
+                        Revenue
+                      </th>
+
+                      <th className="px-4 py-4">
+                        Total Cost
+                      </th>
+
+                      <th className="px-4 py-4">
+                        Profit
+                      </th>
+
+                      <th className="px-4 py-4">
+                        Margin
+                      </th>
+
+                      <th className="px-4 py-4">
+                        Fuel Efficiency
+                      </th>
                     </tr>
-                  ))
-                )}
+                  </thead>
 
-              </tbody>
-            </table>
-          </div>
-        </section>
+                  <tbody>
+                    {vehiclePerformance.map((vehicle) => (
+                      <tr
+                        key={vehicle.vehicleCode}
+                        className="border-b border-slate-800/70"
+                      >
+                        <td className="px-4 py-4 font-semibold">
+                          {vehicle.vehicleCode}
+                        </td>
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+                        <td className="px-4 py-4">
+                          {vehicle.tripsCount}
+                        </td>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <td className="px-4 py-4">
+                          {Number(vehicle.distance).toFixed(0)} km
+                        </td>
 
-            <h2 className="text-lg font-semibold text-slate-900">
-              Cost Structure
-            </h2>
+                        <td className="px-4 py-4">
+                          ${Number(vehicle.revenue).toFixed(2)}
+                        </td>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Operating cost distribution.
-            </p>
+                        <td className="px-4 py-4">
+                          ${Number(vehicle.totalCost).toFixed(2)}
+                        </td>
 
-            <div className="mt-7 space-y-6">
+                        <td
+                          className={`px-4 py-4 font-semibold ${
+                            vehicle.profit >= 0
+                              ? "text-emerald-400"
+                              : "text-red-400"
+                          }`}
+                        >
+                          ${Number(vehicle.profit).toFixed(2)}
+                        </td>
 
-              {[
-                {
-                  name: "Fuel",
-                  value: totalFuelCost,
-                  percentage:
-                    totalOperatingCost > 0
-                      ? (totalFuelCost /
-                          totalOperatingCost) *
-                        100
-                      : 0,
-                },
-                {
-                  name: "Maintenance",
-                  value: totalMaintenanceCost,
-                  percentage:
-                    totalOperatingCost > 0
-                      ? (totalMaintenanceCost /
-                          totalOperatingCost) *
-                        100
-                      : 0,
-                },
-                {
-                  name: "Other Expenses",
-                  value: totalExpenses,
-                  percentage:
-                    totalOperatingCost > 0
-                      ? (totalExpenses /
-                          totalOperatingCost) *
-                        100
-                      : 0,
-                },
-              ].map((item) => (
-                <div key={item.name}>
+                        <td className="px-4 py-4">
+                          {Number(vehicle.profitMargin).toFixed(1)}%
+                        </td>
 
+                        <td className="px-4 py-4">
+                          {Number(vehicle.fuelEfficiency).toFixed(2)}{" "}
+                          km/L
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {/* COST STRUCTURE */}
+          <section className="mt-10 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Cost Structure
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-400">
+                Breakdown of total operating costs.
+              </p>
+
+              <div className="mt-8 space-y-5">
+                <div>
                   <div className="mb-2 flex justify-between text-sm">
-                    <span className="text-slate-600">
-                      {item.name}
+                    <span className="text-slate-300">
+                      Fuel
                     </span>
 
-                    <span className="font-semibold text-slate-900">
-                      {formatNumber(item.value)} (
-                      {formatNumber(item.percentage)}%)
+                    <span>
+                      ${Number(kpis?.fuelCost ?? 0).toFixed(2)}
                     </span>
                   </div>
 
-                  <div className="h-3 rounded-full bg-slate-100">
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
                     <div
                       className="h-full rounded-full bg-blue-500"
                       style={{
-                        width: `${Math.min(
-                          item.percentage,
-                          100,
-                        )}%`,
+                        width: `${
+                          kpis &&
+                          kpis.totalOperatingCost > 0
+                            ? (kpis.fuelCost /
+                                kpis.totalOperatingCost) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     />
                   </div>
-
                 </div>
-              ))}
 
+                <div>
+                  <div className="mb-2 flex justify-between text-sm">
+                    <span className="text-slate-300">
+                      Maintenance
+                    </span>
+
+                    <span>
+                      $
+                      {Number(
+                        kpis?.maintenanceCost ?? 0,
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-amber-500"
+                      style={{
+                        width: `${
+                          kpis &&
+                          kpis.totalOperatingCost > 0
+                            ? (kpis.maintenanceCost /
+                                kpis.totalOperatingCost) *
+                              100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex justify-between text-sm">
+                    <span className="text-slate-300">
+                      Other Expenses
+                    </span>
+
+                    <span>
+                      $
+                      {Number(
+                        kpis?.expenseCost ?? 0,
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-purple-500"
+                      style={{
+                        width: `${
+                          kpis &&
+                          kpis.totalOperatingCost > 0
+                            ? (kpis.expenseCost /
+                                kpis.totalOperatingCost) *
+                              100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            {/* EXPENSE BREAKDOWN */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Expense Breakdown
+              </h2>
 
-            <h2 className="text-lg font-semibold text-slate-900">
-              Expense Breakdown
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Other expenses grouped by category.
-            </p>
-
-            <div className="mt-7 space-y-5">
+              <p className="mt-1 text-sm text-slate-400">
+                Expenses grouped by category.
+              </p>
 
               {expenseBreakdown.length === 0 ? (
-                <p className="text-sm text-slate-500">
-                  No expense categories available.
-                </p>
+                <div className="mt-8 rounded-xl border border-dashed border-slate-700 p-8 text-center text-slate-500">
+                  No expense breakdown available.
+                </div>
               ) : (
-                expenseBreakdown.map((item) => (
-                  <div key={item.category}>
+                <div className="mt-6 space-y-4">
+                  {expenseBreakdown.map((item) => {
+                    const percentage =
+                      totalExpenseBreakdown > 0
+                        ? (item.amount /
+                            totalExpenseBreakdown) *
+                          100
+                        : 0;
 
-                    <div className="mb-2 flex justify-between text-sm">
-                      <span className="text-slate-600">
-                        {item.category}
-                      </span>
+                    return (
+                      <div key={item.category}>
+                        <div className="mb-2 flex justify-between text-sm">
+                          <span className="text-slate-300">
+                            {item.category}
+                          </span>
 
-                      <span className="font-semibold text-slate-900">
-                        {formatNumber(item.amount)}
-                      </span>
-                    </div>
+                          <span>
+                            ${Number(item.amount).toFixed(2)}
+                          </span>
+                        </div>
 
-                    <div className="h-2 rounded-full bg-slate-100">
-                      <div
-                        className="h-full rounded-full bg-slate-600"
-                        style={{
-                          width: `${
-                            (item.amount /
-                              maxExpenseValue) *
-                            100
-                          }%`,
-                        }}
-                      />
-                    </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                          <div
+                            className="h-full rounded-full bg-purple-500"
+                            style={{
+                              width: `${percentage}%`,
+                            }}
+                          />
+                        </div>
 
-                  </div>
-                ))
+                        <p className="mt-1 text-xs text-slate-500">
+                          {percentage.toFixed(1)}%
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
-
             </div>
-          </div>
+          </section>
 
-        </section>
-
-        <section className="mt-8 rounded-2xl bg-slate-900 p-6 shadow-sm">
-
-          <div>
-            <p className="text-sm font-semibold tracking-wide text-blue-400">
-              INTELLIGENCE
-            </p>
-
-            <h2 className="mt-1 text-xl font-semibold text-white">
-              Business Insights
+          {/* DATA SUMMARY */}
+          <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <h2 className="text-2xl font-bold">
+              Data Summary
             </h2>
 
             <p className="mt-1 text-sm text-slate-400">
-              Automatically generated observations from FleetFlow data.
+              Key data points currently used by FleetFlow
+              analytics.
             </p>
-          </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-xl bg-slate-800/70 p-5">
+                <p className="text-xs uppercase tracking-wide text-slate-500">
+                  Distance
+                </p>
 
-            {insights.map((insight, index) => {
+                <p className="mt-2 text-xl font-bold">
+                  {Number(
+                    kpis?.totalDistance ?? 0,
+                  ).toFixed(0)}{" "}
+                  km
+                </p>
+              </div>
 
-              const styles =
-                insight.type === "danger"
-                  ? "border-red-800 bg-red-950/40"
-                  : insight.type === "warning"
-                    ? "border-orange-800 bg-orange-950/40"
-                    : insight.type === "positive"
-                      ? "border-green-800 bg-green-950/40"
-                      : "border-blue-800 bg-blue-950/40";
+              <div className="rounded-xl bg-slate-800/70 p-5">
+                <p className="text-xs uppercase tracking-wide text-slate-500">
+                  Fuel Used
+                </p>
 
-              const titleColor =
-                insight.type === "danger"
-                  ? "text-red-300"
-                  : insight.type === "warning"
-                    ? "text-orange-300"
-                    : insight.type === "positive"
-                      ? "text-green-300"
-                      : "text-blue-300";
+                <p className="mt-2 text-xl font-bold">
+                  {Number(
+                    kpis?.totalFuelLiters ?? 0,
+                  ).toFixed(0)}{" "}
+                  L
+                </p>
+              </div>
 
-              return (
-                <div
-                  key={`${insight.title}-${index}`}
-                  className={`rounded-xl border p-5 ${styles}`}
-                >
-                  <h3
-                    className={`font-semibold ${titleColor}`}
-                  >
-                    {insight.title}
-                  </h3>
+              <div className="rounded-xl bg-slate-800/70 p-5">
+                <p className="text-xs uppercase tracking-wide text-slate-500">
+                  Active Trips
+                </p>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {insight.description}
-                  </p>
-                </div>
-              );
-            })}
+                <p className="mt-2 text-xl font-bold">
+                  {kpis?.activeTrips ?? 0}
+                </p>
+              </div>
 
-          </div>
-        </section>
+              <div className="rounded-xl bg-slate-800/70 p-5">
+                <p className="text-xs uppercase tracking-wide text-slate-500">
+                  Expense Categories
+                </p>
 
-        <section className="mt-8 mb-4 rounded-2xl bg-white p-6 shadow-sm">
+                <p className="mt-2 text-xl font-bold">
+                  {expenseBreakdown.length}
+                </p>
+              </div>
+            </div>
+          </section>
 
-          <h2 className="text-lg font-semibold text-slate-900">
-            Analytics Data Summary
-          </h2>
-
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-
-            <div className="rounded-xl bg-slate-50 p-5">
-              <p className="text-xs text-slate-500">
-                Vehicles
+          {/* FOOTER METRICS */}
+          <section className="mt-10 grid gap-6 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Revenue / KM
               </p>
 
-              <p className="mt-2 text-xl font-bold text-slate-900">
-                {vehicles.length}
+              <p className="mt-3 text-2xl font-bold">
+                ${Number(
+                  kpis?.revenuePerKm ?? 0,
+                ).toFixed(2)}
               </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 p-5">
-              <p className="text-xs text-slate-500">
-                Trips
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Cost / KM
               </p>
 
-              <p className="mt-2 text-xl font-bold text-slate-900">
-                {trips.length}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 p-5">
-              <p className="text-xs text-slate-500">
-                Fuel Records
-              </p>
-
-              <p className="mt-2 text-xl font-bold text-slate-900">
-                {fuel.length}
+              <p className="mt-3 text-2xl font-bold">
+                ${Number(
+                  kpis?.costPerKm ?? 0,
+                ).toFixed(2)}
               </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 p-5">
-              <p className="text-xs text-slate-500">
-                Maintenance
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Fleet Utilization
               </p>
 
-              <p className="mt-2 text-xl font-bold text-slate-900">
-                {maintenance.length}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 p-5">
-              <p className="text-xs text-slate-500">
-                Expenses
-              </p>
-
-              <p className="mt-2 text-xl font-bold text-slate-900">
-                {expenses.length}
+              <p className="mt-3 text-2xl font-bold">
+                {Number(fleetUtilization).toFixed(1)}%
               </p>
             </div>
-
-          </div>
-        </section>
-
-      </div>
-    </main>
+          </section>
+        </div>
+      </main>
+    </ProtectedPage>
   );
 }

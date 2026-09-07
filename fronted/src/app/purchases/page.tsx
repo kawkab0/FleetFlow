@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ProtectedPage from "@/app/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
 
 interface Purchase {
@@ -218,385 +219,387 @@ export default function PurchasesPage() {
   ).length;
 
   return (
-    <main className="ml-64 min-h-screen bg-slate-50 p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">
-          Purchases
-        </h1>
+    <ProtectedPage permission="purchases">
+      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">
+            Purchases
+          </h1>
 
-        <p className="mt-2 text-slate-500">
-          Manage supplier purchases, warehouse deliveries, and purchase records.
-        </p>
-      </div>
-
-      <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">
-            Total Purchases
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {totalPurchases}
+          <p className="mt-2 text-slate-500">
+            Manage supplier purchases, warehouse deliveries, and purchase records.
           </p>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">
-            Total Amount
-          </p>
+        <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">
+              Total Purchases
+            </p>
 
-          <p className="mt-2 text-3xl font-bold text-emerald-600">
-            ${totalAmount.toFixed(2)}
-          </p>
-        </div>
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {totalPurchases}
+            </p>
+          </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">
-            Pending Purchases
-          </p>
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">
+              Total Amount
+            </p>
 
-          <p className="mt-2 text-3xl font-bold text-amber-500">
-            {pendingPurchases}
-          </p>
-        </div>
-      </div>
+            <p className="mt-2 text-3xl font-bold text-emerald-600">
+              ${totalAmount.toFixed(2)}
+            </p>
+          </div>
 
-      <div className="mb-8 rounded-xl bg-white p-6 shadow-sm">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-900">
-            {editingPurchase
-              ? "Edit Purchase"
-              : "Add Purchase"}
-          </h2>
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">
+              Pending Purchases
+            </p>
 
-          {editingPurchase && (
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="text-sm font-medium text-slate-500 hover:text-slate-900"
-            >
-              Cancel Edit
-            </button>
-          )}
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2"
-        >
-          <select
-            value={form.supplierId}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                supplierId: e.target.value,
-              })
-            }
-            required
-            className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
-          >
-            <option value="">
-              Select supplier
-            </option>
-
-            {suppliers.map((supplier) => (
-              <option
-                key={supplier.id}
-                value={supplier.id}
-              >
-                {supplier.name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={form.warehouseId}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                warehouseId: e.target.value,
-              })
-            }
-            required
-            className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
-          >
-            <option value="">
-              Select warehouse
-            </option>
-
-            {warehouses.map((warehouse) => (
-              <option
-                key={warehouse.id}
-                value={warehouse.id}
-              >
-                {warehouse.name}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            placeholder="YYYY-MM-DD"
-            value={form.purchaseDate}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                purchaseDate: e.target.value,
-              })
-            }
-            required
-            pattern="\d{4}-\d{2}-\d{2}"
-            title="Please enter the date in YYYY-MM-DD format"
-            className="rounded-lg border border-slate-300 px-4 py-3 text-left outline-none focus:border-blue-500"
-          />
-
-          <input
-            type="number"
-            placeholder="Total amount"
-            value={form.totalAmount}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                totalAmount: e.target.value,
-              })
-            }
-            required
-            min="0"
-            step="0.01"
-            className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-          />
-
-          <select
-            value={form.status}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                status: e.target.value,
-              })
-            }
-            required
-            className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
-          >
-            <option value="Pending">
-              Pending
-            </option>
-
-            <option value="Received">
-              Received
-            </option>
-
-            <option value="Cancelled">
-              Cancelled
-            </option>
-          </select>
-
-          <input
-            type="text"
-            placeholder="Reference number"
-            value={form.referenceNumber}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                referenceNumber: e.target.value,
-              })
-            }
-            required
-            className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-          />
-
-          <textarea
-            placeholder="Notes"
-            value={form.notes}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                notes: e.target.value,
-              })
-            }
-            rows={3}
-            className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 md:col-span-2"
-          />
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving
-              ? "Saving..."
-              : editingPurchase
-                ? "Update Purchase"
-                : "Add Purchase"}
-          </button>
-
-          {editingPurchase && (
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="rounded-lg border border-slate-300 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-          )}
-        </form>
-      </div>
-
-      <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
-        <input
-          type="text"
-          placeholder="Search by reference, supplier, warehouse, or status..."
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-        />
-      </div>
-
-      {loading ? (
-        <p className="text-slate-500">
-          Loading purchases...
-        </p>
-      ) : filteredPurchases.length === 0 ? (
-        <div className="rounded-xl bg-white p-8 text-center shadow-sm">
-          <p className="text-slate-500">
-            No purchases found.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Reference
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Supplier
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Warehouse
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Date
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Amount
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Status
-                  </th>
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredPurchases.map(
-                  (purchase) => (
-                    <tr
-                      key={purchase.id}
-                      className="border-t border-slate-100 hover:bg-slate-50"
-                    >
-                      <td className="px-6 py-4">
-                        <p className="font-semibold text-slate-900">
-                          {purchase.referenceNumber}
-                        </p>
-
-                        <p className="mt-1 text-xs text-slate-400">
-                          ID: {purchase.id}
-                        </p>
-                      </td>
-
-                      <td className="px-6 py-4 text-sm text-slate-600">
-                        {getSupplierName(
-                          purchase.supplierId,
-                        )}
-                      </td>
-
-                      <td className="px-6 py-4 text-sm text-slate-600">
-                        {getWarehouseName(
-                          purchase.warehouseId,
-                        )}
-                      </td>
-
-                      <td className="px-6 py-4 text-sm text-slate-600">
-                        {purchase.purchaseDate}
-                      </td>
-
-                      <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                        $
-                        {Number(
-                          purchase.totalAmount,
-                        ).toFixed(2)}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            purchase.status.toLowerCase() ===
-                            "pending"
-                              ? "bg-amber-50 text-amber-600"
-                              : purchase.status.toLowerCase() ===
-                                  "received"
-                                ? "bg-emerald-50 text-emerald-600"
-                                : "bg-red-50 text-red-600"
-                          }`}
-                        >
-                          {purchase.status}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleEdit(
-                                purchase,
-                              )
-                            }
-                            className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleDelete(
-                                purchase.id,
-                              )
-                            }
-                            disabled={
-                              deletingId ===
-                              purchase.id
-                            }
-                            className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
-                          >
-                            {deletingId ===
-                            purchase.id
-                              ? "Deleting..."
-                              : "Delete"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
+            <p className="mt-2 text-3xl font-bold text-amber-500">
+              {pendingPurchases}
+            </p>
           </div>
         </div>
-      )}
-    </main>
+
+        <div className="mb-8 rounded-xl bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-slate-900">
+              {editingPurchase
+                ? "Edit Purchase"
+                : "Add Purchase"}
+            </h2>
+
+            {editingPurchase && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="text-sm font-medium text-slate-500 hover:text-slate-900"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          >
+            <select
+              value={form.supplierId}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  supplierId: e.target.value,
+                })
+              }
+              required
+              className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+            >
+              <option value="">
+                Select supplier
+              </option>
+
+              {suppliers.map((supplier) => (
+                <option
+                  key={supplier.id}
+                  value={supplier.id}
+                >
+                  {supplier.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={form.warehouseId}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  warehouseId: e.target.value,
+                })
+              }
+              required
+              className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+            >
+              <option value="">
+                Select warehouse
+              </option>
+
+              {warehouses.map((warehouse) => (
+                <option
+                  key={warehouse.id}
+                  value={warehouse.id}
+                >
+                  {warehouse.name}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="text"
+              placeholder="YYYY-MM-DD"
+              value={form.purchaseDate}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  purchaseDate: e.target.value,
+                })
+              }
+              required
+              pattern="\d{4}-\d{2}-\d{2}"
+              title="Please enter the date in YYYY-MM-DD format"
+              className="rounded-lg border border-slate-300 px-4 py-3 text-left outline-none focus:border-blue-500"
+            />
+
+            <input
+              type="number"
+              placeholder="Total amount"
+              value={form.totalAmount}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  totalAmount: e.target.value,
+                })
+              }
+              required
+              min="0"
+              step="0.01"
+              className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+            />
+
+            <select
+              value={form.status}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  status: e.target.value,
+                })
+              }
+              required
+              className="rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+            >
+              <option value="Pending">
+                Pending
+              </option>
+
+              <option value="Received">
+                Received
+              </option>
+
+              <option value="Cancelled">
+                Cancelled
+              </option>
+            </select>
+
+            <input
+              type="text"
+              placeholder="Reference number"
+              value={form.referenceNumber}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  referenceNumber: e.target.value,
+                })
+              }
+              required
+              className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+            />
+
+            <textarea
+              placeholder="Notes"
+              value={form.notes}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  notes: e.target.value,
+                })
+              }
+              rows={3}
+              className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 md:col-span-2"
+            />
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving
+                ? "Saving..."
+                : editingPurchase
+                  ? "Update Purchase"
+                  : "Add Purchase"}
+            </button>
+
+            {editingPurchase && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="rounded-lg border border-slate-300 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            )}
+          </form>
+        </div>
+
+        <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
+          <input
+            type="text"
+            placeholder="Search by reference, supplier, warehouse, or status..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+          />
+        </div>
+
+        {loading ? (
+          <p className="text-slate-500">
+            Loading purchases...
+          </p>
+        ) : filteredPurchases.length === 0 ? (
+          <div className="rounded-xl bg-white p-8 text-center shadow-sm">
+            <p className="text-slate-500">
+              No purchases found.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Reference
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Supplier
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Warehouse
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Date
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Amount
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Status
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredPurchases.map(
+                    (purchase) => (
+                      <tr
+                        key={purchase.id}
+                        className="border-t border-slate-100 hover:bg-slate-50"
+                      >
+                        <td className="px-6 py-4">
+                          <p className="font-semibold text-slate-900">
+                            {purchase.referenceNumber}
+                          </p>
+
+                          <p className="mt-1 text-xs text-slate-400">
+                            ID: {purchase.id}
+                          </p>
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          {getSupplierName(
+                            purchase.supplierId,
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          {getWarehouseName(
+                            purchase.warehouseId,
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          {purchase.purchaseDate}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm font-semibold text-slate-900">
+                          $
+                          {Number(
+                            purchase.totalAmount,
+                          ).toFixed(2)}
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              purchase.status.toLowerCase() ===
+                              "pending"
+                                ? "bg-amber-50 text-amber-600"
+                                : purchase.status.toLowerCase() ===
+                                    "received"
+                                  ? "bg-emerald-50 text-emerald-600"
+                                  : "bg-red-50 text-red-600"
+                            }`}
+                          >
+                            {purchase.status}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleEdit(
+                                  purchase,
+                                )
+                              }
+                              className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleDelete(
+                                  purchase.id,
+                                )
+                              }
+                              disabled={
+                                deletingId ===
+                                purchase.id
+                              }
+                              className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                            >
+                              {deletingId ===
+                              purchase.id
+                                ? "Deleting..."
+                                : "Delete"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </main>
+    </ProtectedPage>
   );
 }

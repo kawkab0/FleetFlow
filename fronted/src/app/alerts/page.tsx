@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import ProtectedPage from "@/app/components/ProtectedPage";
 
 interface Vehicle {
   id: number;
@@ -178,10 +179,6 @@ export default function AlertsPage() {
         ? totalDistance / totalFuelLiters
         : 0;
 
-    // ---------------------------------------------------------
-    // FLEET-LEVEL ALERTS
-    // ---------------------------------------------------------
-
     if (totalProfit < 0) {
       addAlert(
         "Critical",
@@ -234,10 +231,6 @@ export default function AlertsPage() {
         "Monitor fuel consumption and investigate inefficient vehicles.",
       );
     }
-
-    // ---------------------------------------------------------
-    // VEHICLE-LEVEL ANALYSIS
-    // ---------------------------------------------------------
 
     vehicles.forEach((vehicle) => {
       const code =
@@ -306,7 +299,6 @@ export default function AlertsPage() {
           ? distance / fuelLiters
           : 0;
 
-      // Loss alert
       if (profit < 0 && totalVehicleCost > 0) {
         addAlert(
           "Critical",
@@ -322,7 +314,6 @@ export default function AlertsPage() {
         );
       }
 
-      // High maintenance
       if (maintenanceCost >= 10000) {
         addAlert(
           "High",
@@ -347,7 +338,6 @@ export default function AlertsPage() {
         );
       }
 
-      // Poor fuel efficiency
       if (
         efficiency > 0 &&
         efficiency < 3
@@ -378,7 +368,6 @@ export default function AlertsPage() {
         );
       }
 
-      // High fuel cost
       if (fuelCost >= 25000) {
         addAlert(
           "High",
@@ -403,7 +392,6 @@ export default function AlertsPage() {
         );
       }
 
-      // No trips
       if (vehicleTrips.length === 0) {
         addAlert(
           "Medium",
@@ -415,7 +403,6 @@ export default function AlertsPage() {
         );
       }
 
-      // No maintenance history
       if (
         vehicleTrips.length > 0 &&
         vehicleMaintenance.length === 0
@@ -430,7 +417,6 @@ export default function AlertsPage() {
         );
       }
 
-      // Inactive vehicle
       if (
         String(vehicle.status ?? "").toLowerCase() ===
         "inactive"
@@ -446,7 +432,6 @@ export default function AlertsPage() {
       }
     });
 
-    // Sort by priority
     const priorityOrder: Record<
       Alert["priority"],
       number
@@ -531,349 +516,355 @@ export default function AlertsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-            <p className="text-lg font-semibold text-slate-700">
-              Scanning FleetFlow...
-            </p>
+      <ProtectedPage permission="alerts">
+        <main className="min-h-screen bg-slate-50 p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+              <p className="text-lg font-semibold text-slate-700">
+                Scanning FleetFlow...
+              </p>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Checking the fleet for operational alerts.
-            </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Checking the fleet for operational alerts.
+              </p>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </ProtectedPage>
     );
   }
 
   if (error) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-8">
-            <h1 className="text-xl font-bold text-red-700">
-              Alert Center Error
-            </h1>
+      <ProtectedPage permission="alerts">
+        <main className="min-h-screen bg-slate-50 p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-8">
+              <h1 className="text-xl font-bold text-red-700">
+                Alert Center Error
+              </h1>
 
-            <p className="mt-2 text-sm text-red-600">
-              {error}
-            </p>
+              <p className="mt-2 text-sm text-red-600">
+                {error}
+              </p>
 
-            <button
-              onClick={loadData}
-              className="mt-5 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
-            >
-              Retry
-            </button>
+              <button
+                onClick={loadData}
+                className="mt-5 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Retry
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </ProtectedPage>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        {/* HEADER */}
-        <section className="rounded-2xl bg-slate-900 p-8 text-white shadow-lg">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-red-400">
-                FleetFlow Monitoring
+    <ProtectedPage permission="alerts">
+      <main className="min-h-screen bg-slate-50 p-8">
+        <div className="mx-auto max-w-7xl space-y-8">
+          {/* HEADER */}
+          <section className="rounded-2xl bg-slate-900 p-8 text-white shadow-lg">
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-red-400">
+                  FleetFlow Monitoring
+                </p>
+
+                <h1 className="mt-2 text-3xl font-bold">
+                  Alerts & Notifications
+                </h1>
+
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+                  A centralized view of operational, financial,
+                  fuel, maintenance, and fleet risks detected
+                  automatically from FleetFlow data.
+                </p>
+              </div>
+
+              <button
+                onClick={loadData}
+                className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+              >
+                Scan Again
+              </button>
+            </div>
+          </section>
+
+          {/* ALERT SUMMARY */}
+          <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <button
+              onClick={() => setFilter("Critical")}
+              className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
+                filter === "Critical"
+                  ? "border-red-400 bg-red-50"
+                  : "border-red-200 bg-white"
+              }`}
+            >
+              <p className="text-sm font-medium text-slate-500">
+                Critical Alerts
               </p>
 
-              <h1 className="mt-2 text-3xl font-bold">
-                Alerts & Notifications
-              </h1>
+              <p className="mt-2 text-3xl font-bold text-red-600">
+                {criticalCount}
+              </p>
 
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-                A centralized view of operational, financial,
-                fuel, maintenance, and fleet risks detected
-                automatically from FleetFlow data.
+              <p className="mt-1 text-xs text-slate-500">
+                Immediate attention
+              </p>
+            </button>
+
+            <button
+              onClick={() => setFilter("High")}
+              className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
+                filter === "High"
+                  ? "border-orange-400 bg-orange-50"
+                  : "border-orange-200 bg-white"
+              }`}
+            >
+              <p className="text-sm font-medium text-slate-500">
+                High Alerts
+              </p>
+
+              <p className="mt-2 text-3xl font-bold text-orange-600">
+                {highCount}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Action recommended
+              </p>
+            </button>
+
+            <button
+              onClick={() => setFilter("Medium")}
+              className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
+                filter === "Medium"
+                  ? "border-yellow-400 bg-yellow-50"
+                  : "border-yellow-200 bg-white"
+              }`}
+            >
+              <p className="text-sm font-medium text-slate-500">
+                Medium Alerts
+              </p>
+
+              <p className="mt-2 text-3xl font-bold text-yellow-600">
+                {mediumCount}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Monitor closely
+              </p>
+            </button>
+
+            <button
+              onClick={() => setFilter("Low")}
+              className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
+                filter === "Low"
+                  ? "border-green-400 bg-green-50"
+                  : "border-green-200 bg-white"
+              }`}
+            >
+              <p className="text-sm font-medium text-slate-500">
+                Low Alerts
+              </p>
+
+              <p className="mt-2 text-3xl font-bold text-green-600">
+                {lowCount}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Informational
+              </p>
+            </button>
+          </section>
+
+          {/* FILTER BAR */}
+          <section className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">
+                Alert Feed
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Showing {filteredAlerts.length} of{" "}
+                {alerts.length} detected alerts
               </p>
             </div>
 
-            <button
-              onClick={loadData}
-              className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
-            >
-              Scan Again
-            </button>
-          </div>
-        </section>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  "All",
+                  "Critical",
+                  "High",
+                  "Medium",
+                  "Low",
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setFilter(option)}
+                  className={`rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                    filter === option
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </section>
 
-        {/* ALERT SUMMARY */}
-        <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <button
-            onClick={() => setFilter("Critical")}
-            className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
-              filter === "Critical"
-                ? "border-red-400 bg-red-50"
-                : "border-red-200 bg-white"
-            }`}
-          >
-            <p className="text-sm font-medium text-slate-500">
-              Critical Alerts
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-red-600">
-              {criticalCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Immediate attention
-            </p>
-          </button>
-
-          <button
-            onClick={() => setFilter("High")}
-            className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
-              filter === "High"
-                ? "border-orange-400 bg-orange-50"
-                : "border-orange-200 bg-white"
-            }`}
-          >
-            <p className="text-sm font-medium text-slate-500">
-              High Alerts
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-orange-600">
-              {highCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Action recommended
-            </p>
-          </button>
-
-          <button
-            onClick={() => setFilter("Medium")}
-            className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
-              filter === "Medium"
-                ? "border-yellow-400 bg-yellow-50"
-                : "border-yellow-200 bg-white"
-            }`}
-          >
-            <p className="text-sm font-medium text-slate-500">
-              Medium Alerts
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-yellow-600">
-              {mediumCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Monitor closely
-            </p>
-          </button>
-
-          <button
-            onClick={() => setFilter("Low")}
-            className={`rounded-2xl border p-6 text-left shadow-sm transition hover:-translate-y-0.5 ${
-              filter === "Low"
-                ? "border-green-400 bg-green-50"
-                : "border-green-200 bg-white"
-            }`}
-          >
-            <p className="text-sm font-medium text-slate-500">
-              Low Alerts
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-green-600">
-              {lowCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Informational
-            </p>
-          </button>
-        </section>
-
-        {/* FILTER BAR */}
-        <section className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center">
-          <div>
-            <p className="text-sm font-semibold text-slate-900">
-              Alert Feed
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Showing {filteredAlerts.length} of{" "}
-              {alerts.length} detected alerts
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                "All",
-                "Critical",
-                "High",
-                "Medium",
-                "Low",
-              ] as const
-            ).map((option) => (
-              <button
-                key={option}
-                onClick={() => setFilter(option)}
-                className={`rounded-lg px-4 py-2 text-xs font-semibold transition ${
-                  filter === option
-                    ? "bg-slate-900 text-white"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
+          {/* ALERT FEED */}
+          <section className="space-y-4">
+            {filteredAlerts.map((alert) => (
+              <div
+                key={alert.id}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
               >
-                {option}
-              </button>
-            ))}
-          </div>
-        </section>
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex gap-4">
+                    <div
+                      className={`mt-1 h-3 w-3 flex-shrink-0 rounded-full ${priorityDot(
+                        alert.priority,
+                      )}`}
+                    />
 
-        {/* ALERT FEED */}
-        <section className="space-y-4">
-          {filteredAlerts.map((alert) => (
-            <div
-              key={alert.id}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                <div className="flex gap-4">
-                  <div
-                    className={`mt-1 h-3 w-3 flex-shrink-0 rounded-full ${priorityDot(
-                      alert.priority,
-                    )}`}
-                  />
-
-                  <div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span
-                        className={`rounded-full border px-3 py-1 text-xs font-bold ${priorityClass(
-                          alert.priority,
-                        )}`}
-                      >
-                        {alert.priority}
-                      </span>
-
-                      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        {alert.category}
-                      </span>
-
-                      {alert.vehicleCode && (
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                          {alert.vehicleCode}
+                    <div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span
+                          className={`rounded-full border px-3 py-1 text-xs font-bold ${priorityClass(
+                            alert.priority,
+                          )}`}
+                        >
+                          {alert.priority}
                         </span>
-                      )}
+
+                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          {alert.category}
+                        </span>
+
+                        {alert.vehicleCode && (
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                            {alert.vehicleCode}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="mt-3 text-lg font-bold text-slate-900">
+                        {alert.title}
+                      </h3>
+
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {alert.description}
+                      </p>
                     </div>
+                  </div>
 
-                    <h3 className="mt-3 text-lg font-bold text-slate-900">
-                      {alert.title}
-                    </h3>
+                  <div className="min-w-full rounded-xl bg-slate-50 p-4 lg:min-w-[320px] lg:max-w-[380px]">
+                    <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                      Suggested Response
+                    </p>
 
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {alert.description}
+                    <p className="mt-2 text-sm leading-6 text-slate-700">
+                      {alert.action}
                     </p>
                   </div>
                 </div>
+              </div>
+            ))}
 
-                <div className="min-w-full rounded-xl bg-slate-50 p-4 lg:min-w-[320px] lg:max-w-[380px]">
-                  <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
-                    Suggested Response
-                  </p>
+            {filteredAlerts.length === 0 && (
+              <div className="rounded-2xl border border-green-200 bg-green-50 p-10 text-center">
+                <div className="text-4xl">✓</div>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-700">
-                    {alert.action}
-                  </p>
-                </div>
+                <h3 className="mt-3 text-lg font-bold text-green-800">
+                  No alerts in this category
+                </h3>
+
+                <p className="mt-2 text-sm text-green-700">
+                  FleetFlow did not detect any issues matching
+                  the selected priority.
+                </p>
+              </div>
+            )}
+          </section>
+
+          {/* MONITORING LOGIC */}
+          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-8">
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+              Automated Monitoring
+            </p>
+
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">
+              What FleetFlow Monitors
+            </h2>
+
+            <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <div className="text-2xl">💰</div>
+
+                <h3 className="mt-3 font-bold text-slate-900">
+                  Financial
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Detects operating losses and excessive cost
+                  concentrations.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <div className="text-2xl">⛽</div>
+
+                <h3 className="mt-3 font-bold text-slate-900">
+                  Fuel
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Monitors fuel efficiency, consumption, and
+                  fuel-related costs.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <div className="text-2xl">🔧</div>
+
+                <h3 className="mt-3 font-bold text-slate-900">
+                  Maintenance
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Identifies expensive maintenance and missing
+                  maintenance history.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <div className="text-2xl">🚚</div>
+
+                <h3 className="mt-3 font-bold text-slate-900">
+                  Utilization
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Detects vehicles with little or no recorded
+                  operational activity.
+                </p>
               </div>
             </div>
-          ))}
+          </section>
 
-          {filteredAlerts.length === 0 && (
-            <div className="rounded-2xl border border-green-200 bg-green-50 p-10 text-center">
-              <div className="text-4xl">✓</div>
-
-              <h3 className="mt-3 text-lg font-bold text-green-800">
-                No alerts in this category
-              </h3>
-
-              <p className="mt-2 text-sm text-green-700">
-                FleetFlow did not detect any issues matching
-                the selected priority.
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* MONITORING LOGIC */}
-        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-            Automated Monitoring
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">
-            What FleetFlow Monitors
-          </h2>
-
-          <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <div className="text-2xl">💰</div>
-
-              <h3 className="mt-3 font-bold text-slate-900">
-                Financial
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Detects operating losses and excessive cost
-                concentrations.
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <div className="text-2xl">⛽</div>
-
-              <h3 className="mt-3 font-bold text-slate-900">
-                Fuel
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Monitors fuel efficiency, consumption, and
-                fuel-related costs.
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <div className="text-2xl">🔧</div>
-
-              <h3 className="mt-3 font-bold text-slate-900">
-                Maintenance
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Identifies expensive maintenance and missing
-                maintenance history.
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <div className="text-2xl">🚚</div>
-
-              <h3 className="mt-3 font-bold text-slate-900">
-                Utilization
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Detects vehicles with little or no recorded
-                operational activity.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* FOOTER */}
-        <footer className="border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
-          FleetFlow Alert Center • Alerts are automatically
-          generated from current operational data.
-        </footer>
-      </div>
-    </main>
+          {/* FOOTER */}
+          <footer className="border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
+            FleetFlow Alert Center • Alerts are automatically
+            generated from current operational data.
+          </footer>
+        </div>
+      </main>
+    </ProtectedPage>
   );
 }

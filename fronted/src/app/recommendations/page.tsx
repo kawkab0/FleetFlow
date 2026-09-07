@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import ProtectedPage from "@/app/components/ProtectedPage";
 
 interface Vehicle {
   id: number;
@@ -216,10 +217,6 @@ export default function RecommendationsPage() {
       });
     };
 
-    // ---------------------------------------------------------
-    // FLEET-LEVEL FINANCIAL ANALYSIS
-    // ---------------------------------------------------------
-
     if (totalProfit < 0) {
       addRecommendation(
         "Critical",
@@ -241,10 +238,6 @@ export default function RecommendationsPage() {
         "Protect profitable operations and use the highest-performing vehicles for priority assignments.",
       );
     }
-
-    // ---------------------------------------------------------
-    // FUEL ANALYSIS
-    // ---------------------------------------------------------
 
     if (
       fleetEfficiency > 0 &&
@@ -288,10 +281,6 @@ export default function RecommendationsPage() {
         "Prioritize fuel-efficiency improvements because even small reductions in consumption can significantly improve profitability.",
       );
     }
-
-    // ---------------------------------------------------------
-    // VEHICLE-LEVEL ANALYSIS
-    // ---------------------------------------------------------
 
     const vehicleAnalysis = vehicles.map((vehicle) => {
       const code =
@@ -387,7 +376,6 @@ export default function RecommendationsPage() {
       };
     });
 
-    // Loss-making vehicles
     vehicleAnalysis
       .filter(
         (vehicle) =>
@@ -413,7 +401,6 @@ export default function RecommendationsPage() {
         );
       });
 
-    // High maintenance vehicles
     vehicleAnalysis
       .filter(
         (vehicle) =>
@@ -446,7 +433,6 @@ export default function RecommendationsPage() {
         );
       });
 
-    // Poor fuel efficiency vehicles
     vehicleAnalysis
       .filter(
         (vehicle) =>
@@ -473,7 +459,6 @@ export default function RecommendationsPage() {
         );
       });
 
-    // High fuel cost vehicles
     vehicleAnalysis
       .filter(
         (vehicle) =>
@@ -499,7 +484,6 @@ export default function RecommendationsPage() {
         );
       });
 
-    // Underutilized vehicles
     vehicleAnalysis
       .filter(
         (vehicle) => vehicle.trips === 0,
@@ -516,7 +500,6 @@ export default function RecommendationsPage() {
         );
       });
 
-    // High-cost vehicles
     vehicleAnalysis
       .filter(
         (vehicle) =>
@@ -550,10 +533,6 @@ export default function RecommendationsPage() {
         }
       });
 
-    // ---------------------------------------------------------
-    // MAINTENANCE DATA QUALITY / PREVENTIVE MAINTENANCE
-    // ---------------------------------------------------------
-
     vehicleAnalysis
       .filter(
         (vehicle) =>
@@ -576,10 +555,6 @@ export default function RecommendationsPage() {
         );
       });
 
-    // ---------------------------------------------------------
-    // FLEET UTILIZATION
-    // ---------------------------------------------------------
-
     if (
       fleetUtilization < 50 &&
       vehicleCount > 0
@@ -594,10 +569,6 @@ export default function RecommendationsPage() {
         "Review inactive vehicles and determine whether they should be repaired, reassigned, sold, or returned to service.",
       );
     }
-
-    // ---------------------------------------------------------
-    // POSITIVE RECOMMENDATIONS
-    // ---------------------------------------------------------
 
     const profitableVehicles =
       vehicleAnalysis
@@ -719,516 +690,521 @@ export default function RecommendationsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-            <p className="text-lg font-semibold text-slate-700">
-              Analyzing FleetFlow data...
-            </p>
+      <ProtectedPage permission="recommendations">
+        <main className="min-h-screen bg-slate-50 p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+              <p className="text-lg font-semibold text-slate-700">
+                Analyzing FleetFlow data...
+              </p>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Generating operational recommendations.
-            </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Generating operational recommendations.
+              </p>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </ProtectedPage>
     );
   }
 
   if (error) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-8">
-            <h1 className="text-xl font-bold text-red-700">
-              Recommendation Engine Error
-            </h1>
+      <ProtectedPage permission="recommendations">
+        <main className="min-h-screen bg-slate-50 p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-8">
+              <h1 className="text-xl font-bold text-red-700">
+                Recommendation Engine Error
+              </h1>
 
-            <p className="mt-2 text-sm text-red-600">
-              {error}
-            </p>
+              <p className="mt-2 text-sm text-red-600">
+                {error}
+              </p>
 
-            <button
-              onClick={loadData}
-              className="mt-5 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
-            >
-              Retry
-            </button>
+              <button
+                onClick={loadData}
+                className="mt-5 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Retry
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </ProtectedPage>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        {/* HEADER */}
-        <section className="rounded-2xl bg-slate-900 p-8 text-white shadow-lg">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
-                Decision Intelligence
+    <ProtectedPage permission="recommendations">
+      <main className="min-h-screen bg-slate-50 p-8">
+        <div className="mx-auto max-w-7xl space-y-8">
+          {/* HEADER */}
+          <section className="rounded-2xl bg-slate-900 p-8 text-white shadow-lg">
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+                  Decision Intelligence
+                </p>
+
+                <h1 className="mt-2 text-3xl font-bold">
+                  Executive Recommendations
+                </h1>
+
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+                  FleetFlow analyzes operational, financial,
+                  fuel, and maintenance data to identify risks
+                  and recommend actions management should
+                  consider.
+                </p>
+              </div>
+
+              <button
+                onClick={loadData}
+                className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+              >
+                Refresh Analysis
+              </button>
+            </div>
+          </section>
+
+          {/* PRIORITY SUMMARY */}
+          <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-slate-500">
+                Critical
               </p>
 
-              <h1 className="mt-2 text-3xl font-bold">
-                Executive Recommendations
-              </h1>
+              <p className="mt-2 text-3xl font-bold text-red-600">
+                {criticalCount}
+              </p>
 
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-                FleetFlow analyzes operational, financial,
-                fuel, and maintenance data to identify risks
-                and recommend actions management should
-                consider.
+              <p className="mt-1 text-xs text-slate-500">
+                Immediate management attention
               </p>
             </div>
 
-            <button
-              onClick={loadData}
-              className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
-            >
-              Refresh Analysis
-            </button>
-          </div>
-        </section>
-
-        {/* PRIORITY SUMMARY */}
-        <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Critical
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-red-600">
-              {criticalCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Immediate management attention
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              High Priority
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-orange-600">
-              {highCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Requires action soon
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-yellow-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Medium Priority
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-yellow-600">
-              {mediumCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Should be monitored
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-green-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">
-              Positive / Low
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-green-600">
-              {lowCount}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Positive or low-risk findings
-            </p>
-          </div>
-        </section>
-
-        {/* EXECUTIVE SNAPSHOT */}
-        <section>
-          <div className="mb-4">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-              Executive Snapshot
-            </p>
-
-            <h2 className="mt-1 text-2xl font-bold text-slate-900">
-              Current Business Position
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm text-slate-500">
-                Revenue
+            <div className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-slate-500">
+                High Priority
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
-                {money(analysis.totalRevenue)}
+              <p className="mt-2 text-3xl font-bold text-orange-600">
+                {highCount}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Requires action soon
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm text-slate-500">
-                Operating Cost
+            <div className="rounded-2xl border border-yellow-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-slate-500">
+                Medium Priority
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
-                {money(
-                  analysis.totalOperatingCost,
-                )}
+              <p className="mt-2 text-3xl font-bold text-yellow-600">
+                {mediumCount}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Should be monitored
               </p>
             </div>
 
-            <div
-              className={`rounded-2xl border p-6 shadow-sm ${
-                analysis.totalProfit >= 0
-                  ? "border-green-200 bg-green-50"
-                  : "border-red-200 bg-red-50"
-              }`}
-            >
-              <p className="text-sm text-slate-500">
-                Operating Result
+            <div className="rounded-2xl border border-green-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-slate-500">
+                Positive / Low
               </p>
 
-              <p
-                className={`mt-2 text-2xl font-bold ${
+              <p className="mt-2 text-3xl font-bold text-green-600">
+                {lowCount}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Positive or low-risk findings
+              </p>
+            </div>
+          </section>
+
+          {/* EXECUTIVE SNAPSHOT */}
+          <section>
+            <div className="mb-4">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                Executive Snapshot
+              </p>
+
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                Current Business Position
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-sm text-slate-500">
+                  Revenue
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {money(analysis.totalRevenue)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-sm text-slate-500">
+                  Operating Cost
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {money(
+                    analysis.totalOperatingCost,
+                  )}
+                </p>
+              </div>
+
+              <div
+                className={`rounded-2xl border p-6 shadow-sm ${
                   analysis.totalProfit >= 0
-                    ? "text-green-700"
-                    : "text-red-700"
+                    ? "border-green-200 bg-green-50"
+                    : "border-red-200 bg-red-50"
                 }`}
               >
-                {money(
-                  analysis.totalProfit,
-                )}
-              </p>
-            </div>
+                <p className="text-sm text-slate-500">
+                  Operating Result
+                </p>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm text-slate-500">
-                Fleet Efficiency
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-slate-900">
-                {analysis.fleetEfficiency >
-                0
-                  ? `${analysis.fleetEfficiency.toFixed(
-                      2,
-                    )} km/L`
-                  : "N/A"}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* RECOMMENDATIONS */}
-        <section>
-          <div className="mb-5">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-              Management Actions
-            </p>
-
-            <h2 className="mt-1 text-2xl font-bold text-slate-900">
-              Recommended Actions
-            </h2>
-
-            <p className="mt-2 text-sm text-slate-500">
-              These recommendations are generated from
-              the current FleetFlow operational data.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {analysis.recommendations.map(
-              (recommendation) => (
-                <div
-                  key={recommendation.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                <p
+                  className={`mt-2 text-2xl font-bold ${
+                    analysis.totalProfit >= 0
+                      ? "text-green-700"
+                      : "text-red-700"
+                  }`}
                 >
-                  <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="flex gap-4">
-                      <div
-                        className={`mt-1 h-3 w-3 flex-shrink-0 rounded-full ${priorityDot(
-                          recommendation.priority,
-                        )}`}
-                      />
+                  {money(
+                    analysis.totalProfit,
+                  )}
+                </p>
+              </div>
 
-                      <div>
-                        <div className="flex flex-wrap items-center gap-3">
-                          <span
-                            className={`rounded-full border px-3 py-1 text-xs font-bold ${priorityClass(
-                              recommendation.priority,
-                            )}`}
-                          >
-                            {
-                              recommendation.priority
-                            }
-                          </span>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-sm text-slate-500">
+                  Fleet Efficiency
+                </p>
 
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            {
-                              recommendation.category
-                            }
-                          </span>
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {analysis.fleetEfficiency >
+                  0
+                    ? `${analysis.fleetEfficiency.toFixed(
+                        2,
+                      )} km/L`
+                    : "N/A"}
+                </p>
+              </div>
+            </div>
+          </section>
 
-                          {recommendation.vehicleCode && (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+          {/* RECOMMENDATIONS */}
+          <section>
+            <div className="mb-5">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                Management Actions
+              </p>
+
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                Recommended Actions
+              </h2>
+
+              <p className="mt-2 text-sm text-slate-500">
+                These recommendations are generated from
+                the current FleetFlow operational data.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {analysis.recommendations.map(
+                (recommendation) => (
+                  <div
+                    key={recommendation.id}
+                    className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                  >
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="flex gap-4">
+                        <div
+                          className={`mt-1 h-3 w-3 flex-shrink-0 rounded-full ${priorityDot(
+                            recommendation.priority,
+                          )}`}
+                        />
+
+                        <div>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span
+                              className={`rounded-full border px-3 py-1 text-xs font-bold ${priorityClass(
+                                recommendation.priority,
+                              )}`}
+                            >
                               {
-                                recommendation.vehicleCode
+                                recommendation.priority
                               }
                             </span>
-                          )}
+
+                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                              {
+                                recommendation.category
+                              }
+                            </span>
+
+                            {recommendation.vehicleCode && (
+                              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                {
+                                  recommendation.vehicleCode
+                                }
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 className="mt-3 text-lg font-bold text-slate-900">
+                            {
+                              recommendation.title
+                            }
+                          </h3>
+
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {
+                              recommendation.explanation
+                            }
+                          </p>
                         </div>
+                      </div>
 
-                        <h3 className="mt-3 text-lg font-bold text-slate-900">
-                          {
-                            recommendation.title
-                          }
-                        </h3>
+                      <div className="min-w-full rounded-xl bg-slate-50 p-4 lg:min-w-[320px] lg:max-w-[380px]">
+                        <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                          Recommended Action
+                        </p>
 
-                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                        <p className="mt-2 text-sm leading-6 text-slate-700">
                           {
-                            recommendation.explanation
+                            recommendation.action
                           }
                         </p>
                       </div>
                     </div>
-
-                    <div className="min-w-full rounded-xl bg-slate-50 p-4 lg:min-w-[320px] lg:max-w-[380px]">
-                      <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
-                        Recommended Action
-                      </p>
-
-                      <p className="mt-2 text-sm leading-6 text-slate-700">
-                        {
-                          recommendation.action
-                        }
-                      </p>
-                    </div>
                   </div>
-                </div>
-              ),
-            )}
-          </div>
-        </section>
+                ),
+              )}
+            </div>
+          </section>
 
-        {/* VEHICLE DECISION TABLE */}
-        <section>
-          <div className="mb-5">
+          {/* VEHICLE DECISION TABLE */}
+          <section>
+            <div className="mb-5">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                Vehicle Decision Support
+              </p>
+
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                Vehicle Performance Signals
+              </h2>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[950px] text-left">
+                  <thead className="bg-slate-900 text-xs uppercase tracking-wider text-slate-300">
+                    <tr>
+                      <th className="px-6 py-4">
+                        Vehicle
+                      </th>
+                      <th className="px-6 py-4">
+                        Trips
+                      </th>
+                      <th className="px-6 py-4">
+                        Revenue
+                      </th>
+                      <th className="px-6 py-4">
+                        Operating Cost
+                      </th>
+                      <th className="px-6 py-4">
+                        Result
+                      </th>
+                      <th className="px-6 py-4">
+                        Fuel Efficiency
+                      </th>
+                      <th className="px-6 py-4">
+                        Signal
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-slate-100">
+                    {analysis.vehicleAnalysis.map(
+                      (vehicle) => {
+                        const signal =
+                          vehicle.profit < 0
+                            ? "Loss-making"
+                            : vehicle.efficiency >
+                                  0 &&
+                                vehicle.efficiency < 3
+                              ? "Poor efficiency"
+                              : vehicle.maintenanceCost >=
+                                  10000
+                                ? "High maintenance"
+                                : vehicle.trips ===
+                                    0
+                                  ? "Underutilized"
+                                  : "Healthy";
+
+                        const signalClass =
+                          signal === "Healthy"
+                            ? "bg-green-100 text-green-700"
+                            : signal ===
+                                "Underutilized"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700";
+
+                        return (
+                          <tr
+                            key={vehicle.code}
+                            className="hover:bg-slate-50"
+                          >
+                            <td className="px-6 py-4 font-semibold text-slate-900">
+                              {vehicle.code}
+                            </td>
+
+                            <td className="px-6 py-4 text-sm text-slate-600">
+                              {vehicle.trips}
+                            </td>
+
+                            <td className="px-6 py-4 text-sm text-slate-600">
+                              {money(
+                                vehicle.revenue,
+                              )}
+                            </td>
+
+                            <td className="px-6 py-4 text-sm text-slate-600">
+                              {money(
+                                vehicle.totalCost,
+                              )}
+                            </td>
+
+                            <td
+                              className={`px-6 py-4 text-sm font-semibold ${
+                                vehicle.profit >=
+                                0
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                              }`}
+                            >
+                              {money(
+                                vehicle.profit,
+                              )}
+                            </td>
+
+                            <td className="px-6 py-4 text-sm text-slate-600">
+                              {vehicle.efficiency >
+                              0
+                                ? `${vehicle.efficiency.toFixed(
+                                    2,
+                                  )} km/L`
+                                : "N/A"}
+                            </td>
+
+                            <td className="px-6 py-4">
+                              <span
+                                className={`rounded-full px-3 py-1 text-xs font-semibold ${signalClass}`}
+                              >
+                                {signal}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      },
+                    )}
+
+                    {analysis.vehicleAnalysis
+                      .length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="px-6 py-10 text-center text-sm text-slate-500"
+                        >
+                          No vehicle data
+                          available.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          {/* HOW IT WORKS */}
+          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-8">
             <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-              Vehicle Decision Support
+              Decision Engine
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold text-slate-900">
-              Vehicle Performance Signals
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">
+              How FleetFlow Makes Recommendations
             </h2>
-          </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[950px] text-left">
-                <thead className="bg-slate-900 text-xs uppercase tracking-wider text-slate-300">
-                  <tr>
-                    <th className="px-6 py-4">
-                      Vehicle
-                    </th>
-                    <th className="px-6 py-4">
-                      Trips
-                    </th>
-                    <th className="px-6 py-4">
-                      Revenue
-                    </th>
-                    <th className="px-6 py-4">
-                      Operating Cost
-                    </th>
-                    <th className="px-6 py-4">
-                      Result
-                    </th>
-                    <th className="px-6 py-4">
-                      Fuel Efficiency
-                    </th>
-                    <th className="px-6 py-4">
-                      Signal
-                    </th>
-                  </tr>
-                </thead>
+            <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <div className="text-2xl">
+                  📊
+                </div>
 
-                <tbody className="divide-y divide-slate-100">
-                  {analysis.vehicleAnalysis.map(
-                    (vehicle) => {
-                      const signal =
-                        vehicle.profit < 0
-                          ? "Loss-making"
-                          : vehicle.efficiency >
-                                0 &&
-                              vehicle.efficiency <
-                                3
-                            ? "Poor efficiency"
-                            : vehicle.maintenanceCost >=
-                                10000
-                              ? "High maintenance"
-                              : vehicle.trips ===
-                                  0
-                                ? "Underutilized"
-                                : "Healthy";
+                <h3 className="mt-3 font-bold text-slate-900">
+                  1. Analyze
+                </h3>
 
-                      const signalClass =
-                        signal === "Healthy"
-                          ? "bg-green-100 text-green-700"
-                          : signal ===
-                              "Underutilized"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-red-100 text-red-700";
-
-                      return (
-                        <tr
-                          key={vehicle.code}
-                          className="hover:bg-slate-50"
-                        >
-                          <td className="px-6 py-4 font-semibold text-slate-900">
-                            {vehicle.code}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-slate-600">
-                            {vehicle.trips}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-slate-600">
-                            {money(
-                              vehicle.revenue,
-                            )}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-slate-600">
-                            {money(
-                              vehicle.totalCost,
-                            )}
-                          </td>
-
-                          <td
-                            className={`px-6 py-4 text-sm font-semibold ${
-                              vehicle.profit >=
-                              0
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {money(
-                              vehicle.profit,
-                            )}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-slate-600">
-                            {vehicle.efficiency >
-                            0
-                              ? `${vehicle.efficiency.toFixed(
-                                  2,
-                                )} km/L`
-                              : "N/A"}
-                          </td>
-
-                          <td className="px-6 py-4">
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs font-semibold ${signalClass}`}
-                            >
-                              {signal}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    },
-                  )}
-
-                  {analysis.vehicleAnalysis
-                    .length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-6 py-10 text-center text-sm text-slate-500"
-                      >
-                        No vehicle data
-                        available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* HOW IT WORKS */}
-        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-            Decision Engine
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">
-            How FleetFlow Makes Recommendations
-          </h2>
-
-          <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <div className="text-2xl">
-                📊
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  FleetFlow combines vehicles, trips,
+                  fuel, maintenance, and expenses.
+                </p>
               </div>
 
-              <h3 className="mt-3 font-bold text-slate-900">
-                1. Analyze
-              </h3>
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <div className="text-2xl">
+                  🚨
+                </div>
 
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                FleetFlow combines vehicles, trips,
-                fuel, maintenance, and expenses.
-              </p>
-            </div>
+                <h3 className="mt-3 font-bold text-slate-900">
+                  2. Detect
+                </h3>
 
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <div className="text-2xl">
-                🚨
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  The system identifies losses, high
+                  costs, poor efficiency, maintenance
+                  risks, and utilization problems.
+                </p>
               </div>
 
-              <h3 className="mt-3 font-bold text-slate-900">
-                2. Detect
-              </h3>
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <div className="text-2xl">
+                  💡
+                </div>
 
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                The system identifies losses, high
-                costs, poor efficiency, maintenance
-                risks, and utilization problems.
-              </p>
-            </div>
+                <h3 className="mt-3 font-bold text-slate-900">
+                  3. Recommend
+                </h3>
 
-            <div className="rounded-xl bg-white p-5 shadow-sm">
-              <div className="text-2xl">
-                💡
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Each detected issue is converted into
+                  a prioritized management action.
+                </p>
               </div>
-
-              <h3 className="mt-3 font-bold text-slate-900">
-                3. Recommend
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Each detected issue is converted into
-                a prioritized management action.
-              </p>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* FOOTER */}
-        <footer className="border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
-          FleetFlow Decision Intelligence •
-          Recommendations are generated from current
-          operational data.
-        </footer>
-      </div>
-    </main>
+          {/* FOOTER */}
+          <footer className="border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
+            FleetFlow Decision Intelligence •
+            Recommendations are generated from current
+            operational data.
+          </footer>
+        </div>
+      </main>
+    </ProtectedPage>
   );
 }

@@ -25,6 +25,8 @@ const ALL_ROLES = [
   "Viewer",
 ];
 
+const VIEWER_ROLES = ["Admin", "Fleet Manager", "Operations", "Finance", "Viewer"];
+
 const menuItems: MenuItem[] = [
   {
     name: "Dashboard",
@@ -35,73 +37,73 @@ const menuItems: MenuItem[] = [
   {
     name: "Vehicles",
     href: "/vehicles",
-    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Operations"],
   },
   {
     name: "Drivers",
     href: "/drivers",
-    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Operations"],
   },
   {
     name: "Trips",
     href: "/trips",
-    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Operations"],
   },
   {
     name: "Fuel",
     href: "/fuel",
-    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Operations"],
   },
   {
     name: "Maintenance",
     href: "/maintenance",
-    roles: ["Admin", "Fleet Manager", "Viewer"],
+    roles: ["Admin", "Fleet Manager"],
   },
   {
     name: "Expenses",
     href: "/expenses",
-    roles: ["Admin", "Finance", "Viewer"],
+    roles: ["Admin", "Finance"],
   },
 
   {
     name: "Customers",
     href: "/customers",
-    roles: ["Admin", "Operations", "Viewer"],
+    roles: ["Admin", "Operations"],
   },
   {
     name: "Products",
     href: "/products",
-    roles: ["Admin", "Operations", "Viewer"],
+    roles: ["Admin", "Operations"],
   },
   {
     name: "Suppliers",
     href: "/suppliers",
-    roles: ["Admin", "Operations", "Viewer"],
+    roles: ["Admin", "Operations"],
   },
   {
     name: "Warehouses",
     href: "/warehouses",
-    roles: ["Admin", "Operations", "Viewer"],
+    roles: ["Admin", "Operations"],
   },
   {
     name: "Inventory",
     href: "/inventory",
-    roles: ["Admin", "Operations", "Viewer"],
+    roles: ["Admin", "Operations"],
   },
   {
     name: "Purchases",
     href: "/purchases",
-    roles: ["Admin", "Operations", "Finance", "Viewer"],
+    roles: ["Admin", "Operations", "Finance"],
   },
   {
     name: "Orders",
     href: "/sales-orders",
-    roles: ["Admin", "Operations", "Finance", "Viewer"],
+    roles: ["Admin", "Operations", "Finance"],
   },
   {
     name: "Payments",
     href: "/payments",
-    roles: ["Admin", "Finance", "Viewer"],
+    roles: ["Admin", "Finance"],
   },
 
   {
@@ -122,17 +124,17 @@ const menuItems: MenuItem[] = [
   {
     name: "Profitability",
     href: "/profitability",
-    roles: ["Admin", "Fleet Manager", "Finance", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Finance"],
   },
   {
     name: "Fuel Intelligence",
     href: "/fuel-intelligence",
-    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Operations"],
   },
   {
     name: "Maintenance Intelligence",
     href: "/maintenance-intelligence",
-    roles: ["Admin", "Fleet Manager", "Viewer"],
+    roles: ["Admin", "Fleet Manager"],
   },
   {
     name: "Recommendations",
@@ -147,12 +149,12 @@ const menuItems: MenuItem[] = [
   {
     name: "Route Intelligence",
     href: "/route-intelligence",
-    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Operations"],
   },
   {
     name: "Driver Intelligence",
     href: "/driver-intelligence",
-    roles: ["Admin", "Fleet Manager", "Operations", "Viewer"],
+    roles: ["Admin", "Fleet Manager", "Operations"],
   },
 ];
 

@@ -21,10 +21,11 @@ import { TripsModule } from "./trips/trips.module";
 import { FuelModule } from "./fuel/fuel.module";
 import { MaintenanceModule } from "./maintenance/maintenance.module";
 import { ExpensesModule } from "./expenses/expenses.module";
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { ReportsModule } from './reports/reports.module';
-import { AnalyticsModule } from './analytics/analytics.module';
+import { UsersModule } from "./users/users.module";
+import { AuthModule } from "./auth/auth.module";
+import { ReportsModule } from "./reports/reports.module";
+import { AnalyticsModule } from "./analytics/analytics.module";
+import { IntelligenceModule } from "./intelligence/intelligence.module";
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AuthModule,
     ReportsModule,
     AnalyticsModule,
+    IntelligenceModule,
   ],
 
   controllers: [AppController],

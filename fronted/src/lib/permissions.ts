@@ -161,6 +161,10 @@ export const permissions: Record<
     "Fleet Manager",
     "Operations",
   ],
+
+  users: [
+    "Admin",
+  ],
 };
 
 export function hasPermission(

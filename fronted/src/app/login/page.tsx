@@ -26,13 +26,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Clear any previous session before creating a new one.
-      localStorage.removeItem("fleetflow_token");
-      localStorage.removeItem("fleetflow_user");
-
-      document.cookie =
-        "fleetflow_token=; path=/; max-age=0; SameSite=Lax";
-
       const response = await fetch(
         "http://localhost:3001/auth/login",
         {
@@ -61,11 +54,11 @@ export default function LoginPage() {
 
       if (!loginData.accessToken || !loginData.user) {
         throw new Error(
-          "Login succeeded but FleetFlow did not receive authentication data.",
+          "Login succeeded but authentication data is missing.",
         );
       }
 
-      // Store the NEW authentication session.
+      // Save authentication data
       localStorage.setItem(
         "fleetflow_token",
         loginData.accessToken,
@@ -76,15 +69,15 @@ export default function LoginPage() {
         JSON.stringify(loginData.user),
       );
 
+      // Also keep the token in a cookie
       document.cookie =
         `fleetflow_token=${loginData.accessToken}; ` +
         "path=/; " +
         "max-age=86400; " +
         "SameSite=Lax";
 
-      // Full navigation lets Next.js middleware
-      // see the newly created cookie.
-      window.location.replace("/");
+      // Go to dashboard
+      window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
 

@@ -7,8 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { VehiclesService } from './vehicles.service';
 import { Vehicle } from './entities/vehicle.entity';
@@ -17,10 +19,20 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+    email: string;
+    role: string;
+  };
+}
+
 @Controller('vehicles')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class VehiclesController {
-  constructor(private readonly vehiclesService: VehiclesService) {}
+  constructor(
+    private readonly vehiclesService: VehiclesService,
+  ) {}
 
   @Get()
   @Roles('Admin', 'Fleet Manager', 'Operations')
@@ -30,14 +42,22 @@ export class VehiclesController {
 
   @Get(':id')
   @Roles('Admin', 'Fleet Manager', 'Operations')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Vehicle | null> {
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Vehicle | null> {
     return this.vehiclesService.findOne(id);
   }
 
   @Post()
   @Roles('Admin', 'Fleet Manager')
-  create(@Body() vehicle: Partial<Vehicle>): Promise<Vehicle> {
-    return this.vehiclesService.create(vehicle);
+  create(
+    @Body() vehicle: Partial<Vehicle>,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Vehicle> {
+    return this.vehiclesService.create(
+      vehicle,
+      request.user,
+    );
   }
 
   @Patch(':id')
@@ -45,13 +65,24 @@ export class VehiclesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() vehicle: Partial<Vehicle>,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Vehicle | null> {
-    return this.vehiclesService.update(id, vehicle);
+    return this.vehiclesService.update(
+      id,
+      vehicle,
+      request.user,
+    );
   }
 
   @Delete(':id')
   @Roles('Admin')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.vehiclesService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<void> {
+    return this.vehiclesService.remove(
+      id,
+      request.user,
+    );
   }
 }

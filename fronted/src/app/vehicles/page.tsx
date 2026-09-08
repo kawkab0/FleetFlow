@@ -4,6 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/app/components/ProtectedPage";
 
+type Driver = {
+  id: number;
+  driverCode?: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+};
+
 type Vehicle = {
   id: number;
   vehicleCode: string;
@@ -12,11 +20,13 @@ type Vehicle = {
   model: string;
   status: string;
   mileage: number;
-  driver: string;
+  driver: Driver | null;
 };
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -24,7 +34,8 @@ export default function VehiclesPage() {
   const [statusFilter, setStatusFilter] = useState("All");
 
   const [showModal, setShowModal] = useState(false);
-  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [editingVehicle, setEditingVehicle] =
+    useState<Vehicle | null>(null);
 
   const [form, setForm] = useState({
     vehicleCode: "",
@@ -33,21 +44,54 @@ export default function VehiclesPage() {
     model: "",
     status: "Active",
     mileage: "",
-    driver: "",
+    driverId: "",
   });
 
   // =========================
-  // GET VEHICLES
+  // DRIVER DISPLAY
   // =========================
 
-  const fetchVehicles = async () => {
+  const getDriverName = (driver: Driver | null) => {
+    if (!driver) return "Unassigned";
+
+    if (driver.name) {
+      return driver.name;
+    }
+
+    const fullName = [
+      driver.firstName,
+      driver.lastName,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    if (fullName) {
+      return fullName;
+    }
+
+    if (driver.driverCode) {
+      return driver.driverCode;
+    }
+
+    return `Driver #${driver.id}`;
+  };
+
+  // =========================
+  // GET VEHICLES + DRIVERS
+  // =========================
+
+  const fetchData = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const data = await apiFetch("/vehicles");
+      const [vehicleData, driverData] = await Promise.all([
+        apiFetch("/vehicles"),
+        apiFetch("/drivers"),
+      ]);
 
-      setVehicles(data);
+      setVehicles(vehicleData);
+      setDrivers(driverData);
     } catch (err) {
       console.error(err);
       setError("Could not load vehicles.");
@@ -57,7 +101,7 @@ export default function VehiclesPage() {
   };
 
   useEffect(() => {
-    fetchVehicles();
+    fetchData();
   }, []);
 
   // =========================
@@ -74,7 +118,7 @@ export default function VehiclesPage() {
       model: "",
       status: "Active",
       mileage: "",
-      driver: "",
+      driverId: "",
     });
 
     setShowModal(true);
@@ -90,7 +134,9 @@ export default function VehiclesPage() {
       model: vehicle.model,
       status: vehicle.status,
       mileage: String(vehicle.mileage),
-      driver: vehicle.driver,
+      driverId: vehicle.driver
+        ? String(vehicle.driver.id)
+        : "",
     });
 
     setShowModal(true);
@@ -100,25 +146,39 @@ export default function VehiclesPage() {
   // ADD / UPDATE
   // =========================
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e: React.FormEvent,
+  ) => {
     e.preventDefault();
 
     try {
       const vehicleData = {
-        vehicleCode: form.vehicleCode,
-        registrationNumber: form.registrationNumber,
-        type: form.type,
-        model: form.model,
+        vehicleCode:
+          form.vehicleCode.trim(),
+
+        registrationNumber:
+          form.registrationNumber.trim(),
+
+        type: form.type.trim(),
+
+        model: form.model.trim(),
+
         status: form.status,
+
         mileage: Number(form.mileage),
-        driver: form.driver || "Unassigned",
+
+        driverId: form.driverId
+          ? Number(form.driverId)
+          : null,
       };
 
       const endpoint = editingVehicle
         ? `/vehicles/${editingVehicle.id}`
         : "/vehicles";
 
-      const method = editingVehicle ? "PATCH" : "POST";
+      const method = editingVehicle
+        ? "PATCH"
+        : "POST";
 
       await apiFetch(endpoint, {
         method,
@@ -128,10 +188,15 @@ export default function VehiclesPage() {
       setShowModal(false);
       setEditingVehicle(null);
 
-      await fetchVehicles();
+      await fetchData();
     } catch (err) {
       console.error(err);
-      alert("Could not save vehicle.");
+
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Could not save vehicle.",
+      );
     }
   };
 
@@ -139,9 +204,11 @@ export default function VehiclesPage() {
   // DELETE
   // =========================
 
-  const deleteVehicle = async (id: number) => {
+  const deleteVehicle = async (
+    id: number,
+  ) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this vehicle?"
+      "Are you sure you want to delete this vehicle?",
     );
 
     if (!confirmed) return;
@@ -151,10 +218,15 @@ export default function VehiclesPage() {
         method: "DELETE",
       });
 
-      await fetchVehicles();
+      await fetchData();
     } catch (err) {
       console.error(err);
-      alert("Could not delete vehicle.");
+
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Could not delete vehicle.",
+      );
     }
   };
 
@@ -164,6 +236,9 @@ export default function VehiclesPage() {
 
   const filteredVehicles = useMemo(() => {
     return vehicles.filter((vehicle) => {
+      const driverName =
+        getDriverName(vehicle.driver);
+
       const matchesSearch =
         vehicle.vehicleCode
           .toLowerCase()
@@ -174,7 +249,7 @@ export default function VehiclesPage() {
         vehicle.model
           .toLowerCase()
           .includes(search.toLowerCase()) ||
-        vehicle.driver
+        driverName
           .toLowerCase()
           .includes(search.toLowerCase());
 
@@ -182,27 +257,41 @@ export default function VehiclesPage() {
         statusFilter === "All" ||
         vehicle.status === statusFilter;
 
-      return matchesSearch && matchesStatus;
+      return (
+        matchesSearch &&
+        matchesStatus
+      );
     });
-  }, [vehicles, search, statusFilter]);
+  }, [
+    vehicles,
+    search,
+    statusFilter,
+  ]);
 
   // =========================
   // DASHBOARD COUNTS
   // =========================
 
-  const totalVehicles = vehicles.length;
+  const totalVehicles =
+    vehicles.length;
 
-  const activeVehicles = vehicles.filter(
-    (vehicle) => vehicle.status === "Active"
-  ).length;
+  const activeVehicles =
+    vehicles.filter(
+      (vehicle) =>
+        vehicle.status === "Active",
+    ).length;
 
-  const maintenanceVehicles = vehicles.filter(
-    (vehicle) => vehicle.status === "Maintenance"
-  ).length;
+  const maintenanceVehicles =
+    vehicles.filter(
+      (vehicle) =>
+        vehicle.status === "Maintenance",
+    ).length;
 
-  const inactiveVehicles = vehicles.filter(
-    (vehicle) => vehicle.status === "Inactive"
-  ).length;
+  const inactiveVehicles =
+    vehicles.filter(
+      (vehicle) =>
+        vehicle.status === "Inactive",
+    ).length;
 
   return (
     <ProtectedPage permission="vehicles">
@@ -288,19 +377,34 @@ export default function VehiclesPage() {
               type="text"
               placeholder="Search vehicles..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
               className="flex-1 rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
             />
 
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) =>
+                setStatusFilter(e.target.value)
+              }
               className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
             >
-              <option value="All">All Statuses</option>
-              <option value="Active">Active</option>
-              <option value="Maintenance">Maintenance</option>
-              <option value="Inactive">Inactive</option>
+              <option value="All">
+                All Statuses
+              </option>
+
+              <option value="Active">
+                Active
+              </option>
+
+              <option value="Maintenance">
+                Maintenance
+              </option>
+
+              <option value="Inactive">
+                Inactive
+              </option>
             </select>
 
           </div>
@@ -370,78 +474,90 @@ export default function VehiclesPage() {
 
                   <tbody className="divide-y divide-slate-100">
 
-                    {filteredVehicles.map((vehicle) => (
+                    {filteredVehicles.map(
+                      (vehicle) => (
+                        <tr
+                          key={vehicle.id}
+                          className="hover:bg-slate-50"
+                        >
 
-                      <tr
-                        key={vehicle.id}
-                        className="hover:bg-slate-50"
-                      >
+                          <td className="px-6 py-4 font-medium text-slate-900">
+                            {vehicle.vehicleCode}
+                          </td>
 
-                        <td className="px-6 py-4 font-medium text-slate-900">
-                          {vehicle.vehicleCode}
-                        </td>
+                          <td className="px-6 py-4 text-slate-600">
+                            {vehicle.registrationNumber}
+                          </td>
 
-                        <td className="px-6 py-4 text-slate-600">
-                          {vehicle.registrationNumber}
-                        </td>
+                          <td className="px-6 py-4 text-slate-600">
+                            {vehicle.type}
+                          </td>
 
-                        <td className="px-6 py-4 text-slate-600">
-                          {vehicle.type}
-                        </td>
+                          <td className="px-6 py-4 text-slate-600">
+                            {vehicle.model}
+                          </td>
 
-                        <td className="px-6 py-4 text-slate-600">
-                          {vehicle.model}
-                        </td>
+                          <td className="px-6 py-4 text-slate-600">
+                            {getDriverName(
+                              vehicle.driver,
+                            )}
+                          </td>
 
-                        <td className="px-6 py-4 text-slate-600">
-                          {vehicle.driver}
-                        </td>
+                          <td className="px-6 py-4">
 
-                        <td className="px-6 py-4">
-
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-medium ${
-                              vehicle.status === "Active"
-                                ? "bg-green-100 text-green-700"
-                                : vehicle.status === "Maintenance"
-                                ? "bg-orange-100 text-orange-700"
-                                : "bg-slate-100 text-slate-600"
-                            }`}
-                          >
-                            {vehicle.status}
-                          </span>
-
-                        </td>
-
-                        <td className="px-6 py-4 text-slate-600">
-                          {vehicle.mileage.toLocaleString()} km
-                        </td>
-
-                        <td className="px-6 py-4">
-
-                          <div className="flex gap-2">
-
-                            <button
-                              onClick={() => openEditModal(vehicle)}
-                              className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+                            <span
+                              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                vehicle.status ===
+                                "Active"
+                                  ? "bg-green-100 text-green-700"
+                                  : vehicle.status ===
+                                    "Maintenance"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-slate-100 text-slate-600"
+                              }`}
                             >
-                              Edit
-                            </button>
+                              {vehicle.status}
+                            </span>
 
-                            <button
-                              onClick={() => deleteVehicle(vehicle.id)}
-                              className="rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                            >
-                              Delete
-                            </button>
+                          </td>
 
-                          </div>
+                          <td className="px-6 py-4 text-slate-600">
+                            {vehicle.mileage.toLocaleString()} km
+                          </td>
 
-                        </td>
+                          <td className="px-6 py-4">
 
-                      </tr>
+                            <div className="flex gap-2">
 
-                    ))}
+                              <button
+                                onClick={() =>
+                                  openEditModal(
+                                    vehicle,
+                                  )
+                                }
+                                className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+                              >
+                                Edit
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  deleteVehicle(
+                                    vehicle.id,
+                                  )
+                                }
+                                className="rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+                              >
+                                Delete
+                              </button>
+
+                            </div>
+
+                          </td>
+
+                        </tr>
+                      ),
+                    )}
 
                   </tbody>
 
@@ -464,11 +580,15 @@ export default function VehiclesPage() {
               <div className="mb-6 flex items-center justify-between">
 
                 <h2 className="text-xl font-bold text-slate-900">
-                  {editingVehicle ? "Edit Vehicle" : "Add Vehicle"}
+                  {editingVehicle
+                    ? "Edit Vehicle"
+                    : "Add Vehicle"}
                 </h2>
 
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={() =>
+                    setShowModal(false)
+                  }
                   className="text-xl text-slate-400 hover:text-slate-700"
                 >
                   ×
@@ -492,7 +612,8 @@ export default function VehiclesPage() {
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        vehicleCode: e.target.value,
+                        vehicleCode:
+                          e.target.value,
                       })
                     }
                     placeholder="FL-001"
@@ -507,11 +628,14 @@ export default function VehiclesPage() {
 
                   <input
                     required
-                    value={form.registrationNumber}
+                    value={
+                      form.registrationNumber
+                    }
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        registrationNumber: e.target.value,
+                        registrationNumber:
+                          e.target.value,
                       })
                     }
                     placeholder="ET-45231"
@@ -578,10 +702,14 @@ export default function VehiclesPage() {
                       }
                       className="w-full rounded-lg border border-slate-300 px-4 py-2.5 outline-none focus:border-blue-500"
                     >
-                      <option value="Active">Active</option>
+                      <option value="Active">
+                        Active
+                      </option>
+
                       <option value="Maintenance">
                         Maintenance
                       </option>
+
                       <option value="Inactive">
                         Inactive
                       </option>
@@ -601,7 +729,8 @@ export default function VehiclesPage() {
                       onChange={(e) =>
                         setForm({
                           ...form,
-                          mileage: e.target.value,
+                          mileage:
+                            e.target.value,
                         })
                       }
                       placeholder="82450"
@@ -611,29 +740,49 @@ export default function VehiclesPage() {
 
                 </div>
 
+                {/* DRIVER DROPDOWN */}
+
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
                     Driver
                   </label>
 
-                  <input
-                    value={form.driver}
+                  <select
+                    value={form.driverId}
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        driver: e.target.value,
+                        driverId:
+                          e.target.value,
                       })
                     }
-                    placeholder="Abebe K."
                     className="w-full rounded-lg border border-slate-300 px-4 py-2.5 outline-none focus:border-blue-500"
-                  />
+                  >
+                    <option value="">
+                      Unassigned
+                    </option>
+
+                    {drivers.map((driver) => (
+                      <option
+                        key={driver.id}
+                        value={driver.id}
+                      >
+                        {getDriverName(driver)}
+                        {driver.driverCode
+                          ? ` — ${driver.driverCode}`
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4">
 
                   <button
                     type="button"
-                    onClick={() => setShowModal(false)}
+                    onClick={() =>
+                      setShowModal(false)
+                    }
                     className="rounded-lg border border-slate-300 px-5 py-2.5 font-medium text-slate-700 hover:bg-slate-50"
                   >
                     Cancel

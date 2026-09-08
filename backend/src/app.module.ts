@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-
+import { AuditLogsModule } from "./audit-logs/audit-logs.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
@@ -73,6 +73,7 @@ import { IntelligenceModule } from "./intelligence/intelligence.module";
     ReportsModule,
     AnalyticsModule,
     IntelligenceModule,
+    AuditLogsModule,
   ],
 
   controllers: [AppController],

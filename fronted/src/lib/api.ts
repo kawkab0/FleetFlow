@@ -11,7 +11,9 @@ export async function apiFetch(
 
   const headers = new Headers(options.headers);
 
-  headers.set("Content-Type", "application/json");
+  if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
@@ -23,17 +25,9 @@ export async function apiFetch(
   });
 
   if (response.status === 401) {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("fleetflow_token");
-      localStorage.removeItem("fleetflow_user");
-
-      document.cookie =
-        "fleetflow_token=; path=/; max-age=0; SameSite=Lax";
-
-      window.location.href = "/login";
-    }
-
-    throw new Error("Your session has expired. Please log in again.");
+    throw new Error(
+      "Your FleetFlow session is no longer valid. Please sign in again.",
+    );
   }
 
   if (!response.ok) {
@@ -48,7 +42,7 @@ export async function apiFetch(
         message = data.message;
       }
     } catch {
-      // Keep the default error message.
+      // Keep default message.
     }
 
     throw new Error(message);

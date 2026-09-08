@@ -25,8 +25,6 @@ const ALL_ROLES = [
   "Viewer",
 ];
 
-const VIEWER_ROLES = ["Admin", "Fleet Manager", "Operations", "Finance", "Viewer"];
-
 const menuItems: MenuItem[] = [
   {
     name: "Dashboard",
@@ -155,6 +153,13 @@ const menuItems: MenuItem[] = [
     name: "Driver Intelligence",
     href: "/driver-intelligence",
     roles: ["Admin", "Fleet Manager", "Operations"],
+  },
+
+  // Admin-only User Management
+  {
+    name: "Users",
+    href: "/users",
+    roles: ["Admin"],
   },
 ];
 

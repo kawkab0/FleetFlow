@@ -1,7 +1,6 @@
-import sidebar from "./components/sidebar";
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "./components/sidebar";
+import AppShell from "./components/AppShell";
 
 export const metadata: Metadata = {
   title: "FleetFlow ERP",
@@ -16,8 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Sidebar />
-        <div className="ml-64">{children}</div>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

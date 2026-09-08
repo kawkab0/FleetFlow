@@ -26,6 +26,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Clear any previous session before creating a new one.
+      localStorage.removeItem("fleetflow_token");
+      localStorage.removeItem("fleetflow_user");
+
+      document.cookie =
+        "fleetflow_token=; path=/; max-age=0; SameSite=Lax";
+
       const response = await fetch(
         "http://localhost:3001/auth/login",
         {
@@ -34,7 +41,7 @@ export default function LoginPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
+            email: email.trim(),
             password,
           }),
         },
@@ -52,39 +59,40 @@ export default function LoginPage() {
 
       const loginData = data as LoginResponse;
 
-      // Save JWT for authenticated API requests.
+      if (!loginData.accessToken || !loginData.user) {
+        throw new Error(
+          "Login succeeded but FleetFlow did not receive authentication data.",
+        );
+      }
+
+      // Store the NEW authentication session.
       localStorage.setItem(
         "fleetflow_token",
         loginData.accessToken,
       );
 
-      // Save logged-in user information.
       localStorage.setItem(
         "fleetflow_user",
         JSON.stringify(loginData.user),
       );
 
-      // Save JWT in cookie so Next.js middleware
-      // recognizes the authenticated session.
       document.cookie =
         `fleetflow_token=${loginData.accessToken}; ` +
         "path=/; " +
         "max-age=86400; " +
         "SameSite=Lax";
 
-      // Force a full navigation so the middleware
-      // immediately receives the new authentication cookie.
-      window.location.href = "/";
+      // Full navigation lets Next.js middleware
+      // see the newly created cookie.
+      window.location.replace("/");
     } catch (error) {
       console.error("Login error:", error);
 
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError(
-          "Something went wrong. Please try again.",
-        );
-      }
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
 
       setLoading(false);
     }
@@ -94,7 +102,6 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6">
       <div className="w-full max-w-md">
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-white">
               FleetFlow
@@ -185,7 +192,6 @@ export default function LoginPage() {
               Secure role-based access for FleetFlow users.
             </p>
           </div>
-
         </div>
       </div>
     </main>

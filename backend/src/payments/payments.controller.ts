@@ -7,8 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { PaymentsService } from './payments.service';
 import { Payment } from './entities/payment.entity';
@@ -16,6 +18,14 @@ import { Payment } from './entities/payment.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+    email: string;
+    role: string;
+  };
+}
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -28,8 +38,12 @@ export class PaymentsController {
   @Roles('Admin', 'Finance')
   create(
     @Body() paymentData: Partial<Payment>,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Payment> {
-    return this.paymentsService.create(paymentData);
+    return this.paymentsService.create(
+      paymentData,
+      req.user,
+    );
   }
 
   @Get()
@@ -51,10 +65,12 @@ export class PaymentsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() paymentData: Partial<Payment>,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Payment> {
     return this.paymentsService.update(
       id,
       paymentData,
+      req.user,
     );
   }
 
@@ -62,7 +78,11 @@ export class PaymentsController {
   @Roles('Admin')
   remove(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
   ): Promise<{ message: string }> {
-    return this.paymentsService.remove(id);
+    return this.paymentsService.remove(
+      id,
+      req.user,
+    );
   }
 }

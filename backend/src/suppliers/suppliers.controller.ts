@@ -7,8 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { SuppliersService } from './suppliers.service';
 import { Supplier } from './entities/supplier.entity';
@@ -16,6 +18,14 @@ import { Supplier } from './entities/supplier.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+    email: string;
+    role: string;
+  };
+}
 
 @Controller('suppliers')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -42,8 +52,12 @@ export class SuppliersController {
   @Roles('Admin', 'Fleet Manager', 'Finance')
   create(
     @Body() supplier: Partial<Supplier>,
+    @Req() req: AuthenticatedRequest,
   ) {
-    return this.suppliersService.create(supplier);
+    return this.suppliersService.create(
+      supplier,
+      req.user,
+    );
   }
 
   @Patch(':id')
@@ -51,16 +65,21 @@ export class SuppliersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() supplier: Partial<Supplier>,
+    @Req() req: AuthenticatedRequest,
   ) {
-    return this.suppliersService.update(id, supplier);
+    return this.suppliersService.update(
+      id,
+      supplier,
+      req.user,
+    );
   }
 
   @Delete(':id')
   @Roles('Admin')
   remove(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
   ) {
-    return this.suppliersService.remove(id);
+    return this.suppliersService.remove(id, req.user);
   }
 }
-

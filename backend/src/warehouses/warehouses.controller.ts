@@ -1,4 +1,3 @@
-
 import {
   Body,
   Controller,
@@ -8,8 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { WarehousesService } from './warehouses.service';
 import { Warehouse } from './entities/warehouse.entity';
@@ -17,6 +18,14 @@ import { Warehouse } from './entities/warehouse.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+    email: string;
+    role: string;
+  };
+}
 
 @Controller('warehouses')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -43,8 +52,12 @@ export class WarehousesController {
   @Roles('Admin', 'Fleet Manager')
   create(
     @Body() warehouse: Partial<Warehouse>,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Warehouse> {
-    return this.warehousesService.create(warehouse);
+    return this.warehousesService.create(
+      warehouse,
+      req.user,
+    );
   }
 
   @Patch(':id')
@@ -52,15 +65,24 @@ export class WarehousesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() warehouse: Partial<Warehouse>,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Warehouse | null> {
-    return this.warehousesService.update(id, warehouse);
+    return this.warehousesService.update(
+      id,
+      warehouse,
+      req.user,
+    );
   }
 
   @Delete(':id')
   @Roles('Admin')
   remove(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
   ): Promise<void> {
-    return this.warehousesService.remove(id);
+    return this.warehousesService.remove(
+      id,
+      req.user,
+    );
   }
 }

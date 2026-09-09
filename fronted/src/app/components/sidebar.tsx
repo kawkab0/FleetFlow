@@ -161,6 +161,13 @@ const menuItems: MenuItem[] = [
     href: "/users",
     roles: ["Admin"],
   },
+
+  // Admin-only Audit Logs
+  {
+    name: "Audit Logs",
+    href: "/audit-logs",
+    roles: ["Admin"],
+  },
 ];
 
 export default function Sidebar() {

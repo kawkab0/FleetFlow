@@ -5,8 +5,13 @@ import { PurchasesController } from "./purchases.controller";
 import { PurchasesService } from "./purchases.service";
 import { Purchase } from "./entities/purchase.entity";
 
+import { AuditLogsModule } from "../audit-logs/audit-logs.module";
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Purchase])],
+  imports: [
+    TypeOrmModule.forFeature([Purchase]),
+    AuditLogsModule,
+  ],
   controllers: [PurchasesController],
   providers: [PurchasesService],
   exports: [PurchasesService],

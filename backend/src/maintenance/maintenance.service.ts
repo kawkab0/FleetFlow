@@ -6,11 +6,21 @@ import { Maintenance } from './entities/maintenance.entity';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
 
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
+
+interface AuthenticatedUser {
+  userId: number;
+  email: string;
+  role: string;
+}
+
 @Injectable()
 export class MaintenanceService {
   constructor(
     @InjectRepository(Maintenance)
     private readonly maintenanceRepository: Repository<Maintenance>,
+
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
   findAll(): Promise<Maintenance[]> {
@@ -27,29 +37,103 @@ export class MaintenanceService {
     });
   }
 
-  create(maintenance: CreateMaintenanceDto): Promise<Maintenance> {
+  async create(
+    maintenance: CreateMaintenanceDto,
+    user: AuthenticatedUser,
+  ): Promise<Maintenance> {
     const newMaintenance =
-      this.maintenanceRepository.create(maintenance);
+      this.maintenanceRepository.create(
+        maintenance,
+      );
 
-    return this.maintenanceRepository.save(newMaintenance);
+    const savedMaintenance =
+      await this.maintenanceRepository.save(
+        newMaintenance,
+      );
+
+    await this.auditLogsService.create({
+      userId: user.userId,
+      userName: user.email,
+      userRole: user.role,
+      action: 'CREATE',
+      module: 'Maintenance',
+      recordId: savedMaintenance.id,
+      newValues: { ...savedMaintenance },
+      description: `Created maintenance record #${savedMaintenance.id}`,
+    });
+
+    return savedMaintenance;
   }
 
   async update(
     id: number,
     maintenance: UpdateMaintenanceDto,
+    user: AuthenticatedUser,
   ): Promise<Maintenance | null> {
-    const existingMaintenance = await this.findOne(id);
+    const existingMaintenance =
+      await this.findOne(id);
 
     if (!existingMaintenance) {
       return null;
     }
 
-    Object.assign(existingMaintenance, maintenance);
+    const oldValues = {
+      ...existingMaintenance,
+    };
 
-    return this.maintenanceRepository.save(existingMaintenance);
+    Object.assign(
+      existingMaintenance,
+      maintenance,
+    );
+
+    const updatedMaintenance =
+      await this.maintenanceRepository.save(
+        existingMaintenance,
+      );
+
+    await this.auditLogsService.create({
+      userId: user.userId,
+      userName: user.email,
+      userRole: user.role,
+      action: 'UPDATE',
+      module: 'Maintenance',
+      recordId: id,
+      oldValues,
+      newValues: { ...updatedMaintenance },
+      description: `Updated maintenance record #${id}`,
+    });
+
+    return updatedMaintenance;
   }
 
-  async remove(id: number): Promise<void> {
-    await this.maintenanceRepository.delete(id);
+  async remove(
+    id: number,
+    user: AuthenticatedUser,
+  ): Promise<void> {
+    const existingMaintenance =
+      await this.findOne(id);
+
+    if (!existingMaintenance) {
+      return;
+    }
+
+    const oldValues = {
+      ...existingMaintenance,
+    };
+
+    await this.maintenanceRepository.remove(
+      existingMaintenance,
+    );
+
+    await this.auditLogsService.create({
+      userId: user.userId,
+      userName: user.email,
+      userRole: user.role,
+      action: 'DELETE',
+      module: 'Maintenance',
+      recordId: id,
+      oldValues,
+      description: `Deleted maintenance record #${id}`,
+    });
   }
 }

@@ -9,26 +9,48 @@ import { Trip } from './entities/trip.entity';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
+
+interface AuthenticatedUser {
+  userId: number;
+  email: string;
+  role: string;
+}
+
 @Injectable()
 export class TripsService {
   constructor(
     @InjectRepository(Trip)
     private readonly tripsRepository: Repository<Trip>,
+
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  // =========================
-  // CREATE TRIP
-  // =========================
+  async create(
+    createTripDto: CreateTripDto,
+    user: AuthenticatedUser,
+  ): Promise<Trip> {
+    const trip =
+      this.tripsRepository.create(
+        createTripDto,
+      );
 
-  async create(createTripDto: CreateTripDto): Promise<Trip> {
-    const trip = this.tripsRepository.create(createTripDto);
+    const savedTrip =
+      await this.tripsRepository.save(trip);
 
-    return this.tripsRepository.save(trip);
+    await this.auditLogsService.create({
+      userId: user.userId,
+      userName: user.email,
+      userRole: user.role,
+      action: 'CREATE',
+      module: 'Trips',
+      recordId: savedTrip.id,
+      newValues: { ...savedTrip },
+      description: `Created trip #${savedTrip.id}`,
+    });
+
+    return savedTrip;
   }
-
-  // =========================
-  // GET ALL TRIPS
-  // =========================
 
   async findAll(): Promise<Trip[]> {
     return this.tripsRepository.find({
@@ -38,14 +60,11 @@ export class TripsService {
     });
   }
 
-  // =========================
-  // GET ONE TRIP
-  // =========================
-
   async findOne(id: number): Promise<Trip> {
-    const trip = await this.tripsRepository.findOne({
-      where: { id },
-    });
+    const trip =
+      await this.tripsRepository.findOne({
+        where: { id },
+      });
 
     if (!trip) {
       throw new NotFoundException(
@@ -56,28 +75,67 @@ export class TripsService {
     return trip;
   }
 
-  // =========================
-  // UPDATE TRIP
-  // =========================
-
   async update(
     id: number,
     updateTripDto: UpdateTripDto,
+    user: AuthenticatedUser,
   ): Promise<Trip> {
-    const trip = await this.findOne(id);
+    const existingTrip =
+      await this.findOne(id);
 
-    Object.assign(trip, updateTripDto);
+    const oldValues = {
+      ...existingTrip,
+    };
 
-    return this.tripsRepository.save(trip);
+    Object.assign(
+      existingTrip,
+      updateTripDto,
+    );
+
+    const updatedTrip =
+      await this.tripsRepository.save(
+        existingTrip,
+      );
+
+    await this.auditLogsService.create({
+      userId: user.userId,
+      userName: user.email,
+      userRole: user.role,
+      action: 'UPDATE',
+      module: 'Trips',
+      recordId: id,
+      oldValues,
+      newValues: { ...updatedTrip },
+      description: `Updated trip #${id}`,
+    });
+
+    return updatedTrip;
   }
 
-  // =========================
-  // DELETE TRIP
-  // =========================
+  async remove(
+    id: number,
+    user: AuthenticatedUser,
+  ): Promise<void> {
+    const existingTrip =
+      await this.findOne(id);
 
-  async remove(id: number): Promise<void> {
-    const trip = await this.findOne(id);
+    const oldValues = {
+      ...existingTrip,
+    };
 
-    await this.tripsRepository.remove(trip);
+    await this.tripsRepository.remove(
+      existingTrip,
+    );
+
+    await this.auditLogsService.create({
+      userId: user.userId,
+      userName: user.email,
+      userRole: user.role,
+      action: 'DELETE',
+      module: 'Trips',
+      recordId: id,
+      oldValues,
+      description: `Deleted trip #${id}`,
+    });
   }
 }

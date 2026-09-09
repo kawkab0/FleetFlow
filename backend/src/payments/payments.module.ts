@@ -5,8 +5,13 @@ import { PaymentsController } from "./payments.controller";
 import { PaymentsService } from "./payments.service";
 import { Payment } from "./entities/payment.entity";
 
+import { AuditLogsModule } from "../audit-logs/audit-logs.module";
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment])],
+  imports: [
+    TypeOrmModule.forFeature([Payment]),
+    AuditLogsModule,
+  ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
   exports: [PaymentsService],

@@ -7,8 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { TripsService } from './trips.service';
 
@@ -19,6 +21,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+    email: string;
+    role: string;
+  };
+}
+
 @Controller('trips')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class TripsController {
@@ -26,21 +36,17 @@ export class TripsController {
     private readonly tripsService: TripsService,
   ) {}
 
-  // =========================
-  // CREATE TRIP
-  // POST /trips
-  // =========================
-
   @Post()
   @Roles('Admin', 'Fleet Manager', 'Operations')
-  create(@Body() createTripDto: CreateTripDto) {
-    return this.tripsService.create(createTripDto);
+  create(
+    @Body() createTripDto: CreateTripDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.tripsService.create(
+      createTripDto,
+      request.user,
+    );
   }
-
-  // =========================
-  // GET ALL TRIPS
-  // GET /trips
-  // =========================
 
   @Get()
   @Roles('Admin', 'Fleet Manager', 'Operations')
@@ -48,39 +54,37 @@ export class TripsController {
     return this.tripsService.findAll();
   }
 
-  // =========================
-  // GET ONE TRIP
-  // GET /trips/:id
-  // =========================
-
   @Get(':id')
   @Roles('Admin', 'Fleet Manager', 'Operations')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
     return this.tripsService.findOne(id);
   }
-
-  // =========================
-  // UPDATE TRIP
-  // PATCH /trips/:id
-  // =========================
 
   @Patch(':id')
   @Roles('Admin', 'Fleet Manager', 'Operations')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTripDto: UpdateTripDto,
+    @Req() request: AuthenticatedRequest,
   ) {
-    return this.tripsService.update(id, updateTripDto);
+    return this.tripsService.update(
+      id,
+      updateTripDto,
+      request.user,
+    );
   }
-
-  // =========================
-  // DELETE TRIP
-  // DELETE /trips/:id
-  // =========================
 
   @Delete(':id')
   @Roles('Admin')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.tripsService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.tripsService.remove(
+      id,
+      request.user,
+    );
   }
 }

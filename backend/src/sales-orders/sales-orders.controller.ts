@@ -7,8 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { SalesOrdersService } from './sales-orders.service';
 import { SalesOrder } from './entities/sales-order.entity';
@@ -16,6 +18,14 @@ import { SalesOrder } from './entities/sales-order.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+    email: string;
+    role: string;
+  };
+}
 
 @Controller('sales-orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -28,8 +38,12 @@ export class SalesOrdersController {
   @Roles('Admin', 'Finance', 'Operations')
   create(
     @Body() salesOrderData: Partial<SalesOrder>,
+    @Req() req: AuthenticatedRequest,
   ): Promise<SalesOrder> {
-    return this.salesOrdersService.create(salesOrderData);
+    return this.salesOrdersService.create(
+      salesOrderData,
+      req.user,
+    );
   }
 
   @Get()
@@ -51,15 +65,24 @@ export class SalesOrdersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() salesOrderData: Partial<SalesOrder>,
+    @Req() req: AuthenticatedRequest,
   ): Promise<SalesOrder> {
-    return this.salesOrdersService.update(id, salesOrderData);
+    return this.salesOrdersService.update(
+      id,
+      salesOrderData,
+      req.user,
+    );
   }
 
   @Delete(':id')
   @Roles('Admin')
   remove(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
   ): Promise<{ message: string }> {
-    return this.salesOrdersService.remove(id);
+    return this.salesOrdersService.remove(
+      id,
+      req.user,
+    );
   }
 }

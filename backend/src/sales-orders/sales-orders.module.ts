@@ -5,8 +5,13 @@ import { SalesOrdersController } from "./sales-orders.controller";
 import { SalesOrdersService } from "./sales-orders.service";
 import { SalesOrder } from "./entities/sales-order.entity";
 
+import { AuditLogsModule } from "../audit-logs/audit-logs.module";
+
 @Module({
-  imports: [TypeOrmModule.forFeature([SalesOrder])],
+  imports: [
+    TypeOrmModule.forFeature([SalesOrder]),
+    AuditLogsModule,
+  ],
   controllers: [SalesOrdersController],
   providers: [SalesOrdersService],
   exports: [SalesOrdersService],

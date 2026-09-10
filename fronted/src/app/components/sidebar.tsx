@@ -15,6 +15,12 @@ type MenuItem = {
   name: string;
   href: string;
   roles: string[];
+  icon: string;
+};
+
+type MenuSection = {
+  title: string;
+  items: MenuItem[];
 };
 
 const ALL_ROLES = [
@@ -25,148 +31,197 @@ const ALL_ROLES = [
   "Viewer",
 ];
 
-const menuItems: MenuItem[] = [
+const menuSections: MenuSection[] = [
   {
-    name: "Dashboard",
-    href: "/",
-    roles: ALL_ROLES,
+    title: "Overview",
+    items: [
+      {
+        name: "Dashboard",
+        href: "/",
+        roles: ALL_ROLES,
+        icon: "▦",
+      },
+    ],
   },
 
   {
-    name: "Vehicles",
-    href: "/vehicles",
-    roles: ["Admin", "Fleet Manager", "Operations"],
-  },
-  {
-    name: "Drivers",
-    href: "/drivers",
-    roles: ["Admin", "Fleet Manager", "Operations"],
-  },
-  {
-    name: "Trips",
-    href: "/trips",
-    roles: ["Admin", "Fleet Manager", "Operations"],
-  },
-  {
-    name: "Fuel",
-    href: "/fuel",
-    roles: ["Admin", "Fleet Manager", "Operations"],
-  },
-  {
-    name: "Maintenance",
-    href: "/maintenance",
-    roles: ["Admin", "Fleet Manager"],
-  },
-  {
-    name: "Expenses",
-    href: "/expenses",
-    roles: ["Admin", "Finance"],
-  },
-
-  {
-    name: "Customers",
-    href: "/customers",
-    roles: ["Admin", "Operations"],
-  },
-  {
-    name: "Products",
-    href: "/products",
-    roles: ["Admin", "Operations"],
-  },
-  {
-    name: "Suppliers",
-    href: "/suppliers",
-    roles: ["Admin", "Operations"],
-  },
-  {
-    name: "Warehouses",
-    href: "/warehouses",
-    roles: ["Admin", "Operations"],
-  },
-  {
-    name: "Inventory",
-    href: "/inventory",
-    roles: ["Admin", "Operations"],
-  },
-  {
-    name: "Purchases",
-    href: "/purchases",
-    roles: ["Admin", "Operations", "Finance"],
-  },
-  {
-    name: "Orders",
-    href: "/sales-orders",
-    roles: ["Admin", "Operations", "Finance"],
-  },
-  {
-    name: "Payments",
-    href: "/payments",
-    roles: ["Admin", "Finance"],
+    title: "Operations",
+    items: [
+      {
+        name: "Vehicles",
+        href: "/vehicles",
+        roles: ["Admin", "Fleet Manager", "Operations"],
+        icon: "▣",
+      },
+      {
+        name: "Drivers",
+        href: "/drivers",
+        roles: ["Admin", "Fleet Manager", "Operations"],
+        icon: "♙",
+      },
+      {
+        name: "Trips",
+        href: "/trips",
+        roles: ["Admin", "Fleet Manager", "Operations"],
+        icon: "➜",
+      },
+      {
+        name: "Fuel",
+        href: "/fuel",
+        roles: ["Admin", "Fleet Manager", "Operations"],
+        icon: "◈",
+      },
+      {
+        name: "Maintenance",
+        href: "/maintenance",
+        roles: ["Admin", "Fleet Manager"],
+        icon: "⚙",
+      },
+      {
+        name: "Expenses",
+        href: "/expenses",
+        roles: ["Admin", "Finance"],
+        icon: "◆",
+      },
+    ],
   },
 
   {
-    name: "Reports",
-    href: "/reports",
-    roles: ALL_ROLES,
-  },
-  {
-    name: "Analytics",
-    href: "/analytics",
-    roles: ALL_ROLES,
-  },
-  {
-    name: "Intelligence",
-    href: "/intelligence",
-    roles: ALL_ROLES,
-  },
-  {
-    name: "Profitability",
-    href: "/profitability",
-    roles: ["Admin", "Fleet Manager", "Finance"],
-  },
-  {
-    name: "Fuel Intelligence",
-    href: "/fuel-intelligence",
-    roles: ["Admin", "Fleet Manager", "Operations"],
-  },
-  {
-    name: "Maintenance Intelligence",
-    href: "/maintenance-intelligence",
-    roles: ["Admin", "Fleet Manager"],
-  },
-  {
-    name: "Recommendations",
-    href: "/recommendations",
-    roles: ALL_ROLES,
-  },
-  {
-    name: "Alerts",
-    href: "/alerts",
-    roles: ALL_ROLES,
-  },
-  {
-    name: "Route Intelligence",
-    href: "/route-intelligence",
-    roles: ["Admin", "Fleet Manager", "Operations"],
-  },
-  {
-    name: "Driver Intelligence",
-    href: "/driver-intelligence",
-    roles: ["Admin", "Fleet Manager", "Operations"],
-  },
-
-  // Admin-only User Management
-  {
-    name: "Users",
-    href: "/users",
-    roles: ["Admin"],
+    title: "Sales & Procurement",
+    items: [
+      {
+        name: "Customers",
+        href: "/customers",
+        roles: ["Admin", "Operations"],
+        icon: "♧",
+      },
+      {
+        name: "Products",
+        href: "/products",
+        roles: ["Admin", "Operations"],
+        icon: "□",
+      },
+      {
+        name: "Suppliers",
+        href: "/suppliers",
+        roles: ["Admin", "Operations"],
+        icon: "◇",
+      },
+      {
+        name: "Warehouses",
+        href: "/warehouses",
+        roles: ["Admin", "Operations"],
+        icon: "▤",
+      },
+      {
+        name: "Inventory",
+        href: "/inventory",
+        roles: ["Admin", "Operations"],
+        icon: "▥",
+      },
+      {
+        name: "Purchases",
+        href: "/purchases",
+        roles: ["Admin", "Operations", "Finance"],
+        icon: "↓",
+      },
+      {
+        name: "Orders",
+        href: "/sales-orders",
+        roles: ["Admin", "Operations", "Finance"],
+        icon: "↑",
+      },
+      {
+        name: "Payments",
+        href: "/payments",
+        roles: ["Admin", "Finance"],
+        icon: "$",
+      },
+    ],
   },
 
-  // Admin-only Audit Logs
   {
-    name: "Audit Logs",
-    href: "/audit-logs",
-    roles: ["Admin"],
+    title: "Insights & Intelligence",
+    items: [
+      {
+        name: "Reports",
+        href: "/reports",
+        roles: ALL_ROLES,
+        icon: "▥",
+      },
+      {
+        name: "Analytics",
+        href: "/analytics",
+        roles: ALL_ROLES,
+        icon: "◒",
+      },
+      {
+        name: "Intelligence",
+        href: "/intelligence",
+        roles: ALL_ROLES,
+        icon: "✦",
+      },
+      {
+        name: "Profitability",
+        href: "/profitability",
+        roles: ["Admin", "Fleet Manager", "Finance"],
+        icon: "↗",
+      },
+      {
+        name: "Fuel Intelligence",
+        href: "/fuel-intelligence",
+        roles: ["Admin", "Fleet Manager", "Operations"],
+        icon: "◉",
+      },
+      {
+        name: "Maintenance Intelligence",
+        href: "/maintenance-intelligence",
+        roles: ["Admin", "Fleet Manager"],
+        icon: "⚡",
+      },
+      {
+        name: "Recommendations",
+        href: "/recommendations",
+        roles: ALL_ROLES,
+        icon: "★",
+      },
+      {
+        name: "Alerts",
+        href: "/alerts",
+        roles: ALL_ROLES,
+        icon: "!",
+      },
+      {
+        name: "Route Intelligence",
+        href: "/route-intelligence",
+        roles: ["Admin", "Fleet Manager", "Operations"],
+        icon: "⌁",
+      },
+      {
+        name: "Driver Intelligence",
+        href: "/driver-intelligence",
+        roles: ["Admin", "Fleet Manager", "Operations"],
+        icon: "♟",
+      },
+    ],
+  },
+
+  {
+    title: "Administration",
+    items: [
+      {
+        name: "Users",
+        href: "/users",
+        roles: ["Admin"],
+        icon: "♟",
+      },
+      {
+        name: "Audit Logs",
+        href: "/audit-logs",
+        roles: ["Admin"],
+        icon: "☷",
+      },
+    ],
   },
 ];
 
@@ -198,69 +253,129 @@ export default function Sidebar() {
     router.push("/login");
   }
 
-  const visibleMenuItems = menuItems.filter((item) =>
-    user ? item.roles.includes(user.role) : false,
-  );
+  const visibleSections = menuSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) =>
+        user ? item.roles.includes(user.role) : false,
+      ),
+    }))
+    .filter((section) => section.items.length > 0);
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col bg-slate-900 text-white">
-      <div className="border-b border-slate-700 p-6">
-        <h1 className="text-2xl font-bold">
-          FleetFlow
-        </h1>
+    <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-slate-950 text-white shadow-xl">
+      {/* Brand */}
+      <div className="border-b border-slate-800 px-5 py-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold shadow-lg shadow-blue-900/30">
+            F
+          </div>
 
-        <p className="mt-1 text-sm text-slate-400">
-          ERP Management System
-        </p>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">
+              FleetFlow
+            </h1>
 
+            <p className="text-xs text-slate-500">
+              Logistics ERP
+            </p>
+          </div>
+        </div>
+
+        {/* User profile */}
         {user && (
-          <div className="mt-4 rounded-lg bg-slate-800 p-3">
-            <p className="text-sm font-medium text-white">
-              {user.name}
-            </p>
+          <div className="mt-5 flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 px-3 py-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
 
-            <p className="mt-1 text-xs text-blue-400">
-              {user.role}
-            </p>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-white">
+                {user.name}
+              </p>
+
+              <div className="mt-0.5 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+
+                <p className="truncate text-xs text-slate-400">
+                  {user.role}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      <nav className="flex-1 space-y-2 overflow-y-auto p-4">
-        {visibleMenuItems.map((item) => {
-          const active = pathname === item.href;
+      {/* Navigation */}
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
+        {visibleSections.map((section) => (
+          <div key={section.title}>
+            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+              {section.title}
+            </p>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`block rounded-lg px-4 py-3 text-sm font-medium transition ${
-                active
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
-              }`}
-            >
-              {item.name}
-            </Link>
-          );
-        })}
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const active =
+                  item.href === "/"
+                    ? pathname === "/"
+                    : pathname === item.href ||
+                      pathname.startsWith(`${item.href}/`);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
+                      active
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-950/30"
+                        : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-sm ${
+                        active
+                          ? "bg-blue-500 text-white"
+                          : "bg-slate-900 text-slate-500 group-hover:bg-slate-800 group-hover:text-slate-300"
+                      }`}
+                    >
+                      {item.icon}
+                    </span>
+
+                    <span className="truncate">
+                      {item.name}
+                    </span>
+
+                    {active && (
+                      <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      <div className="border-t border-slate-700 p-4">
+      {/* Bottom section */}
+      <div className="border-t border-slate-800 p-4">
         <button
           onClick={handleLogout}
-          className="mb-4 w-full rounded-lg border border-red-800 px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-950 hover:text-red-300"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-800 px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:border-red-900 hover:bg-red-950/40 hover:text-red-400"
         >
+          <span>↪</span>
           Logout
         </button>
 
-        <p className="text-xs text-slate-500">
-          FleetFlow ERP
-        </p>
+        <div className="mt-4 flex items-center justify-between px-1">
+          <p className="text-[11px] text-slate-600">
+            FleetFlow ERP
+          </p>
 
-        <p className="text-sm text-slate-300">
-          v1.0.0
-        </p>
+          <span className="rounded-md bg-slate-900 px-2 py-1 text-[10px] font-medium text-slate-500">
+            v1.0.0
+          </span>
+        </div>
       </div>
     </aside>
   );

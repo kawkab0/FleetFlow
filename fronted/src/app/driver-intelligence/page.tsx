@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import ProtectedPage from "@/app/components/ProtectedPage";
+import ProtectedPage from "@/components/ProtectedPage";
 
 interface Driver {
   id: number;
@@ -1798,3 +1798,4 @@ export default function DriverIntelligencePage() {
     </ProtectedPage>
   );
 }
+

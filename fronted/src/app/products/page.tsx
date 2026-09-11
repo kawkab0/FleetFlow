@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import ProtectedPage from "@/app/components/ProtectedPage";
+import ProtectedPage from "@/components/ProtectedPage";
 
 interface Product {
   id: number;
@@ -793,3 +793,4 @@ export default function ProductsPage() {
     </ProtectedPage>
   );
 }
+

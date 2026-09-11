@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import ProtectedPage from "@/app/components/ProtectedPage";
+import ProtectedPage from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
 
 interface FleetKpis {
@@ -1760,3 +1760,4 @@ export default function AnalyticsPage() {
     </ProtectedPage>
   );
 }
+

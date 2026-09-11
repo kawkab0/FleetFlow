@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ProtectedPage from "@/app/components/ProtectedPage";
+import ProtectedPage from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
 
 interface PurchaseDetail {
@@ -802,3 +802,4 @@ export default function PurchaseDetailsPage() {
     </ProtectedPage>
   );
 }
+

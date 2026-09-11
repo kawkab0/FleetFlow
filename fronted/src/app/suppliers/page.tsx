@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import ProtectedPage from "@/app/components/ProtectedPage";
+import ProtectedPage from "@/components/ProtectedPage";
 
 interface Supplier {
   id: number;
@@ -718,3 +718,4 @@ export default function SuppliersPage() {
     </ProtectedPage>
   );
 }
+

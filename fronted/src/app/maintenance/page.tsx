@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import ProtectedPage from "@/app/components/ProtectedPage";
+import ProtectedPage from "@/components/ProtectedPage";
 
 interface Maintenance {
   id: number;
@@ -896,3 +896,4 @@ export default function MaintenancePage() {
     </ProtectedPage>
   );
 }
+

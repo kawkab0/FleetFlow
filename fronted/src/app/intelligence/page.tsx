@@ -63,10 +63,10 @@ function number(value: unknown): number {
 }
 
 function money(value: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return `${new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(value)} ETB`;
 }
 
 export default function IntelligencePage() {

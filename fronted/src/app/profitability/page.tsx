@@ -55,12 +55,11 @@ function toNumber(value: unknown): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
-
 function formatMoney(value: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return `${new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(value)} ETB`;
 }
 
 export default function ProfitabilityPage() {

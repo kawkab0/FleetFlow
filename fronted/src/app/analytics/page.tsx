@@ -141,7 +141,7 @@ export default function AnalyticsPage() {
     if (kpis.profit > 0) {
       results.push({
         title: "Fleet is profitable",
-        description: `The fleet generated a positive operating profit of ${kpis.profit.toFixed(
+        description: `The fleet generated a positive operating profit of ETB ${kpis.profit.toFixed(
           2,
         )}.`,
         type: "success",
@@ -229,10 +229,7 @@ export default function AnalyticsPage() {
     }
 
     return results;
-  }, [
-    kpis,
-    fuelEfficiency,
-  ]);
+  }, [kpis, fuelEfficiency]);
 
   const maxMonthlyRevenue = Math.max(
     ...monthlyAnalytics.map((item) => item.revenue),
@@ -305,17 +302,15 @@ export default function AnalyticsPage() {
             </h1>
 
             <p className="mt-2 text-slate-400">
-              Fleet performance, financial efficiency, and
-              operational intelligence.
+              Fleet performance, financial efficiency, and operational
+              intelligence.
             </p>
           </div>
 
           {/* KPI CARDS */}
           <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Total Trips
-              </p>
+              <p className="text-sm text-slate-400">Total Trips</p>
 
               <p className="mt-3 text-3xl font-bold">
                 {kpis?.totalTrips ?? 0}
@@ -327,37 +322,31 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Total Revenue
-              </p>
+              <p className="text-sm text-slate-400">Total Revenue</p>
 
               <p className="mt-3 text-3xl font-bold">
-                ${Number(kpis?.totalRevenue ?? 0).toFixed(2)}
+                ETB {Number(kpis?.totalRevenue ?? 0).toFixed(2)}
               </p>
 
               <p className="mt-2 text-xs text-slate-500">
-                ${Number(kpis?.revenuePerKm ?? 0).toFixed(2)} / km
+                ETB {Number(kpis?.revenuePerKm ?? 0).toFixed(2)} / km
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Operating Cost
-              </p>
+              <p className="text-sm text-slate-400">Operating Cost</p>
 
               <p className="mt-3 text-3xl font-bold">
-                ${Number(kpis?.totalOperatingCost ?? 0).toFixed(2)}
+                ETB {Number(kpis?.totalOperatingCost ?? 0).toFixed(2)}
               </p>
 
               <p className="mt-2 text-xs text-slate-500">
-                ${Number(kpis?.costPerKm ?? 0).toFixed(2)} / km
+                ETB {Number(kpis?.costPerKm ?? 0).toFixed(2)} / km
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Operating Profit
-              </p>
+              <p className="text-sm text-slate-400">Operating Profit</p>
 
               <p
                 className={`mt-3 text-3xl font-bold ${
@@ -366,7 +355,7 @@ export default function AnalyticsPage() {
                     : "text-red-400"
                 }`}
               >
-                ${Number(netOperatingResult).toFixed(2)}
+                ETB {Number(netOperatingResult).toFixed(2)}
               </p>
 
               <p className="mt-2 text-xs text-slate-500">
@@ -378,13 +367,9 @@ export default function AnalyticsPage() {
           {/* SECONDARY KPI ROW */}
           <section className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Fleet Size
-              </p>
+              <p className="text-sm text-slate-400">Fleet Size</p>
 
-              <p className="mt-3 text-3xl font-bold">
-                {fleetSize}
-              </p>
+              <p className="mt-3 text-3xl font-bold">{fleetSize}</p>
 
               <p className="mt-2 text-xs text-slate-500">
                 Vehicles with recorded activity
@@ -392,9 +377,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Completion Rate
-              </p>
+              <p className="text-sm text-slate-400">Completion Rate</p>
 
               <p className="mt-3 text-3xl font-bold">
                 {Number(kpis?.completionRate ?? 0).toFixed(1)}%
@@ -406,9 +389,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Fuel Efficiency
-              </p>
+              <p className="text-sm text-slate-400">Fuel Efficiency</p>
 
               <p className="mt-3 text-3xl font-bold">
                 {Number(fuelEfficiency).toFixed(2)}
@@ -420,9 +401,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Active Trips
-              </p>
+              <p className="text-sm text-slate-400">Active Trips</p>
 
               <p className="mt-3 text-3xl font-bold">
                 {kpis?.activeTrips ?? 0}
@@ -437,13 +416,11 @@ export default function AnalyticsPage() {
           {/* BUSINESS INSIGHTS */}
           <section className="mt-10">
             <div className="mb-5">
-              <h2 className="text-2xl font-bold">
-                Business Insights
-              </h2>
+              <h2 className="text-2xl font-bold">Business Insights</h2>
 
               <p className="mt-1 text-sm text-slate-400">
-                Automatically generated observations from fleet
-                performance data.
+                Automatically generated observations from fleet performance
+                data.
               </p>
             </div>
 
@@ -469,9 +446,7 @@ export default function AnalyticsPage() {
                     </div>
 
                     <div>
-                      <h3 className="font-semibold">
-                        {insight.title}
-                      </h3>
+                      <h3 className="font-semibold">{insight.title}</h3>
 
                       <p className="mt-2 text-sm leading-6 text-slate-300">
                         {insight.description}
@@ -486,9 +461,7 @@ export default function AnalyticsPage() {
           {/* MONTHLY PERFORMANCE */}
           <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold">
-                Monthly Performance
-              </h2>
+              <h2 className="text-2xl font-bold">Monthly Performance</h2>
 
               <p className="mt-1 text-sm text-slate-400">
                 Revenue and profit trends over time.
@@ -506,8 +479,7 @@ export default function AnalyticsPage() {
                     (month.revenue / maxMonthlyRevenue) * 100;
 
                   const profitWidth =
-                    (Math.abs(month.profit) / maxMonthlyProfit) *
-                    100;
+                    (Math.abs(month.profit) / maxMonthlyProfit) * 100;
 
                   return (
                     <div key={month.month}>
@@ -527,7 +499,7 @@ export default function AnalyticsPage() {
                             <span>Revenue</span>
 
                             <span>
-                              ${Number(month.revenue).toFixed(2)}
+                              ETB {Number(month.revenue).toFixed(2)}
                             </span>
                           </div>
 
@@ -546,7 +518,7 @@ export default function AnalyticsPage() {
                             <span>Profit</span>
 
                             <span>
-                              ${Number(month.profit).toFixed(2)}
+                              ETB {Number(month.profit).toFixed(2)}
                             </span>
                           </div>
 
@@ -574,9 +546,7 @@ export default function AnalyticsPage() {
           {/* VEHICLE PERFORMANCE */}
           <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold">
-                Vehicle Performance
-              </h2>
+              <h2 className="text-2xl font-bold">Vehicle Performance</h2>
 
               <p className="mt-1 text-sm text-slate-400">
                 Financial and operational performance by vehicle.
@@ -592,37 +562,14 @@ export default function AnalyticsPage() {
                 <table className="w-full min-w-[1000px] text-left">
                   <thead>
                     <tr className="border-b border-slate-800 text-sm text-slate-400">
-                      <th className="px-4 py-4">
-                        Vehicle
-                      </th>
-
-                      <th className="px-4 py-4">
-                        Trips
-                      </th>
-
-                      <th className="px-4 py-4">
-                        Distance
-                      </th>
-
-                      <th className="px-4 py-4">
-                        Revenue
-                      </th>
-
-                      <th className="px-4 py-4">
-                        Total Cost
-                      </th>
-
-                      <th className="px-4 py-4">
-                        Profit
-                      </th>
-
-                      <th className="px-4 py-4">
-                        Margin
-                      </th>
-
-                      <th className="px-4 py-4">
-                        Fuel Efficiency
-                      </th>
+                      <th className="px-4 py-4">Vehicle</th>
+                      <th className="px-4 py-4">Trips</th>
+                      <th className="px-4 py-4">Distance</th>
+                      <th className="px-4 py-4">Revenue</th>
+                      <th className="px-4 py-4">Total Cost</th>
+                      <th className="px-4 py-4">Profit</th>
+                      <th className="px-4 py-4">Margin</th>
+                      <th className="px-4 py-4">Fuel Efficiency</th>
                     </tr>
                   </thead>
 
@@ -645,11 +592,11 @@ export default function AnalyticsPage() {
                         </td>
 
                         <td className="px-4 py-4">
-                          ${Number(vehicle.revenue).toFixed(2)}
+                          ETB {Number(vehicle.revenue).toFixed(2)}
                         </td>
 
                         <td className="px-4 py-4">
-                          ${Number(vehicle.totalCost).toFixed(2)}
+                          ETB {Number(vehicle.totalCost).toFixed(2)}
                         </td>
 
                         <td
@@ -659,7 +606,7 @@ export default function AnalyticsPage() {
                               : "text-red-400"
                           }`}
                         >
-                          ${Number(vehicle.profit).toFixed(2)}
+                          ETB {Number(vehicle.profit).toFixed(2)}
                         </td>
 
                         <td className="px-4 py-4">
@@ -667,8 +614,7 @@ export default function AnalyticsPage() {
                         </td>
 
                         <td className="px-4 py-4">
-                          {Number(vehicle.fuelEfficiency).toFixed(2)}{" "}
-                          km/L
+                          {Number(vehicle.fuelEfficiency).toFixed(2)} km/L
                         </td>
                       </tr>
                     ))}
@@ -681,9 +627,7 @@ export default function AnalyticsPage() {
           {/* COST STRUCTURE */}
           <section className="mt-10 grid gap-6 lg:grid-cols-2">
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <h2 className="text-2xl font-bold">
-                Cost Structure
-              </h2>
+              <h2 className="text-2xl font-bold">Cost Structure</h2>
 
               <p className="mt-1 text-sm text-slate-400">
                 Breakdown of total operating costs.
@@ -692,12 +636,10 @@ export default function AnalyticsPage() {
               <div className="mt-8 space-y-5">
                 <div>
                   <div className="mb-2 flex justify-between text-sm">
-                    <span className="text-slate-300">
-                      Fuel
-                    </span>
+                    <span className="text-slate-300">Fuel</span>
 
                     <span>
-                      ${Number(kpis?.fuelCost ?? 0).toFixed(2)}
+                      ETB {Number(kpis?.fuelCost ?? 0).toFixed(2)}
                     </span>
                   </div>
 
@@ -706,11 +648,8 @@ export default function AnalyticsPage() {
                       className="h-full rounded-full bg-blue-500"
                       style={{
                         width: `${
-                          kpis &&
-                          kpis.totalOperatingCost > 0
-                            ? (kpis.fuelCost /
-                                kpis.totalOperatingCost) *
-                              100
+                          kpis && kpis.totalOperatingCost > 0
+                            ? (kpis.fuelCost / kpis.totalOperatingCost) * 100
                             : 0
                         }%`,
                       }}
@@ -720,15 +659,11 @@ export default function AnalyticsPage() {
 
                 <div>
                   <div className="mb-2 flex justify-between text-sm">
-                    <span className="text-slate-300">
-                      Maintenance
-                    </span>
+                    <span className="text-slate-300">Maintenance</span>
 
                     <span>
-                      $
-                      {Number(
-                        kpis?.maintenanceCost ?? 0,
-                      ).toFixed(2)}
+                      ETB{" "}
+                      {Number(kpis?.maintenanceCost ?? 0).toFixed(2)}
                     </span>
                   </div>
 
@@ -737,8 +672,7 @@ export default function AnalyticsPage() {
                       className="h-full rounded-full bg-amber-500"
                       style={{
                         width: `${
-                          kpis &&
-                          kpis.totalOperatingCost > 0
+                          kpis && kpis.totalOperatingCost > 0
                             ? (kpis.maintenanceCost /
                                 kpis.totalOperatingCost) *
                               100
@@ -751,15 +685,10 @@ export default function AnalyticsPage() {
 
                 <div>
                   <div className="mb-2 flex justify-between text-sm">
-                    <span className="text-slate-300">
-                      Other Expenses
-                    </span>
+                    <span className="text-slate-300">Other Expenses</span>
 
                     <span>
-                      $
-                      {Number(
-                        kpis?.expenseCost ?? 0,
-                      ).toFixed(2)}
+                      ETB {Number(kpis?.expenseCost ?? 0).toFixed(2)}
                     </span>
                   </div>
 
@@ -768,8 +697,7 @@ export default function AnalyticsPage() {
                       className="h-full rounded-full bg-purple-500"
                       style={{
                         width: `${
-                          kpis &&
-                          kpis.totalOperatingCost > 0
+                          kpis && kpis.totalOperatingCost > 0
                             ? (kpis.expenseCost /
                                 kpis.totalOperatingCost) *
                               100
@@ -784,9 +712,7 @@ export default function AnalyticsPage() {
 
             {/* EXPENSE BREAKDOWN */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <h2 className="text-2xl font-bold">
-                Expense Breakdown
-              </h2>
+              <h2 className="text-2xl font-bold">Expense Breakdown</h2>
 
               <p className="mt-1 text-sm text-slate-400">
                 Expenses grouped by category.
@@ -801,9 +727,7 @@ export default function AnalyticsPage() {
                   {expenseBreakdown.map((item) => {
                     const percentage =
                       totalExpenseBreakdown > 0
-                        ? (item.amount /
-                            totalExpenseBreakdown) *
-                          100
+                        ? (item.amount / totalExpenseBreakdown) * 100
                         : 0;
 
                     return (
@@ -814,7 +738,7 @@ export default function AnalyticsPage() {
                           </span>
 
                           <span>
-                            ${Number(item.amount).toFixed(2)}
+                            ETB {Number(item.amount).toFixed(2)}
                           </span>
                         </div>
 
@@ -840,13 +764,10 @@ export default function AnalyticsPage() {
 
           {/* DATA SUMMARY */}
           <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-2xl font-bold">
-              Data Summary
-            </h2>
+            <h2 className="text-2xl font-bold">Data Summary</h2>
 
             <p className="mt-1 text-sm text-slate-400">
-              Key data points currently used by FleetFlow
-              analytics.
+              Key data points currently used by FleetFlow analytics.
             </p>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -856,10 +777,7 @@ export default function AnalyticsPage() {
                 </p>
 
                 <p className="mt-2 text-xl font-bold">
-                  {Number(
-                    kpis?.totalDistance ?? 0,
-                  ).toFixed(0)}{" "}
-                  km
+                  {Number(kpis?.totalDistance ?? 0).toFixed(0)} km
                 </p>
               </div>
 
@@ -869,10 +787,7 @@ export default function AnalyticsPage() {
                 </p>
 
                 <p className="mt-2 text-xl font-bold">
-                  {Number(
-                    kpis?.totalFuelLiters ?? 0,
-                  ).toFixed(0)}{" "}
-                  L
+                  {Number(kpis?.totalFuelLiters ?? 0).toFixed(0)} L
                 </p>
               </div>
 
@@ -901,26 +816,18 @@ export default function AnalyticsPage() {
           {/* FOOTER METRICS */}
           <section className="mt-10 grid gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Revenue / KM
-              </p>
+              <p className="text-sm text-slate-400">Revenue / KM</p>
 
               <p className="mt-3 text-2xl font-bold">
-                ${Number(
-                  kpis?.revenuePerKm ?? 0,
-                ).toFixed(2)}
+                ETB {Number(kpis?.revenuePerKm ?? 0).toFixed(2)}
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <p className="text-sm text-slate-400">
-                Cost / KM
-              </p>
+              <p className="text-sm text-slate-400">Cost / KM</p>
 
               <p className="mt-3 text-2xl font-bold">
-                ${Number(
-                  kpis?.costPerKm ?? 0,
-                ).toFixed(2)}
+                ETB {Number(kpis?.costPerKm ?? 0).toFixed(2)}
               </p>
             </div>
 

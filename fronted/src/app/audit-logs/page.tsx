@@ -74,7 +74,21 @@ export default function AuditLogsPage() {
   }, [logs, search, moduleFilter, actionFilter]);
 
   function formatDate(date: string) {
-    return new Date(date).toLocaleString();
+    if (!date) return "";
+
+    const parsed = new Date(date);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return date.substring(0, 10);
+    }
+
+    const year = parsed.getFullYear();
+    const month = String(parsed.getMonth() + 1).padStart(2, "0");
+    const day = String(parsed.getDate()).padStart(2, "0");
+    const hours = String(parsed.getHours()).padStart(2, "0");
+    const minutes = String(parsed.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
   }
 
   function getActionClass(action: string) {

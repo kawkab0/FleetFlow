@@ -255,6 +255,123 @@ export default function Home() {
   const revenueMargin =
     totalRevenue > 0 ? (netOperatingResult / totalRevenue) * 100 : 0;
 
+  /*
+   * EXECUTIVE COMMAND CENTER
+   */
+
+  const fleetHealthScore = useMemo(() => {
+    let score = 100;
+
+    if (netOperatingResult < 0) score -= 25;
+
+    if (fleetUtilization > 90) score -= 10;
+
+    if (fleetUtilization < 25 && activeVehicles > 0) score -= 10;
+
+    if (maintenanceDue > 0) {
+      score -= Math.min(maintenanceDue * 5, 20);
+    }
+
+    if (fuelEfficiency > 0 && fuelEfficiency < 4) {
+      score -= 10;
+    }
+
+    if (inactiveVehicles > 0) {
+      score -= Math.min(inactiveVehicles * 3, 10);
+    }
+
+    return Math.max(0, Math.min(100, Math.round(score)));
+  }, [
+    netOperatingResult,
+    fleetUtilization,
+    activeVehicles,
+    maintenanceDue,
+    fuelEfficiency,
+    inactiveVehicles,
+  ]);
+
+  const priorityActions = useMemo(() => {
+    const actions: {
+      title: string;
+      description: string;
+      href: string;
+      priority: "Critical" | "High" | "Medium";
+    }[] = [];
+
+    if (netOperatingResult < 0) {
+      actions.push({
+        title: "Review fleet profitability",
+        description:
+          "Operating costs currently exceed recorded trip revenue.",
+        href: "/profitability",
+        priority: "Critical",
+      });
+    }
+
+    if (maintenanceDue > 0) {
+      actions.push({
+        title: "Review maintenance workload",
+        description: `${maintenanceDue} maintenance record${
+          maintenanceDue === 1 ? "" : "s"
+        } require attention.`,
+        href: "/maintenance-intelligence",
+        priority: "High",
+      });
+    }
+
+    if (fuelEfficiency > 0 && fuelEfficiency < 4) {
+      actions.push({
+        title: "Investigate fuel efficiency",
+        description:
+          "Fleet fuel efficiency is below the dashboard benchmark.",
+        href: "/fuel-intelligence",
+        priority: "High",
+      });
+    }
+
+    if (inactiveVehicles > 0) {
+      actions.push({
+        title: "Review inactive vehicles",
+        description: `${inactiveVehicles} vehicle${
+          inactiveVehicles === 1 ? "" : "s"
+        } currently inactive.`,
+        href: "/intelligence",
+        priority: "Medium",
+      });
+    }
+
+    if (actions.length === 0) {
+      actions.push({
+        title: "Fleet operating normally",
+        description:
+          "No critical decision actions were detected from current data.",
+        href: "/recommendations",
+        priority: "Medium",
+      });
+    }
+
+    return actions.slice(0, 4);
+  }, [
+    netOperatingResult,
+    maintenanceDue,
+    fuelEfficiency,
+    inactiveVehicles,
+  ]);
+
+  const healthLabel =
+    fleetHealthScore >= 80
+      ? "Healthy"
+      : fleetHealthScore >= 60
+        ? "Needs Attention"
+        : "At Risk";
+
+  const healthColor =
+    fleetHealthScore >= 80
+      ? "text-green-600"
+      : fleetHealthScore >= 60
+        ? "text-orange-600"
+        : "text-red-600";
+
   const recentTrips = useMemo(() => {
     return [...trips]
       .sort(
@@ -395,6 +512,295 @@ export default function Home() {
             </div>
           )}
 
+          {/* COMMAND CENTER */}
+          <section className="mb-8">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-slate-900">
+                Executive Command Center
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Decision signals generated from current FleetFlow
+                operational and financial data.
+              </p>
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-3">
+
+              {/* FLEET HEALTH */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Fleet Health
+                    </p>
+
+                    <p
+                      className={`mt-2 text-3xl font-bold ${healthColor}`}
+                    >
+                      {loading ? "..." : `${fleetHealthScore}/100`}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`rounded-xl bg-slate-50 px-3 py-2 text-sm font-bold ${healthColor}`}
+                  >
+                    {loading ? "..." : healthLabel}
+                  </span>
+                </div>
+
+                <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      fleetHealthScore >= 80
+                        ? "bg-green-500"
+                        : fleetHealthScore >= 60
+                          ? "bg-orange-500"
+                          : "bg-red-500"
+                    }`}
+                    style={{
+                      width: `${fleetHealthScore}%`,
+                    }}
+                  />
+                </div>
+
+                <p className="mt-3 text-xs text-slate-400">
+                  Combined operational health indicator.
+                </p>
+              </div>
+
+              {/* OPERATIONS SIGNAL */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Operations Signal
+                    </p>
+
+                    <p className="mt-2 text-3xl font-bold text-slate-900">
+                      {loading
+                        ? "..."
+                        : `${formatNumber(fleetUtilization)}%`}
+                    </p>
+                  </div>
+
+                  <span className="rounded-xl bg-blue-50 px-3 py-2 text-lg text-blue-600">
+                    ↗
+                  </span>
+                </div>
+
+                <p className="mt-4 text-sm text-slate-600">
+                  Fleet utilization
+                </p>
+
+                <div className="mt-3 flex items-center gap-2 text-xs">
+                  <span className="font-semibold text-green-600">
+                    {availableVehicles}
+                  </span>
+
+                  <span className="text-slate-400">
+                    available
+                  </span>
+
+                  <span className="mx-1 text-slate-300">
+                    •
+                  </span>
+
+                  <span className="font-semibold text-blue-600">
+                    {activeTrips}
+                  </span>
+
+                  <span className="text-slate-400">
+                    on trip
+                  </span>
+                </div>
+              </div>
+
+              {/* FINANCIAL SIGNAL */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Financial Signal
+                    </p>
+
+                    <p
+                      className={`mt-2 text-3xl font-bold ${
+                        netOperatingResult >= 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {loading
+                        ? "..."
+                        : netOperatingResult >= 0
+                          ? "Positive"
+                          : "Negative"}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`rounded-xl px-3 py-2 text-lg ${
+                      netOperatingResult >= 0
+                        ? "bg-green-50 text-green-600"
+                        : "bg-red-50 text-red-600"
+                    }`}
+                  >
+                    {netOperatingResult >= 0 ? "↑" : "↓"}
+                  </span>
+                </div>
+
+                <p className="mt-4 text-sm text-slate-600">
+                  Operating margin
+                </p>
+
+                <p
+                  className={`mt-1 text-sm font-semibold ${
+                    revenueMargin >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {loading
+                    ? "..."
+                    : `${formatNumber(revenueMargin)}%`}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* PRIORITY ACTIONS */}
+          <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Priority Actions
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Recommended areas requiring management attention.
+                </p>
+              </div>
+
+              <a
+                href="/recommendations"
+                className="text-sm font-semibold text-blue-600 transition hover:text-blue-800"
+              >
+                View all recommendations →
+              </a>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {priorityActions.map((action, index) => {
+                const priorityStyle =
+                  action.priority === "Critical"
+                    ? "border-red-200 bg-red-50"
+                    : action.priority === "High"
+                      ? "border-orange-200 bg-orange-50"
+                      : "border-blue-200 bg-blue-50";
+
+                const priorityText =
+                  action.priority === "Critical"
+                    ? "text-red-700"
+                    : action.priority === "High"
+                      ? "text-orange-700"
+                      : "text-blue-700";
+
+                return (
+                  <a
+                    key={`${action.title}-${index}`}
+                    href={action.href}
+                    className={`rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-sm ${priorityStyle}`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-semibold text-slate-900">
+                          {action.title}
+                        </p>
+
+                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                          {action.description}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`whitespace-nowrap rounded-full bg-white px-2.5 py-1 text-[11px] font-bold ${priorityText}`}
+                      >
+                        {action.priority}
+                      </span>
+                    </div>
+
+                    <p
+                      className={`mt-4 text-xs font-semibold ${priorityText}`}
+                    >
+                      Open analysis →
+                    </p>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* QUICK INTELLIGENCE LINKS */}
+          <section className="mb-8">
+            <div className="mb-4">
+              <h2 className="text-lg font-bold text-slate-900">
+                Intelligence Center
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Jump directly into FleetFlow's decision-support modules.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  title: "Fleet Intelligence",
+                  description:
+                    "Vehicle health, risk and utilization.",
+                  href: "/intelligence",
+                },
+                {
+                  title: "Fuel Intelligence",
+                  description:
+                    "Fuel cost and efficiency analysis.",
+                  href: "/fuel-intelligence",
+                },
+                {
+                  title: "Maintenance Intelligence",
+                  description:
+                    "Maintenance workload and risk.",
+                  href: "/maintenance-intelligence",
+                },
+                {
+                  title: "Profitability",
+                  description:
+                    "Vehicle and fleet profitability.",
+                  href: "/profitability",
+                },
+              ].map((item) => (
+                <a
+                  key={item.title}
+                  href={item.href}
+                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+                >
+                  <p className="font-semibold text-slate-900">
+                    {item.title}
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    {item.description}
+                  </p>
+
+                  <p className="mt-4 text-xs font-bold text-blue-600">
+                    Open module →
+                  </p>
+                </a>
+              ))}
+            </div>
+          </section>
+
           {/* EXECUTIVE KPI CARDS */}
           <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
@@ -503,7 +909,6 @@ export default function Home() {
                 Active vehicles currently on trips
               </p>
             </div>
-
           </section>
 
           {/* OPERATIONS OVERVIEW */}
@@ -1470,4 +1875,3 @@ export default function Home() {
     </ProtectedPage>
   );
 }
-

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import GlobalSearch from "@/components/GlobalSearch";
 
 type User = {
   id: number;
@@ -232,7 +233,8 @@ export default function Sidebar() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("fleetflow_user");
+    const storedUser =
+      localStorage.getItem("fleetflow_user");
 
     if (storedUser) {
       try {
@@ -257,16 +259,21 @@ export default function Sidebar() {
     .map((section) => ({
       ...section,
       items: section.items.filter((item) =>
-        user ? item.roles.includes(user.role) : false,
+        user
+          ? item.roles.includes(user.role)
+          : false,
       ),
     }))
-    .filter((section) => section.items.length > 0);
+    .filter(
+      (section) => section.items.length > 0,
+    );
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-slate-950 text-white shadow-xl">
-      {/* Brand */}
-      <div className="border-b border-slate-800 px-5 py-5">
-        <div className="flex items-center gap-3">
+      {/* Top section */}
+      <div className="shrink-0 border-b border-slate-800 px-4 py-5">
+        {/* Brand */}
+        <div className="flex items-center gap-3 px-1">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold shadow-lg shadow-blue-900/30">
             F
           </div>
@@ -286,7 +293,9 @@ export default function Sidebar() {
         {user && (
           <div className="mt-5 flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 px-3 py-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold">
-              {user.name.charAt(0).toUpperCase()}
+              {user.name
+                .charAt(0)
+                .toUpperCase()}
             </div>
 
             <div className="min-w-0">
@@ -304,10 +313,15 @@ export default function Sidebar() {
             </div>
           </div>
         )}
+
+        {/* Global Search */}
+        <div className="relative z-50 mt-4">
+          <GlobalSearch />
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
+      <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 py-5">
         {visibleSections.map((section) => (
           <div key={section.title}>
             <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -320,7 +334,9 @@ export default function Sidebar() {
                   item.href === "/"
                     ? pathname === "/"
                     : pathname === item.href ||
-                      pathname.startsWith(`${item.href}/`);
+                      pathname.startsWith(
+                        `${item.href}/`,
+                      );
 
                 return (
                   <Link
@@ -358,7 +374,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom section */}
-      <div className="border-t border-slate-800 p-4">
+      <div className="shrink-0 border-t border-slate-800 p-4">
         <button
           onClick={handleLogout}
           className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-800 px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:border-red-900 hover:bg-red-950/40 hover:text-red-400"

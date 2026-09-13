@@ -31,41 +31,68 @@ export default function ProtectedPage({
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    const storedUser =
-      localStorage.getItem("fleetflow_user");
-
-    if (!storedUser) {
-      setAllowed(false);
-      setChecking(false);
-      return;
-    }
+    let isMounted = true;
 
     try {
+      const storedUser =
+        window.localStorage.getItem("fleetflow_user");
+
+      if (!storedUser) {
+        if (isMounted) {
+          setAllowed(false);
+          setChecking(false);
+        }
+
+        return;
+      }
+
       const user = JSON.parse(
         storedUser,
       ) as StoredUser;
 
       const role =
-        user.role.trim() as FleetFlowRole;
+        typeof user.role === "string"
+          ? user.role.trim()
+          : "";
 
       const allowedRoles =
         permissions[permission] ?? [];
 
-      setAllowed(
-        allowedRoles.includes(role),
+      const hasPermission =
+        allowedRoles.includes(
+          role as FleetFlowRole,
+        );
+
+      if (isMounted) {
+        setAllowed(hasPermission);
+        setChecking(false);
+      }
+    } catch (error) {
+      console.error(
+        "FleetFlow permission check failed:",
+        error,
       );
-    } catch {
-      setAllowed(false);
-    } finally {
-      setChecking(false);
+
+      if (isMounted) {
+        setAllowed(false);
+        setChecking(false);
+      }
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [permission]);
 
   if (checking) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950">
-        <div className="text-lg font-semibold text-white">
-          Checking permissions...
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-blue-500" />
+
+          <p className="mt-4 text-sm font-medium text-slate-400">
+            Checking permissions...
+          </p>
         </div>
       </main>
     );
@@ -103,4 +130,3 @@ export default function ProtectedPage({
 
   return <>{children}</>;
 }
-

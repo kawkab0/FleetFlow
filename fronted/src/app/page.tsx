@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
 
@@ -81,179 +86,372 @@ interface Expense {
   notes: string | null;
 }
 
+type Priority = "Critical" | "High" | "Medium";
+
 export default function Home() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [fuel, setFuel] = useState<Fuel[]>([]);
-  const [maintenance, setMaintenance] = useState<Maintenance[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [vehicles, setVehicles] =
+    useState<Vehicle[]>([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [drivers, setDrivers] =
+    useState<Driver[]>([]);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  const [trips, setTrips] =
+    useState<Trip[]>([]);
 
-      const [
-        vehiclesData,
-        driversData,
-        tripsData,
-        fuelData,
-        maintenanceData,
-        expensesData,
-      ] = await Promise.all([
-        apiFetch("/vehicles"),
-        apiFetch("/drivers"),
-        apiFetch("/trips"),
-        apiFetch("/fuel"),
-        apiFetch("/maintenance"),
-        apiFetch("/expenses"),
-      ]);
+  const [fuel, setFuel] =
+    useState<Fuel[]>([]);
 
-      setVehicles(vehiclesData);
-      setDrivers(driversData);
-      setTrips(tripsData);
-      setFuel(fuelData);
-      setMaintenance(maintenanceData);
-      setExpenses(expensesData);
-    } catch (err) {
-      console.error("Dashboard error:", err);
+  const [maintenance, setMaintenance] =
+    useState<Maintenance[]>([]);
 
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(
-          "Unable to load dashboard data. Make sure the backend is running on port 3001.",
+  const [expenses, setExpenses] =
+    useState<Expense[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [lastUpdated, setLastUpdated] =
+    useState<Date | null>(null);
+
+  const fetchDashboardData =
+    async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const [
+          vehiclesData,
+          driversData,
+          tripsData,
+          fuelData,
+          maintenanceData,
+          expensesData,
+        ] = await Promise.all([
+          apiFetch("/vehicles"),
+          apiFetch("/drivers"),
+          apiFetch("/trips"),
+          apiFetch("/fuel"),
+          apiFetch("/maintenance"),
+          apiFetch("/expenses"),
+        ]);
+
+        setVehicles(
+          Array.isArray(vehiclesData)
+            ? vehiclesData
+            : [],
         );
+
+        setDrivers(
+          Array.isArray(driversData)
+            ? driversData
+            : [],
+        );
+
+        setTrips(
+          Array.isArray(tripsData)
+            ? tripsData
+            : [],
+        );
+
+        setFuel(
+          Array.isArray(fuelData)
+            ? fuelData
+            : [],
+        );
+
+        setMaintenance(
+          Array.isArray(
+            maintenanceData,
+          )
+            ? maintenanceData
+            : [],
+        );
+
+        setExpenses(
+          Array.isArray(expensesData)
+            ? expensesData
+            : [],
+        );
+
+        setLastUpdated(new Date());
+      } catch (err) {
+        console.error(
+          "Dashboard error:",
+          err,
+        );
+
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(
+            "Unable to load dashboard data. Make sure the backend is running on port 3001.",
+          );
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  const formatNumber = (value: number) => {
-    return value.toLocaleString("en-US", {
-      maximumFractionDigits: 2,
-    });
+  const formatNumber = (
+    value: number,
+  ) => {
+    return value.toLocaleString(
+      "en-US",
+      {
+        maximumFractionDigits: 2,
+      },
+    );
   };
 
-  const formatMoney = (value: number) => {
-    return `${value.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })} ETB`;
+  const formatMoney = (
+    value: number,
+  ) => {
+    return `${value.toLocaleString(
+      "en-US",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      },
+    )} ETB`;
   };
 
-  const formatDate = (date: string) => {
+  const formatDate = (
+    date: string,
+  ) => {
     if (!date) return "";
-    return String(date).substring(0, 10);
+
+    return String(date).substring(
+      0,
+      10,
+    );
   };
 
-  const getStatus = (value: string) => {
-    return value?.toLowerCase().trim() || "";
+  const formatUpdatedTime = () => {
+    if (!lastUpdated) {
+      return "Waiting for data";
+    }
+
+    return lastUpdated.toLocaleTimeString(
+      "en-US",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      },
+    );
   };
 
-  const activeVehicles = vehicles.filter(
-    (vehicle) => getStatus(vehicle.status) === "active",
-  ).length;
+  const getStatus = (
+    value: string,
+  ) => {
+    return (
+      value?.toLowerCase().trim() ||
+      ""
+    );
+  };
 
-  const maintenanceVehicles = vehicles.filter(
-    (vehicle) => getStatus(vehicle.status) === "maintenance",
-  ).length;
+  /*
+   * CORE FLEET METRICS
+   */
 
-  const inactiveVehicles = vehicles.filter((vehicle) => {
-    const status = getStatus(vehicle.status);
+  const activeVehicles =
+    vehicles.filter(
+      (vehicle) =>
+        getStatus(vehicle.status) ===
+        "active",
+    ).length;
 
-    return status === "inactive" || status === "retired";
-  }).length;
+  const maintenanceVehicles =
+    vehicles.filter(
+      (vehicle) =>
+        getStatus(vehicle.status) ===
+        "maintenance",
+    ).length;
 
-  const activeTrips = trips.filter((trip) => {
-    const status = getStatus(trip.status);
+  const inactiveVehicles =
+    vehicles.filter((vehicle) => {
+      const status =
+        getStatus(vehicle.status);
 
-    return status === "in progress" || status === "active";
-  }).length;
+      return (
+        status === "inactive" ||
+        status === "retired" ||
+        status === "out of service"
+      );
+    }).length;
 
-  const scheduledTrips = trips.filter((trip) => {
-    const status = getStatus(trip.status);
+  const activeTrips =
+    trips.filter((trip) => {
+      const status =
+        getStatus(trip.status);
 
-    return status === "scheduled" || status === "planned";
-  }).length;
+      return (
+        status === "in progress" ||
+        status === "active"
+      );
+    }).length;
 
-  const completedTrips = trips.filter(
-    (trip) => getStatus(trip.status) === "completed",
-  ).length;
+  const scheduledTrips =
+    trips.filter((trip) => {
+      const status =
+        getStatus(trip.status);
 
-  const maintenanceDue = maintenance.filter((record) => {
-    const status = getStatus(record.status);
+      return (
+        status === "scheduled" ||
+        status === "planned" ||
+        status === "pending"
+      );
+    }).length;
 
-    return status === "pending" || status === "in progress";
-  }).length;
+  const completedTrips =
+    trips.filter(
+      (trip) =>
+        getStatus(trip.status) ===
+        "completed",
+    ).length;
 
-  const availableVehicles = Math.max(activeVehicles - activeTrips, 0);
+  const maintenanceDue =
+    maintenance.filter((record) => {
+      const status =
+        getStatus(record.status);
 
-  const totalDistance = trips.reduce(
-    (total, trip) => total + Number(trip.distance || 0),
-    0,
-  );
+      return (
+        status === "pending" ||
+        status === "in progress" ||
+        status === "scheduled"
+      );
+    }).length;
 
-  const totalFuelLiters = fuel.reduce(
-    (total, record) => total + Number(record.liters || 0),
-    0,
-  );
+  const availableVehicles =
+    Math.max(
+      activeVehicles - activeTrips,
+      0,
+    );
 
-  const totalFuelCost = fuel.reduce(
-    (total, record) => total + Number(record.cost || 0),
-    0,
-  );
+  /*
+   * FINANCIAL METRICS
+   */
 
-  const totalMaintenanceCost = maintenance.reduce(
-    (total, record) => total + Number(record.cost || 0),
-    0,
-  );
+  const totalDistance =
+    trips.reduce(
+      (total, trip) =>
+        total +
+        Number(trip.distance || 0),
+      0,
+    );
 
-  const totalExpenses = expenses.reduce(
-    (total, expense) => total + Number(expense.amount || 0),
-    0,
-  );
+  const totalFuelLiters =
+    fuel.reduce(
+      (total, record) =>
+        total +
+        Number(record.liters || 0),
+      0,
+    );
 
-  const totalRevenue = trips.reduce(
-    (total, trip) => total + Number(trip.revenue || 0),
-    0,
-  );
+  const totalFuelCost =
+    fuel.reduce(
+      (total, record) =>
+        total +
+        Number(record.cost || 0),
+      0,
+    );
+
+  const totalMaintenanceCost =
+    maintenance.reduce(
+      (total, record) =>
+        total +
+        Number(record.cost || 0),
+      0,
+    );
+
+  const totalExpenses =
+    expenses.reduce(
+      (total, expense) =>
+        total +
+        Number(expense.amount || 0),
+      0,
+    );
+
+  const totalRevenue =
+    trips.reduce(
+      (total, trip) =>
+        total +
+        Number(trip.revenue || 0),
+      0,
+    );
 
   const totalOperatingCost =
-    totalFuelCost + totalMaintenanceCost + totalExpenses;
+    totalFuelCost +
+    totalMaintenanceCost +
+    totalExpenses;
 
-  const netOperatingResult = totalRevenue - totalOperatingCost;
+  const netOperatingResult =
+    totalRevenue -
+    totalOperatingCost;
+
+  /*
+   * PERFORMANCE METRICS
+   */
 
   const fuelEfficiency =
-    totalFuelLiters > 0 ? totalDistance / totalFuelLiters : 0;
+    totalFuelLiters > 0
+      ? totalDistance /
+        totalFuelLiters
+      : 0;
 
   const costPerKilometer =
-    totalDistance > 0 ? totalOperatingCost / totalDistance : 0;
+    totalDistance > 0
+      ? totalOperatingCost /
+        totalDistance
+      : 0;
 
   const fleetUtilization =
-    activeVehicles > 0 ? (activeTrips / activeVehicles) * 100 : 0;
+    activeVehicles > 0
+      ? (activeTrips /
+          activeVehicles) *
+        100
+      : 0;
 
   const tripCompletionRate =
-    trips.length > 0 ? (completedTrips / trips.length) * 100 : 0;
+    trips.length > 0
+      ? (completedTrips /
+          trips.length) *
+        100
+      : 0;
 
-  const activeDrivers = drivers.filter(
-    (driver) => getStatus(driver.status) === "active",
-  ).length;
+  const activeDrivers =
+    drivers.filter(
+      (driver) =>
+        getStatus(driver.status) ===
+        "active",
+    ).length;
 
   const driverUtilization =
-    activeDrivers > 0 ? (activeTrips / activeDrivers) * 100 : 0;
+    activeDrivers > 0
+      ? (activeTrips /
+          activeDrivers) *
+        100
+      : 0;
 
   const revenueMargin =
-    totalRevenue > 0 ? (netOperatingResult / totalRevenue) * 100 : 0;
+    totalRevenue > 0
+      ? (netOperatingResult /
+          totalRevenue) *
+        100
+      : 0;
+
+  const operatingCostRatio =
+    totalRevenue > 0
+      ? (totalOperatingCost /
+          totalRevenue) *
+        100
+      : 0;
 
   /*
    * EXECUTIVE COMMAND CENTER
@@ -262,97 +460,57 @@ export default function Home() {
   const fleetHealthScore = useMemo(() => {
     let score = 100;
 
-    if (netOperatingResult < 0) score -= 25;
-
-    if (fleetUtilization > 90) score -= 10;
-
-    if (fleetUtilization < 25 && activeVehicles > 0) score -= 10;
-
-    if (maintenanceDue > 0) {
-      score -= Math.min(maintenanceDue * 5, 20);
+    if (
+      netOperatingResult < 0
+    ) {
+      score -= 25;
     }
 
-    if (fuelEfficiency > 0 && fuelEfficiency < 4) {
+    if (
+      fleetUtilization > 90
+    ) {
+      score -= 10;
+    }
+
+    if (
+      fleetUtilization < 25 &&
+      activeVehicles > 0
+    ) {
+      score -= 10;
+    }
+
+    if (maintenanceDue > 0) {
+      score -= Math.min(
+        maintenanceDue * 5,
+        20,
+      );
+    }
+
+    if (
+      fuelEfficiency > 0 &&
+      fuelEfficiency < 4
+    ) {
       score -= 10;
     }
 
     if (inactiveVehicles > 0) {
-      score -= Math.min(inactiveVehicles * 3, 10);
+      score -= Math.min(
+        inactiveVehicles * 3,
+        10,
+      );
     }
 
-    return Math.max(0, Math.min(100, Math.round(score)));
+    return Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(score),
+      ),
+    );
   }, [
     netOperatingResult,
     fleetUtilization,
     activeVehicles,
-    maintenanceDue,
-    fuelEfficiency,
-    inactiveVehicles,
-  ]);
-
-  const priorityActions = useMemo(() => {
-    const actions: {
-      title: string;
-      description: string;
-      href: string;
-      priority: "Critical" | "High" | "Medium";
-    }[] = [];
-
-    if (netOperatingResult < 0) {
-      actions.push({
-        title: "Review fleet profitability",
-        description:
-          "Operating costs currently exceed recorded trip revenue.",
-        href: "/profitability",
-        priority: "Critical",
-      });
-    }
-
-    if (maintenanceDue > 0) {
-      actions.push({
-        title: "Review maintenance workload",
-        description: `${maintenanceDue} maintenance record${
-          maintenanceDue === 1 ? "" : "s"
-        } require attention.`,
-        href: "/maintenance-intelligence",
-        priority: "High",
-      });
-    }
-
-    if (fuelEfficiency > 0 && fuelEfficiency < 4) {
-      actions.push({
-        title: "Investigate fuel efficiency",
-        description:
-          "Fleet fuel efficiency is below the dashboard benchmark.",
-        href: "/fuel-intelligence",
-        priority: "High",
-      });
-    }
-
-    if (inactiveVehicles > 0) {
-      actions.push({
-        title: "Review inactive vehicles",
-        description: `${inactiveVehicles} vehicle${
-          inactiveVehicles === 1 ? "" : "s"
-        } currently inactive.`,
-        href: "/intelligence",
-        priority: "Medium",
-      });
-    }
-
-    if (actions.length === 0) {
-      actions.push({
-        title: "Fleet operating normally",
-        description:
-          "No critical decision actions were detected from current data.",
-        href: "/recommendations",
-        priority: "Medium",
-      });
-    }
-
-    return actions.slice(0, 4);
-  }, [
-    netOperatingResult,
     maintenanceDue,
     fuelEfficiency,
     inactiveVehicles,
@@ -367,53 +525,148 @@ export default function Home() {
 
   const healthColor =
     fleetHealthScore >= 80
-      ? "text-green-600"
+      ? "text-emerald-600"
       : fleetHealthScore >= 60
         ? "text-orange-600"
         : "text-red-600";
 
-  const recentTrips = useMemo(() => {
-    return [...trips]
-      .sort(
-        (a, b) =>
-          new Date(b.tripDate).getTime() -
-          new Date(a.tripDate).getTime(),
-      )
-      .slice(0, 5);
-  }, [trips]);
+  const healthBarColor =
+    fleetHealthScore >= 80
+      ? "bg-emerald-500"
+      : fleetHealthScore >= 60
+        ? "bg-orange-500"
+        : "bg-red-500";
 
-  const recentMaintenance = useMemo(() => {
-    return [...maintenance]
-      .sort(
-        (a, b) =>
-          new Date(b.maintenanceDate).getTime() -
-          new Date(a.maintenanceDate).getTime(),
-      )
-      .slice(0, 4);
-  }, [maintenance]);
+  /*
+   * PRIORITY ACTIONS
+   */
 
-  const recentExpenses = useMemo(() => {
-    return [...expenses]
-      .sort(
-        (a, b) =>
-          new Date(b.expenseDate).getTime() -
-          new Date(a.expenseDate).getTime(),
-      )
-      .slice(0, 4);
-  }, [expenses]);
+  const priorityActions =
+    useMemo(() => {
+      const actions: {
+        title: string;
+        description: string;
+        href: string;
+        priority: Priority;
+      }[] = [];
+
+      if (
+        netOperatingResult < 0
+      ) {
+        actions.push({
+          title:
+            "Review fleet profitability",
+          description:
+            "Operating costs currently exceed recorded trip revenue.",
+          href: "/profitability",
+          priority: "Critical",
+        });
+      }
+
+      if (maintenanceDue > 0) {
+        actions.push({
+          title:
+            "Review maintenance workload",
+          description: `${maintenanceDue} maintenance record${
+            maintenanceDue === 1
+              ? ""
+              : "s"
+          } require attention.`,
+          href:
+            "/maintenance-intelligence",
+          priority: "High",
+        });
+      }
+
+      if (
+        fuelEfficiency > 0 &&
+        fuelEfficiency < 4
+      ) {
+        actions.push({
+          title:
+            "Investigate fuel efficiency",
+          description:
+            "Fleet fuel efficiency is below the dashboard benchmark.",
+          href:
+            "/fuel-intelligence",
+          priority: "High",
+        });
+      }
+
+      if (inactiveVehicles > 0) {
+        actions.push({
+          title:
+            "Review inactive vehicles",
+          description: `${inactiveVehicles} vehicle${
+            inactiveVehicles === 1
+              ? ""
+              : "s"
+          } currently inactive.`,
+          href: "/intelligence",
+          priority: "Medium",
+        });
+      }
+
+      if (
+        fleetUtilization > 90
+      ) {
+        actions.push({
+          title:
+            "Fleet utilization is high",
+          description:
+            "Most active vehicles are currently assigned to trips.",
+          href:
+            "/route-intelligence",
+          priority: "High",
+        });
+      }
+
+      if (
+        actions.length === 0
+      ) {
+        actions.push({
+          title:
+            "Fleet operating normally",
+          description:
+            "No critical decision actions were detected from current data.",
+          href:
+            "/recommendations",
+          priority: "Medium",
+        });
+      }
+
+      return actions.slice(0, 4);
+    }, [
+      netOperatingResult,
+      maintenanceDue,
+      fuelEfficiency,
+      inactiveVehicles,
+      fleetUtilization,
+    ]);
+
+  /*
+   * ALERTS
+   */
 
   const alerts = useMemo(() => {
     const results: {
       title: string;
       description: string;
-      type: "warning" | "danger" | "info" | "success";
+      type:
+        | "warning"
+        | "danger"
+        | "info"
+        | "success";
     }[] = [];
 
     if (maintenanceDue > 0) {
       results.push({
-        title: "Maintenance attention required",
+        title:
+          "Maintenance attention required",
         description: `${maintenanceDue} maintenance record${
-          maintenanceDue === 1 ? "" : "s"
+          maintenanceDue === 1
+            ? ""
+            : "s"
         } require attention.`,
         type: "warning",
       });
@@ -421,35 +674,60 @@ export default function Home() {
 
     if (inactiveVehicles > 0) {
       results.push({
-        title: "Inactive vehicles",
+        title:
+          "Inactive vehicles detected",
         description: `${inactiveVehicles} vehicle${
-          inactiveVehicles === 1 ? "" : "s"
+          inactiveVehicles === 1
+            ? ""
+            : "s"
         } currently inactive.`,
         type: "info",
       });
     }
 
-    if (fleetUtilization > 90) {
+    if (
+      fleetUtilization > 90
+    ) {
       results.push({
-        title: "High fleet utilization",
+        title:
+          "High fleet utilization",
         description:
           "Most active vehicles are currently assigned to trips.",
         type: "warning",
       });
     }
 
-    if (netOperatingResult < 0) {
+    if (
+      netOperatingResult < 0
+    ) {
       results.push({
-        title: "Operating result is negative",
+        title:
+          "Operating result is negative",
         description:
           "Current operating costs are higher than recorded trip revenue.",
         type: "danger",
       });
     }
 
-    if (results.length === 0) {
+    if (
+      fuelEfficiency > 0 &&
+      fuelEfficiency < 4
+    ) {
       results.push({
-        title: "Fleet operating normally",
+        title:
+          "Fuel efficiency is low",
+        description:
+          "Recorded fleet efficiency is below the dashboard benchmark.",
+        type: "warning",
+      });
+    }
+
+    if (
+      results.length === 0
+    ) {
+      results.push({
+        title:
+          "Fleet operating normally",
         description:
           "No major operational alerts were detected.",
         type: "success",
@@ -462,24 +740,173 @@ export default function Home() {
     inactiveVehicles,
     fleetUtilization,
     netOperatingResult,
+    fuelEfficiency,
   ]);
+
+  /*
+   * RECENT DATA
+   */
+
+  const recentTrips =
+    useMemo(() => {
+      return [...trips]
+        .sort(
+          (a, b) =>
+            new Date(
+              b.tripDate,
+            ).getTime() -
+            new Date(
+              a.tripDate,
+            ).getTime(),
+        )
+        .slice(0, 5);
+    }, [trips]);
+
+  const recentMaintenance =
+    useMemo(() => {
+      return [...maintenance]
+        .sort(
+          (a, b) =>
+            new Date(
+              b.maintenanceDate,
+            ).getTime() -
+            new Date(
+              a.maintenanceDate,
+            ).getTime(),
+        )
+        .slice(0, 4);
+    }, [maintenance]);
+
+  const recentExpenses =
+    useMemo(() => {
+      return [...expenses]
+        .sort(
+          (a, b) =>
+            new Date(
+              b.expenseDate,
+            ).getTime() -
+            new Date(
+              a.expenseDate,
+            ).getTime(),
+        )
+        .slice(0, 4);
+    }, [expenses]);
+
+  /*
+   * COST MIX
+   */
+
+  const fuelCostShare =
+    totalOperatingCost > 0
+      ? (totalFuelCost /
+          totalOperatingCost) *
+        100
+      : 0;
+
+  const maintenanceCostShare =
+    totalOperatingCost > 0
+      ? (totalMaintenanceCost /
+          totalOperatingCost) *
+        100
+      : 0;
+
+  const expenseCostShare =
+    totalOperatingCost > 0
+      ? (totalExpenses /
+          totalOperatingCost) *
+        100
+      : 0;
+
+  /*
+   * STATUS HELPERS
+   */
+
+  const getTripStatusStyle = (
+    status: string,
+  ) => {
+    const normalized =
+      getStatus(status);
+
+    if (
+      normalized === "completed"
+    ) {
+      return "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200";
+    }
+
+    if (
+      normalized ===
+        "in progress" ||
+      normalized === "active"
+    ) {
+      return "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200";
+    }
+
+    if (
+      normalized ===
+        "cancelled" ||
+      normalized === "canceled"
+    ) {
+      return "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200";
+    }
+
+    return "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-200";
+  };
+
+  const getMaintenanceStatusStyle =
+    (status: string) => {
+      const normalized =
+        getStatus(status);
+
+      if (
+        normalized === "completed"
+      ) {
+        return "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200";
+      }
+
+      if (
+        normalized ===
+          "in progress" ||
+        normalized === "active"
+      ) {
+        return "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200";
+      }
+
+      if (
+        normalized ===
+          "cancelled" ||
+        normalized === "canceled"
+      ) {
+        return "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200";
+      }
+
+      return "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-200";
+    };
 
   return (
     <ProtectedPage permission="dashboard">
       <main className="min-h-screen bg-slate-100 p-4 md:p-6 lg:p-8">
         <div className="mx-auto max-w-7xl">
 
-          {/* HEADER */}
+          {/* =========================================================
+              HEADER
+          ========================================================= */}
+
           <header className="mb-8">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold tracking-wider text-blue-700">
                     FLEETFLOW ERP
                   </span>
 
-                  <span className="text-xs font-medium text-slate-400">
+                  <span className="flex items-center gap-2 text-xs font-medium text-slate-400">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
                     Executive Overview
+                  </span>
+
+                  <span className="text-xs text-slate-400">
+                    Last updated{" "}
+                    {formatUpdatedTime()}
                   </span>
                 </div>
 
@@ -488,46 +915,245 @@ export default function Home() {
                 </h1>
 
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-                  Monitor fleet operations, financial performance,
-                  utilization, maintenance, and logistics activity
-                  from one command center.
+                  Monitor fleet operations,
+                  financial performance,
+                  utilization, maintenance,
+                  and logistics activity
+                  from one executive command
+                  center.
                 </p>
               </div>
 
-              <button
-                onClick={fetchDashboardData}
-                disabled={loading}
-                className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {loading ? "Refreshing..." : "Refresh Data"}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="/recommendations"
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                >
+                  Decision Center
+                </a>
+
+                <button
+                  type="button"
+                  onClick={
+                    fetchDashboardData
+                  }
+                  disabled={loading}
+                  className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {loading
+                    ? "Refreshing..."
+                    : "Refresh Data"}
+                </button>
+              </div>
             </div>
           </header>
 
-          {/* ERROR */}
+          {/* =========================================================
+              ERROR
+          ========================================================= */}
+
           {error && (
             <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-              <p className="font-semibold">Dashboard error</p>
-              <p className="mt-1">{error}</p>
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white font-bold text-red-600 shadow-sm">
+                  !
+                </div>
+
+                <div>
+                  <p className="font-semibold">
+                    Dashboard error
+                  </p>
+
+                  <p className="mt-1">
+                    {error}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* COMMAND CENTER */}
+          {/* =========================================================
+              EXECUTIVE KPI STRIP
+          ========================================================= */}
+
+          <section className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+            {/* REVENUE */}
+
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="absolute inset-x-0 top-0 h-1 bg-emerald-500" />
+
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Revenue
+                  </p>
+
+                  <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900">
+                    {loading
+                      ? "..."
+                      : formatMoney(
+                          totalRevenue,
+                        )}
+                  </p>
+
+                  <p className="mt-2 text-xs text-slate-400">
+                    Recorded trip revenue
+                  </p>
+                </div>
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-lg text-emerald-600">
+                  ↑
+                </div>
+              </div>
+            </div>
+
+            {/* COST */}
+
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
+
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Operating Cost
+                  </p>
+
+                  <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900">
+                    {loading
+                      ? "..."
+                      : formatMoney(
+                          totalOperatingCost,
+                        )}
+                  </p>
+
+                  <p className="mt-2 text-xs text-slate-400">
+                    Fuel + maintenance + expenses
+                  </p>
+                </div>
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-lg text-orange-600">
+                  ↓
+                </div>
+              </div>
+            </div>
+
+            {/* NET RESULT */}
+
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div
+                className={`absolute inset-x-0 top-0 h-1 ${
+                  netOperatingResult >=
+                  0
+                    ? "bg-blue-500"
+                    : "bg-red-500"
+                }`}
+              />
+
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Net Result
+                  </p>
+
+                  <p
+                    className={`mt-3 text-2xl font-bold tracking-tight ${
+                      netOperatingResult >=
+                      0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {loading
+                      ? "..."
+                      : formatMoney(
+                          netOperatingResult,
+                        )}
+                  </p>
+
+                  <p className="mt-2 text-xs text-slate-400">
+                    Current operating result
+                  </p>
+                </div>
+
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg ${
+                    netOperatingResult >=
+                    0
+                      ? "bg-emerald-50 text-emerald-600"
+                      : "bg-red-50 text-red-600"
+                  }`}
+                >
+                  {netOperatingResult >=
+                  0
+                    ? "✓"
+                    : "!"}
+                </div>
+              </div>
+            </div>
+
+            {/* FLEET HEALTH */}
+
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div
+                className={`absolute inset-x-0 top-0 h-1 ${healthBarColor}`}
+              />
+
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Fleet Health
+                  </p>
+
+                  <p
+                    className={`mt-3 text-2xl font-bold tracking-tight ${healthColor}`}
+                  >
+                    {loading
+                      ? "..."
+                      : `${fleetHealthScore}/100`}
+                  </p>
+
+                  <p className="mt-2 text-xs text-slate-400">
+                    {loading
+                      ? "Calculating..."
+                      : healthLabel}
+                  </p>
+                </div>
+
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-lg ${healthColor}`}
+                >
+                  ●
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =========================================================
+              EXECUTIVE COMMAND CENTER
+          ========================================================= */}
+
           <section className="mb-8">
-            <div className="mb-4">
-              <h2 className="text-xl font-bold text-slate-900">
-                Executive Command Center
+            <div className="mb-4 flex flex-col gap-1">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
+                Command Center
+              </p>
+
+              <h2 className="text-xl font-bold tracking-tight text-slate-900">
+                Executive Overview
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Decision signals generated from current FleetFlow
-                operational and financial data.
+              <p className="text-sm text-slate-500">
+                Decision signals generated from
+                current operational and financial
+                data.
               </p>
             </div>
 
             <div className="grid gap-5 lg:grid-cols-3">
 
               {/* FLEET HEALTH */}
+
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div>
@@ -538,38 +1164,51 @@ export default function Home() {
                     <p
                       className={`mt-2 text-3xl font-bold ${healthColor}`}
                     >
-                      {loading ? "..." : `${fleetHealthScore}/100`}
+                      {loading
+                        ? "..."
+                        : `${fleetHealthScore}/100`}
                     </p>
                   </div>
 
                   <span
                     className={`rounded-xl bg-slate-50 px-3 py-2 text-sm font-bold ${healthColor}`}
                   >
-                    {loading ? "..." : healthLabel}
+                    {loading
+                      ? "..."
+                      : healthLabel}
                   </span>
                 </div>
 
                 <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className={`h-full rounded-full transition-all ${
-                      fleetHealthScore >= 80
-                        ? "bg-green-500"
-                        : fleetHealthScore >= 60
-                          ? "bg-orange-500"
-                          : "bg-red-500"
-                    }`}
+                    className={`h-full rounded-full transition-all duration-700 ${healthBarColor}`}
                     style={{
                       width: `${fleetHealthScore}%`,
                     }}
                   />
                 </div>
 
-                <p className="mt-3 text-xs text-slate-400">
-                  Combined operational health indicator.
-                </p>
+                <div className="mt-3 flex justify-between text-xs">
+                  <span className="text-slate-400">
+                    Risk-adjusted health
+                  </span>
+
+                  <span
+                    className={`font-semibold ${healthColor}`}
+                  >
+                    {fleetHealthScore >=
+                    80
+                      ? "Strong"
+                      : fleetHealthScore >=
+                          60
+                        ? "Monitor"
+                        : "Action needed"}
+                  </span>
+                </div>
               </div>
 
               {/* OPERATIONS SIGNAL */}
+
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div>
@@ -580,7 +1219,9 @@ export default function Home() {
                     <p className="mt-2 text-3xl font-bold text-slate-900">
                       {loading
                         ? "..."
-                        : `${formatNumber(fleetUtilization)}%`}
+                        : `${formatNumber(
+                            fleetUtilization,
+                          )}%`}
                     </p>
                   </div>
 
@@ -593,8 +1234,23 @@ export default function Home() {
                   Fleet utilization
                 </p>
 
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full bg-blue-500 transition-all duration-700"
+                    style={{
+                      width: `${Math.min(
+                        Math.max(
+                          fleetUtilization,
+                          0,
+                        ),
+                        100,
+                      )}%`,
+                    }}
+                  />
+                </div>
+
                 <div className="mt-3 flex items-center gap-2 text-xs">
-                  <span className="font-semibold text-green-600">
+                  <span className="font-semibold text-emerald-600">
                     {availableVehicles}
                   </span>
 
@@ -617,6 +1273,7 @@ export default function Home() {
               </div>
 
               {/* FINANCIAL SIGNAL */}
+
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div>
@@ -626,14 +1283,16 @@ export default function Home() {
 
                     <p
                       className={`mt-2 text-3xl font-bold ${
-                        netOperatingResult >= 0
-                          ? "text-green-600"
+                        netOperatingResult >=
+                        0
+                          ? "text-emerald-600"
                           : "text-red-600"
                       }`}
                     >
                       {loading
                         ? "..."
-                        : netOperatingResult >= 0
+                        : netOperatingResult >=
+                            0
                           ? "Positive"
                           : "Negative"}
                     </p>
@@ -641,12 +1300,16 @@ export default function Home() {
 
                   <span
                     className={`rounded-xl px-3 py-2 text-lg ${
-                      netOperatingResult >= 0
-                        ? "bg-green-50 text-green-600"
+                      netOperatingResult >=
+                      0
+                        ? "bg-emerald-50 text-emerald-600"
                         : "bg-red-50 text-red-600"
                     }`}
                   >
-                    {netOperatingResult >= 0 ? "↑" : "↓"}
+                    {netOperatingResult >=
+                    0
+                      ? "↑"
+                      : "↓"}
                   </span>
                 </div>
 
@@ -656,29 +1319,54 @@ export default function Home() {
 
                 <p
                   className={`mt-1 text-sm font-semibold ${
-                    revenueMargin >= 0
-                      ? "text-green-600"
+                    revenueMargin >=
+                    0
+                      ? "text-emerald-600"
                       : "text-red-600"
                   }`}
                 >
                   {loading
                     ? "..."
-                    : `${formatNumber(revenueMargin)}%`}
+                    : `${formatNumber(
+                        revenueMargin,
+                      )}%`}
                 </p>
+
+                <div className="mt-4 flex items-center justify-between text-xs">
+                  <span className="text-slate-400">
+                    Cost ratio
+                  </span>
+
+                  <span className="font-semibold text-slate-600">
+                    {loading
+                      ? "..."
+                      : `${formatNumber(
+                          operatingCostRatio,
+                        )}%`}
+                  </span>
+                </div>
               </div>
             </div>
           </section>
 
-          {/* PRIORITY ACTIONS */}
+          {/* =========================================================
+              PRIORITY ACTIONS
+          ========================================================= */}
+
           <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-500">
+                  Decision Support
+                </p>
+
+                <h2 className="mt-1 text-xl font-bold text-slate-900">
                   Priority Actions
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Recommended areas requiring management attention.
+                  Recommended areas requiring
+                  management attention.
                 </p>
               </div>
 
@@ -691,101 +1379,144 @@ export default function Home() {
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {priorityActions.map((action, index) => {
-                const priorityStyle =
-                  action.priority === "Critical"
-                    ? "border-red-200 bg-red-50"
-                    : action.priority === "High"
-                      ? "border-orange-200 bg-orange-50"
-                      : "border-blue-200 bg-blue-50";
+              {priorityActions.map(
+                (action, index) => {
+                  const priorityStyle =
+                    action.priority ===
+                    "Critical"
+                      ? "border-red-200 bg-red-50"
+                      : action.priority ===
+                          "High"
+                        ? "border-orange-200 bg-orange-50"
+                        : "border-blue-200 bg-blue-50";
 
-                const priorityText =
-                  action.priority === "Critical"
-                    ? "text-red-700"
-                    : action.priority === "High"
-                      ? "text-orange-700"
-                      : "text-blue-700";
+                  const priorityText =
+                    action.priority ===
+                    "Critical"
+                      ? "text-red-700"
+                      : action.priority ===
+                          "High"
+                        ? "text-orange-700"
+                        : "text-blue-700";
 
-                return (
-                  <a
-                    key={`${action.title}-${index}`}
-                    href={action.href}
-                    className={`rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-sm ${priorityStyle}`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-semibold text-slate-900">
-                          {action.title}
-                        </p>
+                  return (
+                    <a
+                      key={`${action.title}-${index}`}
+                      href={action.href}
+                      className={`rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md ${priorityStyle}`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="font-semibold text-slate-900">
+                            {action.title}
+                          </p>
 
-                        <p className="mt-1 text-sm leading-6 text-slate-600">
-                          {action.description}
-                        </p>
+                          <p className="mt-1 text-sm leading-6 text-slate-600">
+                            {
+                              action.description
+                            }
+                          </p>
+                        </div>
+
+                        <span
+                          className={`whitespace-nowrap rounded-full bg-white px-2.5 py-1 text-[11px] font-bold ${priorityText}`}
+                        >
+                          {
+                            action.priority
+                          }
+                        </span>
                       </div>
 
-                      <span
-                        className={`whitespace-nowrap rounded-full bg-white px-2.5 py-1 text-[11px] font-bold ${priorityText}`}
+                      <p
+                        className={`mt-4 text-xs font-semibold ${priorityText}`}
                       >
-                        {action.priority}
-                      </span>
-                    </div>
-
-                    <p
-                      className={`mt-4 text-xs font-semibold ${priorityText}`}
-                    >
-                      Open analysis →
-                    </p>
-                  </a>
-                );
-              })}
+                        Open analysis →
+                      </p>
+                    </a>
+                  );
+                },
+              )}
             </div>
           </section>
 
-          {/* QUICK INTELLIGENCE LINKS */}
+          {/* =========================================================
+              INTELLIGENCE CENTER
+          ========================================================= */}
+
           <section className="mb-8">
             <div className="mb-4">
-              <h2 className="text-lg font-bold text-slate-900">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-purple-600">
+                Intelligence
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
                 Intelligence Center
               </h2>
 
               <p className="mt-1 text-sm text-slate-500">
-                Jump directly into FleetFlow's decision-support modules.
+                Jump directly into FleetFlow&apos;s
+                decision-support modules.
               </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 {
-                  title: "Fleet Intelligence",
+                  title:
+                    "Fleet Intelligence",
                   description:
                     "Vehicle health, risk and utilization.",
                   href: "/intelligence",
+                  icon: "🚚",
+                  color:
+                    "bg-blue-50 text-blue-600",
                 },
                 {
-                  title: "Fuel Intelligence",
+                  title:
+                    "Fuel Intelligence",
                   description:
                     "Fuel cost and efficiency analysis.",
-                  href: "/fuel-intelligence",
+                  href:
+                    "/fuel-intelligence",
+                  icon: "⛽",
+                  color:
+                    "bg-cyan-50 text-cyan-600",
                 },
                 {
-                  title: "Maintenance Intelligence",
+                  title:
+                    "Maintenance Intelligence",
                   description:
                     "Maintenance workload and risk.",
-                  href: "/maintenance-intelligence",
+                  href:
+                    "/maintenance-intelligence",
+                  icon: "🔧",
+                  color:
+                    "bg-orange-50 text-orange-600",
                 },
                 {
-                  title: "Profitability",
+                  title:
+                    "Profitability",
                   description:
                     "Vehicle and fleet profitability.",
-                  href: "/profitability",
+                  href:
+                    "/profitability",
+                  icon: "📈",
+                  color:
+                    "bg-emerald-50 text-emerald-600",
                 },
               ].map((item) => (
                 <a
                   key={item.title}
                   href={item.href}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+                  className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
                 >
-                  <p className="font-semibold text-slate-900">
+                  <div
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl text-lg ${item.color}`}
+                  >
+                    {item.icon}
+                  </div>
+
+                  <p className="mt-4 font-semibold text-slate-900">
                     {item.title}
                   </p>
 
@@ -793,7 +1524,7 @@ export default function Home() {
                     {item.description}
                   </p>
 
-                  <p className="mt-4 text-xs font-bold text-blue-600">
+                  <p className="mt-4 text-xs font-bold text-blue-600 transition group-hover:text-blue-700">
                     Open module →
                   </p>
                 </a>
@@ -801,1644 +1532,1705 @@ export default function Home() {
             </div>
           </section>
 
-          {/* EXECUTIVE KPI CARDS */}
-          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {/* =========================================================
+              OPERATIONS OVERVIEW
+          ========================================================= */}
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Total Revenue
-                  </p>
+          <section className="mt-8">
+            <div className="mb-4 flex flex-col gap-1">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                Operations
+              </p>
 
-                  <p className="mt-3 text-2xl font-bold text-slate-900">
-                    {loading ? "..." : formatMoney(totalRevenue)}
-                  </p>
-                </div>
+              <h2 className="text-xl font-bold tracking-tight text-slate-900">
+                Fleet Operations Overview
+              </h2>
 
-                <span className="rounded-xl bg-green-50 px-3 py-2 text-lg text-green-600">
-                  $
-                </span>
-              </div>
-
-              <p className="mt-4 text-xs text-slate-400">
-                Revenue from recorded trips
+              <p className="text-sm text-slate-500">
+                Current fleet, driver, trip,
+                and maintenance activity.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Operating Cost
-                  </p>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-                  <p className="mt-3 text-2xl font-bold text-slate-900">
-                    {loading
-                      ? "..."
-                      : formatMoney(totalOperatingCost)}
-                  </p>
+              {/* VEHICLES */}
+
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-blue-500" />
+
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">
+                      Vehicles
+                    </p>
+
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {loading
+                        ? "..."
+                        : vehicles.length}
+                    </p>
+
+                    <p className="mt-2 text-xs text-slate-400">
+                      Total vehicles in fleet
+                    </p>
+                  </div>
+
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg">
+                    🚚
+                  </div>
                 </div>
 
-                <span className="rounded-xl bg-orange-50 px-3 py-2 text-lg text-orange-600">
-                  ↓
-                </span>
+                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+                  <span className="text-xs font-medium text-slate-400">
+                    Active
+                  </span>
+
+                  <span className="text-sm font-bold text-blue-600">
+                    {activeVehicles}
+                  </span>
+                </div>
               </div>
 
-              <p className="mt-4 text-xs text-slate-400">
-                Fuel + maintenance + expenses
-              </p>
-            </div>
+              {/* DRIVERS */}
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Net Operating Result
-                  </p>
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-indigo-500" />
 
-                  <p
-                    className={`mt-3 text-2xl font-bold ${
-                      netOperatingResult >= 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {loading
-                      ? "..."
-                      : formatMoney(netOperatingResult)}
-                  </p>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">
+                      Drivers
+                    </p>
+
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {loading
+                        ? "..."
+                        : drivers.length}
+                    </p>
+
+                    <p className="mt-2 text-xs text-slate-400">
+                      Registered fleet drivers
+                    </p>
+                  </div>
+
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-lg">
+                    👤
+                  </div>
                 </div>
 
-                <span
-                  className={`rounded-xl px-3 py-2 text-lg ${
-                    netOperatingResult >= 0
-                      ? "bg-green-50 text-green-600"
-                      : "bg-red-50 text-red-600"
-                  }`}
-                >
-                  {netOperatingResult >= 0 ? "↑" : "!"}
-                </span>
+                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+                  <span className="text-xs font-medium text-slate-400">
+                    Active
+                  </span>
+
+                  <span className="text-sm font-bold text-indigo-600">
+                    {activeDrivers}
+                  </span>
+                </div>
               </div>
 
-              <p className="mt-4 text-xs text-slate-400">
-                Revenue minus operating costs
-              </p>
-            </div>
+              {/* ACTIVE TRIPS */}
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Fleet Utilization
-                  </p>
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-cyan-500" />
 
-                  <p className="mt-3 text-2xl font-bold text-slate-900">
-                    {loading
-                      ? "..."
-                      : `${formatNumber(fleetUtilization)}%`}
-                  </p>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">
+                      Active Trips
+                    </p>
+
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {loading
+                        ? "..."
+                        : activeTrips}
+                    </p>
+
+                    <p className="mt-2 text-xs text-slate-400">
+                      Trips currently in progress
+                    </p>
+                  </div>
+
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-lg">
+                    🛣️
+                  </div>
                 </div>
 
-                <span className="rounded-xl bg-blue-50 px-3 py-2 text-lg text-blue-600">
-                  %
-                </span>
+                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+                  <span className="text-xs font-medium text-slate-400">
+                    Scheduled
+                  </span>
+
+                  <span className="text-sm font-bold text-cyan-600">
+                    {scheduledTrips}
+                  </span>
+                </div>
               </div>
 
-              <p className="mt-4 text-xs text-slate-400">
-                Active vehicles currently on trips
-              </p>
+              {/* MAINTENANCE */}
+
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
+
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">
+                      Maintenance
+                    </p>
+
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {loading
+                        ? "..."
+                        : maintenanceDue}
+                    </p>
+
+                    <p className="mt-2 text-xs text-slate-400">
+                      Records requiring attention
+                    </p>
+                  </div>
+
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-lg">
+                    🔧
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+                  <span className="text-xs font-medium text-slate-400">
+                    In maintenance
+                  </span>
+
+                  <span className="text-sm font-bold text-orange-600">
+                    {maintenanceVehicles}
+                  </span>
+                </div>
+              </div>
             </div>
           </section>
 
-          {/* OPERATIONS OVERVIEW */}
-<section className="mt-8">
-  <div className="mb-4 flex flex-col gap-1">
-    <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-      Operations
-    </p>
-
-    <h2 className="text-xl font-bold tracking-tight text-slate-900">
-      Fleet Operations Overview
-    </h2>
-
-    <p className="text-sm text-slate-500">
-      Current fleet, driver, trip, and maintenance activity.
-    </p>
-  </div>
-
-  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    {/* VEHICLES */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="absolute inset-x-0 top-0 h-1 bg-blue-500" />
-
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Vehicles
-          </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {loading ? "..." : vehicles.length}
-          </p>
-
-          <p className="mt-2 text-xs text-slate-400">
-            Total vehicles in fleet
-          </p>
-        </div>
-
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg">
-          🚚
-        </div>
-      </div>
-
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-        <span className="text-xs font-medium text-slate-400">
-          Active
-        </span>
-
-        <span className="text-sm font-bold text-blue-600">
-          {activeVehicles}
-        </span>
-      </div>
-    </div>
-
-    {/* DRIVERS */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="absolute inset-x-0 top-0 h-1 bg-indigo-500" />
-
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Drivers
-          </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {loading ? "..." : drivers.length}
-          </p>
-
-          <p className="mt-2 text-xs text-slate-400">
-            Registered fleet drivers
-          </p>
-        </div>
-
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-lg">
-          👤
-        </div>
-      </div>
-
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-        <span className="text-xs font-medium text-slate-400">
-          Active
-        </span>
-
-        <span className="text-sm font-bold text-indigo-600">
-          {activeDrivers}
-        </span>
-      </div>
-    </div>
-
-    {/* ACTIVE TRIPS */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="absolute inset-x-0 top-0 h-1 bg-cyan-500" />
-
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Active Trips
-          </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {loading ? "..." : activeTrips}
-          </p>
-
-          <p className="mt-2 text-xs text-slate-400">
-            Trips currently in progress
-          </p>
-        </div>
-
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-lg">
-          🛣️
-        </div>
-      </div>
-
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-        <span className="text-xs font-medium text-slate-400">
-          Scheduled
-        </span>
-
-        <span className="text-sm font-bold text-cyan-600">
-          {scheduledTrips}
-        </span>
-      </div>
-    </div>
-
-    {/* MAINTENANCE */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
-
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Maintenance
-          </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {loading ? "..." : maintenanceDue}
-          </p>
-
-          <p className="mt-2 text-xs text-slate-400">
-            Vehicles requiring attention
-          </p>
-        </div>
-
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-lg">
-          🔧
-        </div>
-      </div>
-
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-        <span className="text-xs font-medium text-slate-400">
-          In maintenance
-        </span>
-
-        <span className="text-sm font-bold text-orange-600">
-          {maintenanceVehicles}
-        </span>
-      </div>
-    </div>
-  </div>
-</section>
-
-        {/* PERFORMANCE */}
-<section className="mt-8">
-  <div className="mb-4 flex flex-col gap-1">
-    <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-      Efficiency
-    </p>
-
-    <h2 className="text-xl font-bold tracking-tight text-slate-900">
-      Performance Overview
-    </h2>
-
-    <p className="text-sm text-slate-500">
-      Key indicators showing how efficiently FleetFlow is operating.
-    </p>
-  </div>
-
-  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-    {/* TRIP COMPLETION */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="absolute inset-x-0 top-0 h-1 bg-emerald-500" />
-
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Trip Completion
-          </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {loading
-              ? "..."
-              : `${formatNumber(tripCompletionRate)}%`}
-          </p>
-        </div>
-
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-lg">
-          ✓
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <div className="mb-2 flex items-center justify-between text-xs">
-          <span className="font-medium text-slate-400">
-            Completion rate
-          </span>
-
-          <span className="font-semibold text-emerald-600">
-            {loading
-              ? "..."
-              : `${formatNumber(tripCompletionRate)}%`}
-          </span>
-        </div>
-
-        <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-            style={{
-              width: `${Math.min(
-                Math.max(tripCompletionRate, 0),
-                100,
-              )}%`,
-            }}
-          />
-        </div>
-      </div>
-    </div>
-
-    {/* FUEL EFFICIENCY */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="absolute inset-x-0 top-0 h-1 bg-cyan-500" />
-
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Fuel Efficiency
-          </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {loading
-              ? "..."
-              : `${formatNumber(fuelEfficiency)} km/L`}
-          </p>
-        </div>
-
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-lg">
-          ⛽
-        </div>
-      </div>
-
-      <div className="mt-5 border-t border-slate-100 pt-4">
-        <p className="text-xs font-medium text-slate-400">
-          Distance traveled per liter consumed
-        </p>
-      </div>
-    </div>
-
-    {/* COST PER KILOMETER */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
-
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Cost / Kilometer
-          </p>
-
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-            {loading
-              ? "..."
-              : `${formatMoney(costPerKilometer)}/km`}
-          </p>
-        </div>
-
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-lg">
-          📊
-        </div>
-      </div>
-
-      <div className="mt-5 border-t border-slate-100 pt-4">
-        <p className="text-xs font-medium text-slate-400">
-          Operating cost per recorded kilometer
-        </p>
-      </div>
-    </div>
-
-    {/* OPERATING MARGIN */}
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div
-        className={`absolute inset-x-0 top-0 h-1 ${
-          revenueMargin >= 0
-            ? "bg-blue-500"
-            : "bg-red-500"
-        }`}
-      />
-
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Operating Margin
-          </p>
-
-          <p
-            className={`mt-3 text-3xl font-bold tracking-tight ${
-              revenueMargin >= 0
-                ? "text-emerald-600"
-                : "text-red-600"
-            }`}
-          >
-            {loading
-              ? "..."
-              : `${formatNumber(revenueMargin)}%`}
-          </p>
-        </div>
-
-        <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg ${
-            revenueMargin >= 0
-              ? "bg-emerald-50"
-              : "bg-red-50"
-          }`}
-        >
-          {revenueMargin >= 0 ? "📈" : "📉"}
-        </div>
-      </div>
-
-      <div className="mt-5 border-t border-slate-100 pt-4">
-        <p className="text-xs font-medium text-slate-400">
-          Net operating result ÷ total revenue
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-         {/* ALERTS + FLEET STATUS */}
-<section className="mt-8 grid gap-6 lg:grid-cols-2">
-  {/* OPERATIONAL ALERTS */}
-  <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div className="absolute inset-x-0 top-0 h-1 bg-red-500" />
-
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-500">
-          Attention
-        </p>
-
-        <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-          Operational Alerts
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Automatic indicators based on current system data.
-        </p>
-      </div>
-
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-lg">
-        ⚠️
-      </div>
-    </div>
-
-    <div className="mt-6 space-y-3">
-      {alerts.map((alert, index) => {
-        const styles =
-          alert.type === "danger"
-            ? "border-red-200 bg-red-50"
-            : alert.type === "warning"
-              ? "border-orange-200 bg-orange-50"
-              : alert.type === "success"
-                ? "border-green-200 bg-green-50"
-                : "border-blue-200 bg-blue-50";
-
-        const titleColor =
-          alert.type === "danger"
-            ? "text-red-800"
-            : alert.type === "warning"
-              ? "text-orange-800"
-              : alert.type === "success"
-                ? "text-green-800"
-                : "text-blue-800";
-
-        const descriptionColor =
-          alert.type === "danger"
-            ? "text-red-600"
-            : alert.type === "warning"
-              ? "text-orange-600"
-              : alert.type === "success"
-                ? "text-green-600"
-                : "text-blue-600";
-
-        const icon =
-          alert.type === "danger"
-            ? "!"
-            : alert.type === "warning"
-              ? "!"
-              : alert.type === "success"
-                ? "✓"
-                : "i";
-
-        return (
-          <div
-            key={`${alert.title}-${index}`}
-            className={`flex items-start gap-3 rounded-xl border p-4 ${styles}`}
-          >
-            <div
-              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold shadow-sm ${titleColor}`}
-            >
-              {icon}
-            </div>
-
-            <div className="min-w-0">
-              <p className={`font-semibold ${titleColor}`}>
-                {alert.title}
+          {/* =========================================================
+              PERFORMANCE
+          ========================================================= */}
+
+          <section className="mt-8">
+            <div className="mb-4 flex flex-col gap-1">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                Efficiency
               </p>
 
-              <p
-                className={`mt-1 text-sm leading-5 ${descriptionColor}`}
-              >
-                {alert.description}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  </div>
+              <h2 className="text-xl font-bold tracking-tight text-slate-900">
+                Performance Overview
+              </h2>
 
-  {/* FLEET STATUS */}
-  <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div className="absolute inset-x-0 top-0 h-1 bg-blue-500" />
-
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-500">
-          Fleet
-        </p>
-
-        <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-          Fleet Status
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Current distribution of the vehicle fleet.
-        </p>
-      </div>
-
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
-        🚚
-      </div>
-    </div>
-
-    <div className="mt-7 space-y-6">
-      {/* AVAILABLE */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
-
-            <span className="text-sm font-medium text-slate-600">
-              Available
-            </span>
-          </div>
-
-          <span className="text-sm font-bold text-green-600">
-            {loading ? "..." : availableVehicles}
-          </span>
-        </div>
-
-        <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-green-500 transition-all duration-500"
-            style={{
-              width: `${
-                vehicles.length > 0
-                  ? Math.min(
-                      (availableVehicles /
-                        vehicles.length) *
-                        100,
-                      100,
-                    )
-                  : 0
-              }%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ON TRIP */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-blue-500" />
-
-            <span className="text-sm font-medium text-slate-600">
-              On Trip
-            </span>
-          </div>
-
-          <span className="text-sm font-bold text-blue-600">
-            {loading ? "..." : activeTrips}
-          </span>
-        </div>
-
-        <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-blue-500 transition-all duration-500"
-            style={{
-              width: `${
-                vehicles.length > 0
-                  ? Math.min(
-                      (activeTrips /
-                        vehicles.length) *
-                        100,
-                      100,
-                    )
-                  : 0
-              }%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* MAINTENANCE */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-orange-500" />
-
-            <span className="text-sm font-medium text-slate-600">
-              Maintenance
-            </span>
-          </div>
-
-          <span className="text-sm font-bold text-orange-600">
-            {loading ? "..." : maintenanceVehicles}
-          </span>
-        </div>
-
-        <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-orange-500 transition-all duration-500"
-            style={{
-              width: `${
-                vehicles.length > 0
-                  ? Math.min(
-                      (maintenanceVehicles /
-                        vehicles.length) *
-                        100,
-                      100,
-                    )
-                  : 0
-              }%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* INACTIVE */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-slate-400" />
-
-            <span className="text-sm font-medium text-slate-600">
-              Inactive
-            </span>
-          </div>
-
-          <span className="text-sm font-bold text-slate-500">
-            {loading ? "..." : inactiveVehicles}
-          </span>
-        </div>
-
-        <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-slate-400 transition-all duration-500"
-            style={{
-              width: `${
-                vehicles.length > 0
-                  ? Math.min(
-                      (inactiveVehicles /
-                        vehicles.length) *
-                        100,
-                      100,
-                    )
-                  : 0
-              }%`,
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-        {/* FINANCIAL PERFORMANCE */}
-<section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-  <div className="border-b border-slate-100 px-6 py-6">
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600">
-          Finance
-        </p>
-
-        <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-          Financial Performance
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Revenue, operating costs, and the current cost structure of the fleet.
-        </p>
-      </div>
-
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-lg">
-        💰
-      </div>
-    </div>
-  </div>
-
-  <div className="p-6">
-    {/* REVENUE VS COST */}
-    <div className="grid gap-5 lg:grid-cols-2">
-      {/* REVENUE */}
-      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-slate-500">
-              Revenue
-            </p>
-
-            <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
-              {loading
-                ? "..."
-                : formatMoney(totalRevenue)}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-400">
-              Total recorded revenue
-            </p>
-          </div>
-
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
-            100%
-          </span>
-        </div>
-
-        <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-white">
-          <div
-            className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-            style={{
-              width: "100%",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* OPERATING COST */}
-      <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-slate-500">
-              Operating Cost
-            </p>
-
-            <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
-              {loading
-                ? "..."
-                : formatMoney(totalOperatingCost)}
-            </p>
-
-            <p className="mt-1 text-xs text-slate-400">
-              Total cost relative to revenue
-            </p>
-          </div>
-
-          <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-            {totalRevenue > 0
-              ? `${formatNumber(
-                  (totalOperatingCost /
-                    totalRevenue) *
-                    100,
-                )}%`
-              : "0%"}
-          </span>
-        </div>
-
-        <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-white">
-          <div
-            className="h-full rounded-full bg-orange-500 transition-all duration-500"
-            style={{
-              width: `${
-                totalRevenue > 0
-                  ? Math.min(
-                      (totalOperatingCost /
-                        totalRevenue) *
-                        100,
-                      100,
-                    )
-                  : 0
-              }%`,
-            }}
-          />
-        </div>
-      </div>
-    </div>
-
-    {/* COST BREAKDOWN */}
-    <div className="mt-6">
-      <div className="mb-4">
-        <h3 className="text-sm font-bold text-slate-900">
-          Operating Cost Breakdown
-        </h3>
-
-        <p className="mt-1 text-xs text-slate-400">
-          How current operating costs are distributed.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        {/* FUEL */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-
-              <p className="text-sm font-semibold text-slate-600">
-                Fuel Cost
+              <p className="text-sm text-slate-500">
+                Key indicators showing how efficiently
+                FleetFlow is operating.
               </p>
             </div>
 
-            <span className="text-xs font-bold text-blue-600">
-              {totalOperatingCost > 0
-                ? `${formatNumber(
-                    (totalFuelCost /
-                      totalOperatingCost) *
-                      100,
-                  )}%`
-                : "0%"}
-            </span>
-          </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
 
-          <p className="mt-3 text-xl font-bold text-slate-900">
-            {loading
-              ? "..."
-              : formatMoney(totalFuelCost)}
-          </p>
-        </div>
+              {/* TRIP COMPLETION */}
 
-        {/* MAINTENANCE */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-emerald-500" />
 
-              <p className="text-sm font-semibold text-slate-600">
-                Maintenance
-              </p>
-            </div>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">
+                      Trip Completion
+                    </p>
 
-            <span className="text-xs font-bold text-orange-600">
-              {totalOperatingCost > 0
-                ? `${formatNumber(
-                    (totalMaintenanceCost /
-                      totalOperatingCost) *
-                      100,
-                  )}%`
-                : "0%"}
-            </span>
-          </div>
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {loading
+                        ? "..."
+                        : `${formatNumber(
+                            tripCompletionRate,
+                          )}%`}
+                    </p>
+                  </div>
 
-          <p className="mt-3 text-xl font-bold text-slate-900">
-            {loading
-              ? "..."
-              : formatMoney(totalMaintenanceCost)}
-          </p>
-        </div>
-
-        {/* OTHER EXPENSES */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
-
-              <p className="text-sm font-semibold text-slate-600">
-                Other Expenses
-              </p>
-            </div>
-
-            <span className="text-xs font-bold text-slate-600">
-              {totalOperatingCost > 0
-                ? `${formatNumber(
-                    (totalExpenses /
-                      totalOperatingCost) *
-                      100,
-                  )}%`
-                : "0%"}
-            </span>
-          </div>
-
-          <p className="mt-3 text-xl font-bold text-slate-900">
-            {loading
-              ? "..."
-              : formatMoney(totalExpenses)}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* COST MIX */}
-    <div className="mt-7">
-      <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-semibold text-slate-600">
-          Cost Mix
-        </p>
-
-        <p className="text-xs text-slate-400">
-          Share of operating cost
-        </p>
-      </div>
-
-      <div className="flex h-3 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className="bg-blue-500 transition-all duration-500"
-          style={{
-            width: `${
-              totalOperatingCost > 0
-                ? Math.min(
-                    (totalFuelCost /
-                      totalOperatingCost) *
-                      100,
-                    100,
-                  )
-                : 0
-            }%`,
-          }}
-        />
-
-        <div
-          className="bg-orange-500 transition-all duration-500"
-          style={{
-            width: `${
-              totalOperatingCost > 0
-                ? Math.min(
-                    (totalMaintenanceCost /
-                      totalOperatingCost) *
-                      100,
-                    100,
-                  )
-                : 0
-            }%`,
-          }}
-        />
-
-        <div
-          className="bg-slate-500 transition-all duration-500"
-          style={{
-            width: `${
-              totalOperatingCost > 0
-                ? Math.min(
-                    (totalExpenses /
-                      totalOperatingCost) *
-                      100,
-                    100,
-                  )
-                : 0
-            }%`,
-          }}
-        />
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-500">
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-blue-500" />
-          Fuel
-        </span>
-
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-orange-500" />
-          Maintenance
-        </span>
-
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-slate-500" />
-          Other Expenses
-        </span>
-      </div>
-    </div>
-  </div>
-</section>
-
-        {/* TRIP PERFORMANCE */}
-<section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-  <div className="border-b border-slate-100 px-6 py-6">
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
-          Logistics
-        </p>
-
-        <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-          Trip Performance
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Current logistics activity and trip completion across the fleet.
-        </p>
-      </div>
-
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
-        🛣️
-      </div>
-    </div>
-  </div>
-
-  <div className="p-6">
-    {/* TRIP KPI CARDS */}
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {/* TOTAL TRIPS */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-5">
-        <div className="absolute inset-x-0 top-0 h-1 bg-slate-400" />
-
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-slate-500">
-              Total Trips
-            </p>
-
-            <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-              {loading ? "..." : trips.length}
-            </p>
-
-            <p className="mt-2 text-xs text-slate-400">
-              All recorded trips
-            </p>
-          </div>
-
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-lg shadow-sm">
-            📋
-          </div>
-        </div>
-      </div>
-
-      {/* IN PROGRESS */}
-      <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
-        <div className="absolute inset-x-0 top-0 h-1 bg-blue-500" />
-
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-blue-600">
-              In Progress
-            </p>
-
-            <p className="mt-3 text-3xl font-bold tracking-tight text-blue-700">
-              {loading ? "..." : activeTrips}
-            </p>
-
-            <p className="mt-2 text-xs text-blue-500">
-              Trips currently active
-            </p>
-          </div>
-
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-lg shadow-sm">
-            🚚
-          </div>
-        </div>
-      </div>
-
-      {/* SCHEDULED */}
-      <div className="relative overflow-hidden rounded-2xl border border-orange-100 bg-orange-50/60 p-5">
-        <div className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
-
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-orange-600">
-              Scheduled
-            </p>
-
-            <p className="mt-3 text-3xl font-bold tracking-tight text-orange-700">
-              {loading ? "..." : scheduledTrips}
-            </p>
-
-            <p className="mt-2 text-xs text-orange-500">
-              Upcoming trips
-            </p>
-          </div>
-
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-lg shadow-sm">
-            📅
-          </div>
-        </div>
-      </div>
-
-      {/* COMPLETED */}
-      <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
-        <div className="absolute inset-x-0 top-0 h-1 bg-emerald-500" />
-
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-emerald-600">
-              Completed
-            </p>
-
-            <p className="mt-3 text-3xl font-bold tracking-tight text-emerald-700">
-              {loading ? "..." : completedTrips}
-            </p>
-
-            <p className="mt-2 text-xs text-emerald-500">
-              Successfully completed
-            </p>
-          </div>
-
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-lg shadow-sm">
-            ✓
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* COMPLETION PERFORMANCE */}
-    <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-bold text-slate-900">
-            Trip Completion Performance
-          </p>
-
-          <p className="mt-1 text-xs text-slate-400">
-            Percentage of recorded trips that have been completed.
-          </p>
-        </div>
-
-        <div className="text-left sm:text-right">
-          <p className="text-2xl font-bold tracking-tight text-emerald-600">
-            {loading
-              ? "..."
-              : `${formatNumber(tripCompletionRate)}%`}
-          </p>
-
-          <p className="mt-1 text-xs font-medium text-slate-400">
-            Completion rate
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-5 h-3 overflow-hidden rounded-full bg-white shadow-inner">
-        <div
-          className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-          style={{
-            width: `${Math.min(
-              Math.max(tripCompletionRate, 0),
-              100,
-            )}%`,
-          }}
-        />
-      </div>
-
-      <div className="mt-3 flex items-center justify-between text-xs">
-        <span className="font-medium text-slate-400">
-          {loading ? "..." : `${completedTrips} completed`}
-        </span>
-
-        <span className="font-medium text-slate-400">
-          {loading ? "..." : `${trips.length} total trips`}
-        </span>
-      </div>
-    </div>
-  </div>
-</section> 
-
-         {/* RECENT TRIPS */}
-<section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-  <div className="border-b border-slate-100 px-6 py-6">
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-          Activity
-        </p>
-
-        <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-          Recent Trips
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Latest logistics activity recorded in FleetFlow.
-        </p>
-      </div>
-
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
-        🛣️
-      </div>
-    </div>
-  </div>
-
-  <div className="overflow-x-auto">
-    <table className="w-full min-w-[950px] text-left text-sm">
-      <thead className="border-b border-slate-100 bg-slate-50">
-        <tr>
-          <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Trip
-          </th>
-
-          <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Vehicle
-          </th>
-
-          <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Driver
-          </th>
-
-          <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Route
-          </th>
-
-          <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Date
-          </th>
-
-          <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Revenue
-          </th>
-
-          <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Status
-          </th>
-        </tr>
-      </thead>
-
-      <tbody className="divide-y divide-slate-100">
-        {loading ? (
-          <tr>
-            <td
-              colSpan={7}
-              className="px-6 py-12 text-center"
-            >
-              <div className="flex flex-col items-center justify-center">
-                <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
-
-                <p className="mt-3 text-sm font-medium text-slate-500">
-                  Loading recent trips...
-                </p>
-              </div>
-            </td>
-          </tr>
-        ) : recentTrips.length === 0 ? (
-          <tr>
-            <td
-              colSpan={7}
-              className="px-6 py-12 text-center"
-            >
-              <div className="mx-auto flex max-w-sm flex-col items-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-lg">
-                  🛣️
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-lg">
+                    ✓
+                  </div>
                 </div>
 
-                <p className="mt-3 font-semibold text-slate-700">
-                  No recent trips
-                </p>
+                <div className="mt-5">
+                  <div className="mb-2 flex items-center justify-between text-xs">
+                    <span className="font-medium text-slate-400">
+                      Completion rate
+                    </span>
 
-                <p className="mt-1 text-sm text-slate-400">
-                  Trip activity will appear here once FleetFlow records trips.
-                </p>
+                    <span className="font-semibold text-emerald-600">
+                      {loading
+                        ? "..."
+                        : `${formatNumber(
+                            tripCompletionRate,
+                          )}%`}
+                    </span>
+                  </div>
+
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                      style={{
+                        width: `${Math.min(
+                          Math.max(
+                            tripCompletionRate,
+                            0,
+                          ),
+                          100,
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-            </td>
-          </tr>
-        ) : (
-          recentTrips.map((trip) => {
-            const status = getStatus(trip.status);
 
-            const statusStyle =
-              status === "completed"
-                ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
-                : status === "in progress" ||
-                    status === "active"
-                  ? "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200"
-                  : status === "cancelled" ||
-                      status === "canceled"
-                    ? "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200"
-                    : "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-200";
+              {/* FUEL EFFICIENCY */}
 
-            return (
-              <tr
-                key={trip.id}
-                className="transition-colors duration-150 hover:bg-slate-50"
-              >
-                {/* TRIP */}
-                <td className="px-6 py-4">
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-cyan-500" />
+
+                <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-bold text-slate-900">
-                      {trip.tripCode}
+                    <p className="text-sm font-semibold text-slate-500">
+                      Fuel Efficiency
+                    </p>
+
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {loading
+                        ? "..."
+                        : `${formatNumber(
+                            fuelEfficiency,
+                          )} km/L`}
+                    </p>
+                  </div>
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-lg">
+                    ⛽
+                  </div>
+                </div>
+
+                <div className="mt-5 border-t border-slate-100 pt-4">
+                  <p className="text-xs font-medium text-slate-400">
+                    Distance traveled per liter
+                    consumed
+                  </p>
+                </div>
+              </div>
+
+              {/* COST PER KM */}
+
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
+
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">
+                      Cost / Kilometer
+                    </p>
+
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {loading
+                        ? "..."
+                        : `${formatMoney(
+                            costPerKilometer,
+                          )}/km`}
+                    </p>
+                  </div>
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-lg">
+                    📊
+                  </div>
+                </div>
+
+                <div className="mt-5 border-t border-slate-100 pt-4">
+                  <p className="text-xs font-medium text-slate-400">
+                    Operating cost per recorded
+                    kilometer
+                  </p>
+                </div>
+              </div>
+
+              {/* OPERATING MARGIN */}
+
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <div
+                  className={`absolute inset-x-0 top-0 h-1 ${
+                    revenueMargin >=
+                    0
+                      ? "bg-blue-500"
+                      : "bg-red-500"
+                  }`}
+                />
+
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">
+                      Operating Margin
+                    </p>
+
+                    <p
+                      className={`mt-3 text-3xl font-bold tracking-tight ${
+                        revenueMargin >=
+                        0
+                          ? "text-emerald-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {loading
+                        ? "..."
+                        : `${formatNumber(
+                            revenueMargin,
+                          )}%`}
+                    </p>
+                  </div>
+
+                  <div
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg ${
+                      revenueMargin >=
+                      0
+                        ? "bg-emerald-50"
+                        : "bg-red-50"
+                    }`}
+                  >
+                    {revenueMargin >=
+                    0
+                      ? "📈"
+                      : "📉"}
+                  </div>
+                </div>
+
+                <div className="mt-5 border-t border-slate-100 pt-4">
+                  <p className="text-xs font-medium text-slate-400">
+                    Net result ÷ total revenue
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =========================================================
+              ALERTS + FLEET STATUS
+          ========================================================= */}
+
+          <section className="mt-8 grid gap-6 lg:grid-cols-2">
+
+            {/* ALERTS */}
+
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="absolute inset-x-0 top-0 h-1 bg-red-500" />
+
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-500">
+                    Attention
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
+                    Operational Alerts
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Automatic indicators based on
+                    current system data.
+                  </p>
+                </div>
+
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-lg">
+                  ⚠️
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                {alerts.map(
+                  (alert, index) => {
+                    const styles =
+                      alert.type ===
+                      "danger"
+                        ? "border-red-200 bg-red-50"
+                        : alert.type ===
+                            "warning"
+                          ? "border-orange-200 bg-orange-50"
+                          : alert.type ===
+                              "success"
+                            ? "border-emerald-200 bg-emerald-50"
+                            : "border-blue-200 bg-blue-50";
+
+                    const titleColor =
+                      alert.type ===
+                      "danger"
+                        ? "text-red-800"
+                        : alert.type ===
+                            "warning"
+                          ? "text-orange-800"
+                          : alert.type ===
+                              "success"
+                            ? "text-emerald-800"
+                            : "text-blue-800";
+
+                    const descriptionColor =
+                      alert.type ===
+                      "danger"
+                        ? "text-red-600"
+                        : alert.type ===
+                            "warning"
+                          ? "text-orange-600"
+                          : alert.type ===
+                              "success"
+                            ? "text-emerald-600"
+                            : "text-blue-600";
+
+                    const icon =
+                      alert.type ===
+                      "danger"
+                        ? "!"
+                        : alert.type ===
+                            "warning"
+                          ? "!"
+                          : alert.type ===
+                              "success"
+                            ? "✓"
+                            : "i";
+
+                    return (
+                      <div
+                        key={`${alert.title}-${index}`}
+                        className={`flex items-start gap-3 rounded-xl border p-4 ${styles}`}
+                      >
+                        <div
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold shadow-sm ${titleColor}`}
+                        >
+                          {icon}
+                        </div>
+
+                        <div className="min-w-0">
+                          <p
+                            className={`font-semibold ${titleColor}`}
+                          >
+                            {alert.title}
+                          </p>
+
+                          <p
+                            className={`mt-1 text-sm leading-5 ${descriptionColor}`}
+                          >
+                            {
+                              alert.description
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  },
+                )}
+              </div>
+            </div>
+
+            {/* FLEET STATUS */}
+
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="absolute inset-x-0 top-0 h-1 bg-blue-500" />
+
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-500">
+                    Fleet
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
+                    Fleet Status
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Current distribution of the
+                    vehicle fleet.
+                  </p>
+                </div>
+
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
+                  🚚
+                </div>
+              </div>
+
+              <div className="mt-7 space-y-6">
+
+                {/* AVAILABLE */}
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
+
+                      <span className="text-sm font-medium text-slate-600">
+                        Available
+                      </span>
+                    </div>
+
+                    <span className="text-sm font-bold text-emerald-600">
+                      {loading
+                        ? "..."
+                        : availableVehicles}
+                    </span>
+                  </div>
+
+                  <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                      style={{
+                        width: `${
+                          vehicles.length >
+                          0
+                            ? Math.min(
+                                (availableVehicles /
+                                  vehicles.length) *
+                                  100,
+                                100,
+                              )
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* ON TRIP */}
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-blue-500" />
+
+                      <span className="text-sm font-medium text-slate-600">
+                        On Trip
+                      </span>
+                    </div>
+
+                    <span className="text-sm font-bold text-blue-600">
+                      {loading
+                        ? "..."
+                        : activeTrips}
+                    </span>
+                  </div>
+
+                  <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-blue-500 transition-all duration-700"
+                      style={{
+                        width: `${
+                          vehicles.length >
+                          0
+                            ? Math.min(
+                                (activeTrips /
+                                  vehicles.length) *
+                                  100,
+                                100,
+                              )
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* MAINTENANCE */}
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-orange-500" />
+
+                      <span className="text-sm font-medium text-slate-600">
+                        Maintenance
+                      </span>
+                    </div>
+
+                    <span className="text-sm font-bold text-orange-600">
+                      {loading
+                        ? "..."
+                        : maintenanceVehicles}
+                    </span>
+                  </div>
+
+                  <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-orange-500 transition-all duration-700"
+                      style={{
+                        width: `${
+                          vehicles.length >
+                          0
+                            ? Math.min(
+                                (maintenanceVehicles /
+                                  vehicles.length) *
+                                  100,
+                                100,
+                              )
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* INACTIVE */}
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-slate-400" />
+
+                      <span className="text-sm font-medium text-slate-600">
+                        Inactive
+                      </span>
+                    </div>
+
+                    <span className="text-sm font-bold text-slate-500">
+                      {loading
+                        ? "..."
+                        : inactiveVehicles}
+                    </span>
+                  </div>
+
+                  <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-slate-400 transition-all duration-700"
+                      style={{
+                        width: `${
+                          vehicles.length >
+                          0
+                            ? Math.min(
+                                (inactiveVehicles /
+                                  vehicles.length) *
+                                  100,
+                                100,
+                              )
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =========================================================
+              FINANCIAL PERFORMANCE
+          ========================================================= */}
+
+          <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 px-6 py-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600">
+                    Finance
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
+                    Financial Performance
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Revenue, operating costs,
+                    and current fleet cost
+                    structure.
+                  </p>
+                </div>
+
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-lg">
+                  💰
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6">
+
+              {/* REVENUE VS COST */}
+
+              <div className="grid gap-5 lg:grid-cols-2">
+
+                {/* REVENUE */}
+
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-500">
+                        Revenue
+                      </p>
+
+                      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
+                        {loading
+                          ? "..."
+                          : formatMoney(
+                              totalRevenue,
+                            )}
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-400">
+                        Total recorded revenue
+                      </p>
+                    </div>
+
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                      100%
+                    </span>
+                  </div>
+
+                  <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-white">
+                    <div className="h-full w-full rounded-full bg-emerald-500" />
+                  </div>
+                </div>
+
+                {/* OPERATING COST */}
+
+                <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-500">
+                        Operating Cost
+                      </p>
+
+                      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
+                        {loading
+                          ? "..."
+                          : formatMoney(
+                              totalOperatingCost,
+                            )}
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-400">
+                        Total cost relative to
+                        revenue
+                      </p>
+                    </div>
+
+                    <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                      {totalRevenue >
+                      0
+                        ? `${formatNumber(
+                            operatingCostRatio,
+                          )}%`
+                        : "0%"}
+                    </span>
+                  </div>
+
+                  <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-white">
+                    <div
+                      className="h-full rounded-full bg-orange-500 transition-all duration-700"
+                      style={{
+                        width: `${Math.min(
+                          operatingCostRatio,
+                          100,
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* COST BREAKDOWN */}
+
+              <div className="mt-6">
+                <div className="mb-4">
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Operating Cost Breakdown
+                  </h3>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    How current operating costs
+                    are distributed.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+
+                  {/* FUEL */}
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+
+                        <p className="text-sm font-semibold text-slate-600">
+                          Fuel Cost
+                        </p>
+                      </div>
+
+                      <span className="text-xs font-bold text-blue-600">
+                        {totalOperatingCost >
+                        0
+                          ? `${formatNumber(
+                              fuelCostShare,
+                            )}%`
+                          : "0%"}
+                      </span>
+                    </div>
+
+                    <p className="mt-3 text-xl font-bold text-slate-900">
+                      {loading
+                        ? "..."
+                        : formatMoney(
+                            totalFuelCost,
+                          )}
+                    </p>
+                  </div>
+
+                  {/* MAINTENANCE */}
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+
+                        <p className="text-sm font-semibold text-slate-600">
+                          Maintenance
+                        </p>
+                      </div>
+
+                      <span className="text-xs font-bold text-orange-600">
+                        {totalOperatingCost >
+                        0
+                          ? `${formatNumber(
+                              maintenanceCostShare,
+                            )}%`
+                          : "0%"}
+                      </span>
+                    </div>
+
+                    <p className="mt-3 text-xl font-bold text-slate-900">
+                      {loading
+                        ? "..."
+                        : formatMoney(
+                            totalMaintenanceCost,
+                          )}
+                    </p>
+                  </div>
+
+                  {/* OTHER EXPENSES */}
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
+
+                        <p className="text-sm font-semibold text-slate-600">
+                          Other Expenses
+                        </p>
+                      </div>
+
+                      <span className="text-xs font-bold text-slate-600">
+                        {totalOperatingCost >
+                        0
+                          ? `${formatNumber(
+                              expenseCostShare,
+                            )}%`
+                          : "0%"}
+                      </span>
+                    </div>
+
+                    <p className="mt-3 text-xl font-bold text-slate-900">
+                      {loading
+                        ? "..."
+                        : formatMoney(
+                            totalExpenses,
+                          )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* COST MIX */}
+
+              <div className="mt-7">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-600">
+                    Cost Mix
+                  </p>
+
+                  <p className="text-xs text-slate-400">
+                    Share of operating cost
+                  </p>
+                </div>
+
+                <div className="flex h-3 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="bg-blue-500 transition-all duration-700"
+                    style={{
+                      width: `${Math.min(
+                        fuelCostShare,
+                        100,
+                      )}%`,
+                    }}
+                  />
+
+                  <div
+                    className="bg-orange-500 transition-all duration-700"
+                    style={{
+                      width: `${Math.min(
+                        maintenanceCostShare,
+                        100,
+                      )}%`,
+                    }}
+                  />
+
+                  <div
+                    className="bg-slate-500 transition-all duration-700"
+                    style={{
+                      width: `${Math.min(
+                        expenseCostShare,
+                        100,
+                      )}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-500">
+                  <span className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-blue-500" />
+                    Fuel
+                  </span>
+
+                  <span className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-orange-500" />
+                    Maintenance
+                  </span>
+
+                  <span className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-slate-500" />
+                    Other Expenses
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =========================================================
+              TRIP PERFORMANCE
+          ========================================================= */}
+
+          <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 px-6 py-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
+                    Logistics
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
+                    Trip Performance
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Current logistics activity and
+                    trip completion across the
+                    fleet.
+                  </p>
+                </div>
+
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
+                  🛣️
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6">
+
+              {/* TRIP KPI CARDS */}
+
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+                {/* TOTAL */}
+
+                <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-slate-400" />
+
+                  <p className="text-sm font-semibold text-slate-500">
+                    Total Trips
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                    {loading
+                      ? "..."
+                      : trips.length}
+                  </p>
+
+                  <p className="mt-2 text-xs text-slate-400">
+                    All recorded trips
+                  </p>
+                </div>
+
+                {/* ACTIVE */}
+
+                <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-blue-500" />
+
+                  <p className="text-sm font-semibold text-blue-600">
+                    In Progress
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold tracking-tight text-blue-700">
+                    {loading
+                      ? "..."
+                      : activeTrips}
+                  </p>
+
+                  <p className="mt-2 text-xs text-blue-500">
+                    Trips currently active
+                  </p>
+                </div>
+
+                {/* SCHEDULED */}
+
+                <div className="relative overflow-hidden rounded-2xl border border-orange-100 bg-orange-50/60 p-5">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
+
+                  <p className="text-sm font-semibold text-orange-600">
+                    Scheduled
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold tracking-tight text-orange-700">
+                    {loading
+                      ? "..."
+                      : scheduledTrips}
+                  </p>
+
+                  <p className="mt-2 text-xs text-orange-500">
+                    Upcoming trips
+                  </p>
+                </div>
+
+                {/* COMPLETED */}
+
+                <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-emerald-500" />
+
+                  <p className="text-sm font-semibold text-emerald-600">
+                    Completed
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold tracking-tight text-emerald-700">
+                    {loading
+                      ? "..."
+                      : completedTrips}
+                  </p>
+
+                  <p className="mt-2 text-xs text-emerald-500">
+                    Successfully completed
+                  </p>
+                </div>
+              </div>
+
+              {/* COMPLETION */}
+
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">
+                      Trip Completion
+                      Performance
                     </p>
 
                     <p className="mt-1 text-xs text-slate-400">
-                      Trip #{trip.id}
-                    </p>
-                  </div>
-                </td>
-
-                {/* VEHICLE */}
-                <td className="px-6 py-4">
-                  <span className="font-medium text-slate-700">
-                    {trip.vehicleCode}
-                  </span>
-                </td>
-
-                {/* DRIVER */}
-                <td className="px-6 py-4">
-                  <span className="font-medium text-slate-700">
-                    {trip.driverCode}
-                  </span>
-                </td>
-
-                {/* ROUTE */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="max-w-[130px] truncate font-medium text-slate-700">
-                      {trip.origin}
-                    </span>
-
-                    <span className="text-slate-300">
-                      →
-                    </span>
-
-                    <span className="max-w-[130px] truncate font-medium text-slate-700">
-                      {trip.destination}
-                    </span>
-                  </div>
-                </td>
-
-                {/* DATE */}
-                <td className="px-6 py-4 text-slate-600">
-                  {formatDate(trip.tripDate)}
-                </td>
-
-                {/* REVENUE */}
-                <td className="px-6 py-4">
-                  <span className="font-bold text-slate-900">
-                    {formatMoney(
-                      Number(trip.revenue || 0),
-                    )}
-                  </span>
-                </td>
-
-                {/* STATUS */}
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold capitalize ${statusStyle}`}
-                  >
-                    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" />
-                    {trip.status}
-                  </span>
-                </td>
-              </tr>
-            );
-          })
-        )}
-      </tbody>
-    </table>
-  </div>
-
-  <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-4">
-    <p className="text-xs font-medium text-slate-400">
-      Showing the latest {recentTrips.length} recorded trips.
-    </p>
-  </div>
-</section> 
-
-{/* RECENT ACTIVITY */}
-<section className="mt-8 grid gap-6 lg:grid-cols-2">
-  {/* RECENT MAINTENANCE */}
-  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-    <div className="border-b border-slate-100 px-6 py-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-500">
-            Maintenance
-          </p>
-
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-            Recent Maintenance
-          </h2>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Latest maintenance activity across the fleet.
-          </p>
-        </div>
-
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-lg">
-          🔧
-        </div>
-      </div>
-    </div>
-
-    <div className="p-6">
-      {loading ? (
-        <div className="flex items-center justify-center py-10">
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-orange-500" />
-        </div>
-      ) : recentMaintenance.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-lg">
-            🔧
-          </div>
-
-          <p className="mt-3 font-semibold text-slate-700">
-            No maintenance records
-          </p>
-
-          <p className="mt-1 text-sm text-slate-400">
-            Recent maintenance activity will appear here.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-0">
-          {recentMaintenance.map((record) => {
-            const status = getStatus(record.status);
-
-            const statusStyle =
-              status === "completed"
-                ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
-                : status === "in progress" ||
-                    status === "active"
-                  ? "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200"
-                  : status === "cancelled" ||
-                      status === "canceled"
-                    ? "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200"
-                    : "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-200";
-
-            return (
-              <div
-                key={record.id}
-                className="flex items-start justify-between gap-4 border-b border-slate-100 py-4 first:pt-0 last:border-0 last:pb-0"
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-bold text-slate-800">
-                      {record.maintenanceCode}
-                    </p>
-
-                    <span className="text-slate-300">
-                      •
-                    </span>
-
-                    <p className="font-medium text-slate-600">
-                      {record.vehicleCode}
+                      Percentage of recorded trips
+                      that have been completed.
                     </p>
                   </div>
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    {record.maintenanceType}
-                  </p>
+                  <div className="text-left sm:text-right">
+                    <p className="text-2xl font-bold tracking-tight text-emerald-600">
+                      {loading
+                        ? "..."
+                        : `${formatNumber(
+                            tripCompletionRate,
+                          )}%`}
+                    </p>
 
-                  <p className="mt-1 text-xs text-slate-400">
-                    {formatDate(record.maintenanceDate)}
-                  </p>
+                    <p className="mt-1 text-xs font-medium text-slate-400">
+                      Completion rate
+                    </p>
+                  </div>
                 </div>
 
-                <span
-                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold capitalize ${statusStyle}`}
-                >
-                  {record.status}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-
-    <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-3">
-      <p className="text-xs font-medium text-slate-400">
-        Showing the latest {recentMaintenance.length} maintenance records.
-      </p>
-    </div>
-  </div>
-
-  {/* RECENT EXPENSES */}
-  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-    <div className="border-b border-slate-100 px-6 py-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-            Finance
-          </p>
-
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
-            Recent Expenses
-          </h2>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Latest operational expenses recorded in FleetFlow.
-          </p>
-        </div>
-
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-lg">
-          💸
-        </div>
-      </div>
-    </div>
-
-    <div className="p-6">
-      {loading ? (
-        <div className="flex items-center justify-center py-10">
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-500" />
-        </div>
-      ) : recentExpenses.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-lg">
-            💸
-          </div>
-
-          <p className="mt-3 font-semibold text-slate-700">
-            No expenses recorded
-          </p>
-
-          <p className="mt-1 text-sm text-slate-400">
-            Recent operational expenses will appear here.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-0">
-          {recentExpenses.map((expense) => (
-            <div
-              key={expense.id}
-              className="flex items-start justify-between gap-4 border-b border-slate-100 py-4 first:pt-0 last:border-0 last:pb-0"
-            >
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-bold text-slate-800">
-                    {expense.expenseCode}
-                  </p>
-
-                  <span className="text-slate-300">
-                    •
-                  </span>
-
-                  <p className="font-medium text-slate-600">
-                    {expense.category}
-                  </p>
+                <div className="mt-5 h-3 overflow-hidden rounded-full bg-white shadow-inner">
+                  <div
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                    style={{
+                      width: `${Math.min(
+                        Math.max(
+                          tripCompletionRate,
+                          0,
+                        ),
+                        100,
+                      )}%`,
+                    }}
+                  />
                 </div>
 
-                <p className="mt-1 truncate text-sm text-slate-500">
-                  {expense.description}
-                </p>
+                <div className="mt-3 flex items-center justify-between text-xs">
+                  <span className="font-medium text-slate-400">
+                    {loading
+                      ? "..."
+                      : `${completedTrips} completed`}
+                  </span>
 
-                <p className="mt-1 text-xs text-slate-400">
-                  {formatDate(expense.expenseDate)}
-                </p>
+                  <span className="font-medium text-slate-400">
+                    {loading
+                      ? "..."
+                      : `${trips.length} total trips`}
+                  </span>
+                </div>
               </div>
-
-              <p className="shrink-0 whitespace-nowrap text-base font-bold text-slate-900">
-                {formatMoney(
-                  Number(expense.amount || 0),
-                )}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-
-    <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-3">
-      <p className="text-xs font-medium text-slate-400">
-        Showing the latest {recentExpenses.length} expense records.
-      </p>
-    </div>
-  </div>
-</section> 
-
-          {/* FOOTER SUMMARY */}
-          <section className="mt-8 mb-4 overflow-hidden rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-            <div className="mb-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                FleetFlow Snapshot
-              </p>
-
-              <h2 className="mt-1 text-lg font-semibold">
-                Operational Summary
-              </h2>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-
-              <div>
-                <p className="text-sm text-slate-400">
-                  Total Distance
-                </p>
-
-                <p className="mt-1 text-xl font-semibold">
-                  {loading
-                    ? "..."
-                    : `${formatNumber(totalDistance)} km`}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-400">
-                  Fuel Consumed
-                </p>
-
-                <p className="mt-1 text-xl font-semibold">
-                  {loading
-                    ? "..."
-                    : `${formatNumber(totalFuelLiters)} L`}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-400">
-                  Driver Utilization
-                </p>
-
-                <p className="mt-1 text-xl font-semibold">
-                  {loading
-                    ? "..."
-                    : `${formatNumber(driverUtilization)}%`}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-400">
-                  Maintenance Records
-                </p>
-
-                <p className="mt-1 text-xl font-semibold">
-                  {loading ? "..." : maintenance.length}
-                </p>
-              </div>
-
             </div>
           </section>
 
+          {/* =========================================================
+              RECENT TRIPS
+          ========================================================= */}
+
+          <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 px-6 py-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                    Activity
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
+                    Recent Trips
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Latest logistics activity
+                    recorded in FleetFlow.
+                  </p>
+                </div>
+
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
+                  🛣️
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[950px] text-left text-sm">
+                <thead className="border-b border-slate-100 bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Trip
+                    </th>
+
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Vehicle
+                    </th>
+
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Driver
+                    </th>
+
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Route
+                    </th>
+
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Date
+                    </th>
+
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Revenue
+                    </th>
+
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100">
+                  {loading ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-6 py-12 text-center"
+                      >
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
+
+                          <p className="mt-3 text-sm font-medium text-slate-500">
+                            Loading recent trips...
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : recentTrips.length ===
+                    0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-6 py-12 text-center"
+                      >
+                        <div className="mx-auto flex max-w-sm flex-col items-center">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-lg">
+                            🛣️
+                          </div>
+
+                          <p className="mt-3 font-semibold text-slate-700">
+                            No recent trips
+                          </p>
+
+                          <p className="mt-1 text-sm text-slate-400">
+                            Trip activity will appear
+                            here once FleetFlow records
+                            trips.
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    recentTrips.map(
+                      (trip) => (
+                        <tr
+                          key={trip.id}
+                          className="transition-colors duration-150 hover:bg-slate-50"
+                        >
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="font-bold text-slate-900">
+                                {
+                                  trip.tripCode
+                                }
+                              </p>
+
+                              <p className="mt-1 text-xs text-slate-400">
+                                Trip #{trip.id}
+                              </p>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <span className="font-medium text-slate-700">
+                              {
+                                trip.vehicleCode
+                              }
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <span className="font-medium text-slate-700">
+                              {
+                                trip.driverCode
+                              }
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <span className="max-w-[130px] truncate font-medium text-slate-700">
+                                {trip.origin}
+                              </span>
+
+                              <span className="text-slate-300">
+                                →
+                              </span>
+
+                              <span className="max-w-[130px] truncate font-medium text-slate-700">
+                                {
+                                  trip.destination
+                                }
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 text-slate-600">
+                            {formatDate(
+                              trip.tripDate,
+                            )}
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <span className="font-bold text-slate-900">
+                              {formatMoney(
+                                Number(
+                                  trip.revenue ||
+                                    0,
+                                ),
+                              )}
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold capitalize ${getTripStatusStyle(
+                                trip.status,
+                              )}`}
+                            >
+                              <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" />
+
+                              {
+                                trip.status
+                              }
+                            </span>
+                          </td>
+                        </tr>
+                      ),
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-4">
+              <p className="text-xs font-medium text-slate-400">
+                Showing the latest{" "}
+                {recentTrips.length}{" "}
+                recorded trips.
+              </p>
+            </div>
+          </section>
+
+          {/* =========================================================
+              RECENT ACTIVITY
+          ========================================================= */}
+
+          <section className="mt-8 grid gap-6 lg:grid-cols-2">
+
+            {/* MAINTENANCE */}
+
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-100 px-6 py-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-500">
+                      Maintenance
+                    </p>
+
+                    <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
+                      Recent Maintenance
+                    </h2>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      Latest maintenance activity
+                      across the fleet.
+                    </p>
+                  </div>
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-lg">
+                    🔧
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {loading ? (
+                  <div className="flex items-center justify-center py-10">
+                    <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-orange-500" />
+                  </div>
+                ) : recentMaintenance.length ===
+                  0 ? (
+                  <div className="flex flex-col items-center justify-center py-10 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-lg">
+                      🔧
+                    </div>
+
+                    <p className="mt-3 font-semibold text-slate-700">
+                      No maintenance records
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-400">
+                      Recent maintenance activity
+                      will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    {recentMaintenance.map(
+                      (record) => (
+                        <div
+                          key={record.id}
+                          className="flex items-start justify-between gap-4 border-b border-slate-100 py-4 first:pt-0 last:border-0 last:pb-0"
+                        >
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-bold text-slate-800">
+                                {
+                                  record.maintenanceCode
+                                }
+                              </p>
+
+                              <span className="text-slate-300">
+                                •
+                              </span>
+
+                              <p className="font-medium text-slate-600">
+                                {
+                                  record.vehicleCode
+                                }
+                              </p>
+                            </div>
+
+                            <p className="mt-1 text-sm text-slate-500">
+                              {
+                                record.maintenanceType
+                              }
+                            </p>
+
+                            <p className="mt-1 text-xs text-slate-400">
+                              {formatDate(
+                                record.maintenanceDate,
+                              )}
+                            </p>
+                          </div>
+
+                          <span
+                            className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold capitalize ${getMaintenanceStatusStyle(
+                              record.status,
+                            )}`}
+                          >
+                            {
+                              record.status
+                            }
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-3">
+                <p className="text-xs font-medium text-slate-400">
+                  Showing the latest{" "}
+                  {
+                    recentMaintenance.length
+                  }{" "}
+                  maintenance records.
+                </p>
+              </div>
+            </div>
+
+            {/* EXPENSES */}
+
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-100 px-6 py-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+                      Finance
+                    </p>
+
+                    <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900">
+                      Recent Expenses
+                    </h2>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      Latest operational expenses
+                      recorded in FleetFlow.
+                    </p>
+                  </div>
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-lg">
+                    💸
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {loading ? (
+                  <div className="flex items-center justify-center py-10">
+                    <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-500" />
+                  </div>
+                ) : recentExpenses.length ===
+                  0 ? (
+                  <div className="flex flex-col items-center justify-center py-10 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-lg">
+                      💸
+                    </div>
+
+                    <p className="mt-3 font-semibold text-slate-700">
+                      No expenses recorded
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-400">
+                      Recent operational expenses
+                      will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    {recentExpenses.map(
+                      (expense) => (
+                        <div
+                          key={expense.id}
+                          className="flex items-start justify-between gap-4 border-b border-slate-100 py-4 first:pt-0 last:border-0 last:pb-0"
+                        >
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-bold text-slate-800">
+                                {
+                                  expense.expenseCode
+                                }
+                              </p>
+
+                              <span className="text-slate-300">
+                                •
+                              </span>
+
+                              <p className="font-medium text-slate-600">
+                                {
+                                  expense.category
+                                }
+                              </p>
+                            </div>
+
+                            <p className="mt-1 truncate text-sm text-slate-500">
+                              {
+                                expense.description
+                              }
+                            </p>
+
+                            <p className="mt-1 text-xs text-slate-400">
+                              {formatDate(
+                                expense.expenseDate,
+                              )}
+                            </p>
+                          </div>
+
+                          <p className="shrink-0 whitespace-nowrap text-base font-bold text-slate-900">
+                            {formatMoney(
+                              Number(
+                                expense.amount ||
+                                  0,
+                              ),
+                            )}
+                          </p>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-3">
+                <p className="text-xs font-medium text-slate-400">
+                  Showing the latest{" "}
+                  {recentExpenses.length}{" "}
+                  expense records.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* =========================================================
+              MANAGEMENT SNAPSHOT
+          ========================================================= */}
+
+          <section className="mt-8 mb-4 overflow-hidden rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                  FleetFlow Snapshot
+                </p>
+
+                <h2 className="mt-1 text-xl font-bold">
+                  Management Summary
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  High-level operational indicators
+                  for the current system state.
+                </p>
+              </div>
+
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                System data loaded
+              </span>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+              <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+                <p className="text-xs font-medium text-slate-400">
+                  Total Distance
+                </p>
+
+                <p className="mt-2 text-xl font-bold">
+                  {loading
+                    ? "..."
+                    : `${formatNumber(
+                        totalDistance,
+                      )} km`}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+                <p className="text-xs font-medium text-slate-400">
+                  Fuel Consumed
+                </p>
+
+                <p className="mt-2 text-xl font-bold">
+                  {loading
+                    ? "..."
+                    : `${formatNumber(
+                        totalFuelLiters,
+                      )} L`}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+                <p className="text-xs font-medium text-slate-400">
+                  Driver Utilization
+                </p>
+
+                <p className="mt-2 text-xl font-bold">
+                  {loading
+                    ? "..."
+                    : `${formatNumber(
+                        driverUtilization,
+                      )}%`}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+                <p className="text-xs font-medium text-slate-400">
+                  Maintenance Records
+                </p>
+
+                <p className="mt-2 text-xl font-bold">
+                  {loading
+                    ? "..."
+                    : maintenance.length}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 border-t border-slate-800 pt-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    Current management signal
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    {netOperatingResult < 0
+                      ? "Financial performance requires attention."
+                      : maintenanceDue > 0
+                        ? "Operations are stable, but maintenance requires attention."
+                        : inactiveVehicles >
+                            0
+                          ? "Fleet is operational with inactive vehicles requiring review."
+                          : "Fleet operations are currently stable."}
+                  </p>
+                </div>
+
+                <a
+                  href="/recommendations"
+                  className="w-fit rounded-lg bg-white px-4 py-2 text-xs font-bold text-slate-900 transition hover:bg-slate-200"
+                >
+                  Open Decision Center →
+                </a>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </ProtectedPage>

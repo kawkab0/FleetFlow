@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 import GlobalSearch from "@/components/GlobalSearch";
+import NotificationBell from "@/components/NotificationBell";
 
 type User = {
   id: number;
@@ -314,9 +316,13 @@ export default function Sidebar() {
           </div>
         )}
 
-        {/* Global Search */}
-        <div className="relative z-50 mt-4">
-          <GlobalSearch />
+        {/* Global Search + Notifications */}
+        <div className="relative z-50 mt-4 flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <GlobalSearch />
+          </div>
+
+          <NotificationBell />
         </div>
       </div>
 

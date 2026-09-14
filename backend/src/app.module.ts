@@ -4,7 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuditLogsModule } from "./audit-logs/audit-logs.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-
+import { NotificationModule } from "./notifications/notification.module"; 
 import { ProductsModule } from "./products/products.module";
 import { SuppliersModule } from "./suppliers/suppliers.module";
 import { WarehousesModule } from "./warehouses/warehouses.module";
@@ -74,6 +74,7 @@ import { IntelligenceModule } from "./intelligence/intelligence.module";
     AnalyticsModule,
     IntelligenceModule,
     AuditLogsModule,
+    NotificationModule, 
   ],
 
   controllers: [AppController],

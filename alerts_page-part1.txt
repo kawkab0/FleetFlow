@@ -1,0 +1,200 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
+import ProtectedPage from "@/components/ProtectedPage";
+
+interface Vehicle {
+  id: number;
+  vehicleCode?: string;
+  plateNumber?: string;
+  status?: string;
+}
+
+interface Trip {
+  id: number;
+  vehicleCode?: string;
+  distance?: number | string;
+  revenue?: number | string;
+  fuelUsed?: number | string;
+  status?: string;
+}
+
+interface Fuel {
+  id: number;
+  vehicleCode?: string;
+  liters?: number | string;
+  cost?: number | string;
+}
+
+interface Maintenance {
+  id: number;
+  vehicleCode?: string;
+  cost?: number | string;
+}
+
+interface Expense {
+  id: number;
+  vehicleCode?: string;
+  amount?: number | string;
+}
+
+type Priority = "Critical" | "High" | "Medium" | "Low";
+
+type Alert = {
+  id: number;
+  priority: Priority;
+  category: string;
+  title: string;
+  description: string;
+  action: string;
+  vehicleCode?: string;
+};
+
+function num(value: unknown): number {
+  const result = Number(value);
+  return Number.isFinite(result) ? result : 0;
+}
+
+function money(value: number): string {
+  return `${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} ETB`;
+}
+
+function percent(value: number): string {
+  return `${value.toFixed(1)}%`;
+}
+
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function isCompletedTrip(status?: string): boolean {
+  const normalized = status?.toLowerCase().trim();
+
+  return (
+    normalized === "completed" ||
+    normalized === "complete" ||
+    normalized === "delivered" ||
+    normalized === "closed" ||
+    normalized === "finished"
+  );
+}
+
+function priorityRank(priority: Priority): number {
+  if (priority === "Critical") return 1;
+  if (priority === "High") return 2;
+  if (priority === "Medium") return 3;
+  return 4;
+}
+
+function priorityClasses(priority: Priority): string {
+  if (priority === "Critical") {
+    return "border-red-200 bg-red-50 text-red-700";
+  }
+
+  if (priority === "High") {
+    return "border-orange-200 bg-orange-50 text-orange-700";
+  }
+
+  if (priority === "Medium") {
+    return "border-yellow-200 bg-yellow-50 text-yellow-700";
+  }
+
+  return "border-emerald-200 bg-emerald-50 text-emerald-700";
+}
+
+function priorityDot(priority: Priority): string {
+  if (priority === "Critical") return "bg-red-500";
+  if (priority === "High") return "bg-orange-500";
+  if (priority === "Medium") return "bg-yellow-500";
+  return "bg-emerald-500";
+}
+
+export default function AlertsPage() {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [fuel, setFuel] = useState<Fuel[]>([]);
+  const [maintenance, setMaintenance] = useState<Maintenance[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [filter, setFilter] = useState<
+    "All" | Priority
+  >("All");
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const [
+        vehiclesData,
+        tripsData,
+        fuelData,
+        maintenanceData,
+        expensesData,
+      ] = await Promise.all([
+        apiFetch("/vehicles"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/maintenance"),
+        apiFetch("/expenses"),
+      ]);
+
+      setVehicles(
+        Array.isArray(vehiclesData) ? vehiclesData : [],
+      );
+
+      setTrips(
+        Array.isArray(tripsData) ? tripsData : [],
+      );
+
+      setFuel(
+        Array.isArray(fuelData) ? fuelData : [],
+      );
+
+      setMaintenance(
+        Array.isArray(maintenanceData)
+          ? maintenanceData
+          : [],
+      );
+
+      setExpenses(
+        Array.isArray(expensesData) ? expensesData : [],
+      );
+    } catch (err) {
+      console.error(err);
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to load alert data. Make sure the backend is running on port 3001.",
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const alerts = useMemo<Alert[]>(() => {
+    const generated: Alert[] = [];
+    let id = 1;
+
+    const addAlert = (
+      priority: Priority,
+      category: string,
+      title: string,
+      description: string,
+      action: string,

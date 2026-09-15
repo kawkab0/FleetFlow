@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
@@ -280,7 +280,7 @@ export default function RouteIntelligencePage() {
     completedTrips.forEach((trip) => {
       const origin = trip.origin || "Unknown";
       const destination = trip.destination || "Unknown";
-      const route = `${origin} â†’ ${destination}`;
+      const route = `${origin} → ${destination}`;
       const vehicle = trip.vehicleCode || "Unknown";
       const driver = trip.driverCode || "Unknown";
 
@@ -683,7 +683,7 @@ export default function RouteIntelligencePage() {
             <button
               onClick={loadData}
               disabled={loading}
-              className="w-full rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+              className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Refreshing..." : "Refresh Data"}
             </button>
@@ -811,7 +811,7 @@ export default function RouteIntelligencePage() {
           </div>
 
           {/* BEST / WORST */}
-          <div className="mb-8 grid gap-5 md:grid-cols-2">
+          <div className="mb-8 grid gap-5 lg:grid-cols-2">
             <div className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -965,7 +965,7 @@ export default function RouteIntelligencePage() {
 
           {/* ROUTE RANKING */}
           <section className="mb-8 rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-4 sm:p-6">
+            <div className="border-b border-slate-200 p-6">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Route Ranking
               </p>
@@ -989,7 +989,7 @@ export default function RouteIntelligencePage() {
                 {routeRanking.map((route, index) => (
                   <div
                     key={route.route}
-                    className="flex flex-col gap-4 p-4 transition hover:bg-slate-50 sm:p-5 lg:flex-row lg:items-center lg:justify-between"
+                    className="flex flex-col gap-4 p-5 transition hover:bg-slate-50 lg:flex-row lg:items-center lg:justify-between"
                   >
                     <div className="flex items-start gap-4">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
@@ -1002,8 +1002,8 @@ export default function RouteIntelligencePage() {
                         </p>
 
                         <p className="mt-1 text-xs text-slate-500">
-                          {route.trips} trips • {" "}
-                          {number(route.distance)} km • {" "}
+                          {route.trips} trips •{" "}
+                          {number(route.distance)} km •{" "}
                           {route.vehicles} vehicle
                           {route.vehicles === 1 ? "" : "s"}
                         </p>
@@ -1059,7 +1059,7 @@ export default function RouteIntelligencePage() {
 
           {/* ROUTE TABLE */}
           <section className="mb-8 rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-4 sm:p-6">
+            <div className="border-b border-slate-200 p-6">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Route Performance
               </p>
@@ -1084,16 +1084,16 @@ export default function RouteIntelligencePage() {
                 <table className="w-full min-w-[1100px] text-left text-sm">
                   <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
                     <tr>
-                      <th className="px-3 py-4 sm:px-6">Route</th>
-                      <th className="px-3 py-4 sm:px-6">Trips</th>
-                      <th className="px-3 py-4 sm:px-6">Distance</th>
-                      <th className="px-3 py-4 sm:px-6">Revenue</th>
-                      <th className="px-3 py-4 sm:px-6">Cost</th>
-                      <th className="px-3 py-4 sm:px-6">Profit / Loss</th>
-                      <th className="px-3 py-4 sm:px-6">Margin</th>
-                      <th className="px-3 py-4 sm:px-6">Cost / KM</th>
-                      <th className="px-3 py-4 sm:px-6">Efficiency</th>
-                      <th className="px-3 py-4 sm:px-6">Risk</th>
+                      <th className="px-6 py-4">Route</th>
+                      <th className="px-6 py-4">Trips</th>
+                      <th className="px-6 py-4">Distance</th>
+                      <th className="px-6 py-4">Revenue</th>
+                      <th className="px-6 py-4">Cost</th>
+                      <th className="px-6 py-4">Profit / Loss</th>
+                      <th className="px-6 py-4">Margin</th>
+                      <th className="px-6 py-4">Cost / KM</th>
+                      <th className="px-6 py-4">Efficiency</th>
+                      <th className="px-6 py-4">Risk</th>
                     </tr>
                   </thead>
 
@@ -1103,24 +1103,24 @@ export default function RouteIntelligencePage() {
                         key={route.route}
                         className="transition hover:bg-slate-50"
                       >
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           <p className="font-semibold">
                             {route.route}
                           </p>
 
                           <p className="mt-1 text-xs text-slate-400">
                             {route.vehicles} vehicle
-                            {route.vehicles === 1 ? "" : "s"} • {" "}
+                            {route.vehicles === 1 ? "" : "s"} •{" "}
                             {route.drivers} driver
                             {route.drivers === 1 ? "" : "s"}
                           </p>
                         </td>
 
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           {route.trips}
                         </td>
 
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           {number(route.distance)} km
                         </td>
 
@@ -1128,7 +1128,7 @@ export default function RouteIntelligencePage() {
                           {money(route.revenue)}
                         </td>
 
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           {money(route.totalCost)}
                         </td>
 
@@ -1142,21 +1142,21 @@ export default function RouteIntelligencePage() {
                           {money(route.profit)}
                         </td>
 
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           {percent(route.margin)}
                         </td>
 
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           {money(route.costPerKm)}
                         </td>
 
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           {route.fuelEfficiency > 0
                             ? `${route.fuelEfficiency.toFixed(2)} km/L`
                             : "N/A"}
                         </td>
 
-                        <td className="px-3 py-4 sm:px-6">
+                        <td className="px-6 py-4">
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-semibold ${
                               route.risk === "Low"
@@ -1196,7 +1196,7 @@ export default function RouteIntelligencePage() {
               </p>
             </div>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
               {costStructure.map((item) => {
                 const percentageValue =
                   summary.totalCost > 0
@@ -1241,7 +1241,7 @@ export default function RouteIntelligencePage() {
           </section>
 
           {/* KEY DECISION METRICS */}
-          <section className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <section className="mb-8 grid gap-5 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Best Fuel Efficiency
@@ -1299,7 +1299,7 @@ export default function RouteIntelligencePage() {
 
           {/* BUSINESS INSIGHTS */}
           <section className="mb-8 rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-4 sm:p-6">
+            <div className="border-b border-slate-200 p-6">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Decision Support
               </p>
@@ -1366,7 +1366,7 @@ export default function RouteIntelligencePage() {
               What FleetFlow Is Telling Management
             </h2>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-white/10 bg-white/5 p-5">
                 <p className="text-sm font-bold">
                   Protect profitable routes
@@ -1475,7 +1475,7 @@ export default function RouteIntelligencePage() {
           </section>
 
           {/* FOOTER */}
-          <div className="flex flex-col justify-between gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400 sm:flex-row sm:items-center">
+          <div className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-6 text-xs text-slate-400 md:flex-row">
             <p>FleetFlow ERP • Route Intelligence</p>
 
             <p>
@@ -1487,5 +1487,4 @@ export default function RouteIntelligencePage() {
     </ProtectedPage>
   );
 }
-
 

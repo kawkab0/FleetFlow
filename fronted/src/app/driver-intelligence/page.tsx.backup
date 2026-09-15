@@ -882,7 +882,7 @@ export default function DriverIntelligencePage() {
           )}
 
           {/* PRIMARY KPIs */}
-          <div className="mb-8 grid gap-5 md:grid-cols-2 xl:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-8 grid gap-5 md:grid-cols-2 xl:sm:grid-cols-2 lg:grid-cols-4">
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-medium text-slate-500">
@@ -943,7 +943,7 @@ export default function DriverIntelligencePage() {
           </div>
 
           {/* SECONDARY KPIs */}
-          <div className="mb-8 grid gap-5 md:grid-cols-2 xl:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-8 grid gap-5 md:grid-cols-2 xl:sm:grid-cols-2 lg:grid-cols-4">
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <p className="text-sm text-slate-500">
@@ -990,7 +990,7 @@ export default function DriverIntelligencePage() {
           </div>
 
           {/* BUSINESS SNAPSHOT */}
-          <div className="mb-8 grid gap-6 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mb-8 grid gap-6 lg:sm:grid-cols-2 lg:grid-cols-3">
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
@@ -1544,7 +1544,7 @@ export default function DriverIntelligencePage() {
               What FleetFlow Evaluates
             </h2>
 
-            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
 
               <div className="rounded-xl bg-slate-50 p-5">
                 <p className="text-sm font-semibold">
@@ -1672,7 +1672,7 @@ export default function DriverIntelligencePage() {
               Recommended Actions
             </h2>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-3">
 
               <div className="rounded-xl bg-white p-5 shadow-sm">
                 <p className="font-semibold">
@@ -1798,6 +1798,5 @@ export default function DriverIntelligencePage() {
     </ProtectedPage>
   );
 }
-
 
 

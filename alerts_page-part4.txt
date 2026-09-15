@@ -1,0 +1,200 @@
+        result,
+        margin,
+        revenuePerKm,
+        costPerKm,
+        fuelEfficiency,
+      } = vehicle;
+
+      const isInactive =
+        status.toLowerCase() === "inactive";
+
+      /*
+       * LOSS-MAKING
+       */
+      if (
+        result < 0 &&
+        totalVehicleCost > 0
+      ) {
+        addAlert(
+          "Critical",
+          "Profitability",
+          `${code} is operating at a loss`,
+          `${code} generated ${money(
+            revenue,
+          )} in revenue against ${money(
+            totalVehicleCost,
+          )} in operating costs.`,
+          "Review this vehicle's assignments, routes, fuel consumption, maintenance, and expenses.",
+          code,
+        );
+      }
+
+      /*
+       * VERY LOW MARGIN
+       */
+      if (
+        revenue > 0 &&
+        margin < 10 &&
+        result >= 0
+      ) {
+        addAlert(
+          "High",
+          "Profitability",
+          `${code} has a weak operating margin`,
+          `${code} is profitable but operating at only ${percent(
+            margin,
+          )} margin.`,
+          "Review pricing, route profitability, fuel costs, and maintenance spending.",
+          code,
+        );
+      }
+
+      /*
+       * LOW REVENUE / KM
+       */
+      if (
+        distance > 0 &&
+        averageRevenuePerKm > 0 &&
+        revenuePerKm <
+          averageRevenuePerKm * 0.75
+      ) {
+        addAlert(
+          "High",
+          "Revenue Efficiency",
+          `${code} has low revenue per km`,
+          `${code} generates ${money(
+            revenuePerKm,
+          )} per km, significantly below the fleet benchmark.`,
+          "Review route selection, pricing, utilization, and customer assignments.",
+          code,
+        );
+      }
+
+      /*
+       * HIGH COST / KM
+       */
+      if (
+        distance > 0 &&
+        averageCostPerKm > 0 &&
+        costPerKm >
+          averageCostPerKm * 1.5
+      ) {
+        addAlert(
+          "High",
+          "Operating Cost",
+          `${code} has unusually high cost per km`,
+          `${code} costs approximately ${money(
+            costPerKm,
+          )} per km, above the fleet benchmark.`,
+          "Investigate fuel, maintenance, and other vehicle-related expenses.",
+          code,
+        );
+      }
+
+      /*
+       * FUEL EFFICIENCY
+       */
+      if (
+        fuelEfficiency > 0 &&
+        averageFuelEfficiency > 0 &&
+        fuelEfficiency <
+          averageFuelEfficiency * 0.75
+      ) {
+        addAlert(
+          "High",
+          "Fuel Efficiency",
+          `${code} has poor fuel efficiency`,
+          `${code} is averaging ${fuelEfficiency.toFixed(
+            2,
+          )} km/L, significantly below the fleet average.`,
+          "Investigate fuel consumption, driving behavior, idling, vehicle condition, and route conditions.",
+          code,
+        );
+      }
+
+      /*
+       * HIGH FUEL COST
+       */
+      if (
+        fuelCost > 0 &&
+        totalVehicleCost > 0 &&
+        fuelCost / totalVehicleCost >= 0.5
+      ) {
+        addAlert(
+          "Medium",
+          "Fuel Cost",
+          `${code} has a high fuel cost concentration`,
+          `Fuel represents ${percent(
+            (fuelCost / totalVehicleCost) * 100,
+          )} of this vehicle's recorded operating cost.`,
+          "Compare fuel consumption against distance and investigate abnormal fuel usage.",
+          code,
+        );
+      }
+
+      /*
+       * MAINTENANCE
+       */
+      if (
+        averageMaintenanceCost > 0 &&
+        maintenanceCost >
+          averageMaintenanceCost * 1.5
+      ) {
+        addAlert(
+          "High",
+          "Maintenance",
+          `${code} has above-benchmark maintenance spending`,
+          `${code} has ${money(
+            maintenanceCost,
+          )} in maintenance costs, significantly above the fleet average.`,
+          "Review recurring repairs, maintenance history, and preventive service requirements.",
+          code,
+        );
+      }
+
+      if (
+        maintenanceEvents >= 3 &&
+        averageMaintenanceEvents > 0 &&
+        maintenanceEvents >
+          averageMaintenanceEvents * 1.5
+      ) {
+        addAlert(
+          "Medium",
+          "Maintenance Frequency",
+          `${code} has frequent maintenance events`,
+          `${code} has ${maintenanceEvents} maintenance records compared with a fleet average of ${averageMaintenanceEvents.toFixed(
+            1,
+          )}.`,
+          "Review recurring faults and determine whether preventive maintenance or replacement is appropriate.",
+          code,
+        );
+      }
+
+      /*
+       * UTILIZATION
+       */
+      if (vehicleTripCount === 0) {
+        addAlert(
+          "Medium",
+          "Utilization",
+          `${code} has no recorded trips`,
+          "No trip activity is currently associated with this vehicle.",
+          "Review whether the vehicle should be assigned work, repaired, or marked inactive.",
+          code,
+        );
+      } else if (
+        vehicleCompletedTripCount === 0
+      ) {
+        addAlert(
+          "Medium",
+          "Trip Status",
+          `${code} has no completed trips`,
+          `${code} has ${vehicleTripCount} trip record${
+            vehicleTripCount === 1 ? "" : "s"
+          }, but none are marked completed.`,
+          "Review trip statuses and confirm whether completed operations are being recorded correctly.",
+          code,
+        );
+      }
+
+      /*

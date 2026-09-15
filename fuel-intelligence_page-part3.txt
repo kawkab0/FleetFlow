@@ -1,0 +1,200 @@
+
+        reasons.push(
+          "Vehicle represents a large share of total fleet fuel cost",
+        );
+
+        recommendations.push(
+          "Prioritize this vehicle for fuel optimization review.",
+        );
+      }
+
+      /*
+       * VERY LOW EFFICIENCY ABSOLUTE CHECK
+       */
+
+      if (
+        fuelEfficiency > 0 &&
+        fuelEfficiency < 3
+      ) {
+        riskScore += 20;
+
+        reasons.push(
+          "Very low absolute fuel efficiency",
+        );
+
+        recommendations.push(
+          "Inspect mechanical condition and driving patterns.",
+        );
+      }
+
+      riskScore = Math.min(
+        Math.round(riskScore),
+        100,
+      );
+
+      let riskLevel: RiskLevel = "Low";
+
+      if (riskScore >= 70) {
+        riskLevel = "Critical";
+      } else if (riskScore >= 45) {
+        riskLevel = "High";
+      } else if (riskScore >= 20) {
+        riskLevel = "Medium";
+      }
+
+      let performance: Performance =
+        "Average";
+
+      if (
+        riskLevel === "Critical" ||
+        riskLevel === "High"
+      ) {
+        performance = "Needs Attention";
+      } else if (
+        fuelEfficiency > 0 &&
+        fleetBenchmarks.fleetEfficiency > 0 &&
+        efficiencyVsFleet >= 15 &&
+        costPerKmVsFleet <= 0
+      ) {
+        performance = "Excellent";
+      } else if (
+        fuelEfficiency > 0 &&
+        fleetBenchmarks.fleetEfficiency > 0 &&
+        efficiencyVsFleet >= 0
+      ) {
+        performance = "Good";
+      }
+
+      if (reasons.length === 0) {
+        reasons.push(
+          "Fuel performance is within the expected fleet range",
+        );
+      }
+
+      if (recommendations.length === 0) {
+        recommendations.push(
+          "Continue monitoring fuel efficiency and cost trends.",
+        );
+      }
+
+      return {
+        ...item,
+        fuelEfficiency,
+        costPerKm,
+        fuelCostShare,
+        efficiencyVsFleet,
+        costPerKmVsFleet,
+        riskScore,
+        riskLevel,
+        performance,
+        reasons,
+        recommendations,
+      };
+    });
+  }, [baseAnalysis, fleetBenchmarks]);
+
+  const totals = useMemo(() => {
+    const fuelLiters = analysis.reduce(
+      (sum, item) => sum + item.fuelLiters,
+      0,
+    );
+
+    const fuelCost = analysis.reduce(
+      (sum, item) => sum + item.fuelCost,
+      0,
+    );
+
+    const completedDistance = analysis.reduce(
+      (sum, item) =>
+        sum + item.completedDistance,
+      0,
+    );
+
+    const completedTrips = analysis.reduce(
+      (sum, item) =>
+        sum + item.completedTrips,
+      0,
+    );
+
+    const totalTrips = analysis.reduce(
+      (sum, item) => sum + item.totalTrips,
+      0,
+    );
+
+    const efficiency =
+      fuelLiters > 0 && completedDistance > 0
+        ? completedDistance / fuelLiters
+        : 0;
+
+    const costPerKm =
+      completedDistance > 0
+        ? fuelCost / completedDistance
+        : 0;
+
+    const averageRisk =
+      analysis.length > 0
+        ? analysis.reduce(
+            (sum, item) =>
+              sum + item.riskScore,
+            0,
+          ) / analysis.length
+        : 0;
+
+    const averageEfficiency =
+      analysis.filter(
+        (item) => item.fuelEfficiency > 0,
+      ).length > 0
+        ? analysis
+            .filter(
+              (item) =>
+                item.fuelEfficiency > 0,
+            )
+            .reduce(
+              (sum, item) =>
+                sum + item.fuelEfficiency,
+              0,
+            ) /
+          analysis.filter(
+            (item) =>
+              item.fuelEfficiency > 0,
+          ).length
+        : 0;
+
+    return {
+      fuelLiters,
+      fuelCost,
+      completedDistance,
+      completedTrips,
+      totalTrips,
+      efficiency,
+      costPerKm,
+      averageRisk,
+      averageEfficiency,
+    };
+  }, [analysis]);
+
+  const criticalCount = analysis.filter(
+    (item) => item.riskLevel === "Critical",
+  ).length;
+
+  const highCount = analysis.filter(
+    (item) => item.riskLevel === "High",
+  ).length;
+
+  const mediumCount = analysis.filter(
+    (item) => item.riskLevel === "Medium",
+  ).length;
+
+  const lowCount = analysis.filter(
+    (item) => item.riskLevel === "Low",
+  ).length;
+
+  const needsAttentionCount = analysis.filter(
+    (item) =>
+      item.performance === "Needs Attention",
+  ).length;
+
+  const highestFuelConsumer =
+    [...analysis].sort(
+      (a, b) => b.fuelCost - a.fuelCost,
+    )[0];

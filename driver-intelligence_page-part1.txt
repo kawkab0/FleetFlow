@@ -1,0 +1,200 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
+import ProtectedPage from "@/components/ProtectedPage";
+
+interface Driver {
+  id: number;
+  driverCode: string;
+  name: string;
+  phone?: string;
+  licenseNumber?: string;
+  status: string;
+}
+
+interface Trip {
+  id: number;
+  tripCode: string;
+  origin: string;
+  destination: string;
+  vehicleCode: string;
+  driverCode: string;
+  tripDate: string;
+  distance: number | string;
+  fuelUsed: number | string;
+  revenue: number | string;
+  cargo: string;
+  status: string;
+}
+
+interface Fuel {
+  id: number;
+  fuelCode: string;
+  vehicleCode: string;
+  driverCode: string;
+  fuelDate: string;
+  liters: number | string;
+  cost: number | string;
+}
+
+interface Expense {
+  id: number;
+  expenseCode: string;
+  vehicleCode: string;
+  driverCode: string;
+  expenseDate: string;
+  amount: number | string;
+  category: string;
+}
+
+type Performance =
+  | "Excellent"
+  | "Good"
+  | "Average"
+  | "Needs Attention";
+
+type RiskLevel = "Low" | "Medium" | "High" | "Critical";
+
+interface DriverAnalysis {
+  driverCode: string;
+  name: string;
+  status: string;
+
+  trips: number;
+  completedTrips: number;
+  activeTrips: number;
+  completionRate: number;
+
+  distance: number;
+  revenue: number;
+
+  tripFuelLiters: number;
+  fuelPurchaseLiters: number;
+  fuelCost: number;
+
+  expenses: number;
+  totalCost: number;
+  profit: number;
+  profitMargin: number;
+
+  fuelEfficiency: number;
+  revenuePerKm: number;
+  costPerKm: number;
+
+  utilization: number;
+
+  performanceScore: number;
+  performance: Performance;
+  risk: RiskLevel;
+
+  reasons: string[];
+  recommendation: string;
+}
+
+function num(value: number | string | undefined | null): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function money(value: number): string {
+  return `${value.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} ETB`;
+}
+
+function number(value: number): string {
+  return value.toLocaleString("en-US", {
+    maximumFractionDigits: 1,
+  });
+}
+
+function percent(value: number): string {
+  return `${value.toFixed(1)}%`;
+}
+
+function emptyDriver(
+  driverCode: string,
+  name = driverCode,
+  status = "Unknown",
+): DriverAnalysis {
+  return {
+    driverCode,
+    name,
+    status,
+
+    trips: 0,
+    completedTrips: 0,
+    activeTrips: 0,
+    completionRate: 0,
+
+    distance: 0,
+    revenue: 0,
+
+    tripFuelLiters: 0,
+    fuelPurchaseLiters: 0,
+    fuelCost: 0,
+
+    expenses: 0,
+    totalCost: 0,
+    profit: 0,
+    profitMargin: 0,
+
+    fuelEfficiency: 0,
+    revenuePerKm: 0,
+    costPerKm: 0,
+
+    utilization: 0,
+
+    performanceScore: 0,
+    performance: "Average",
+    risk: "Medium",
+
+    reasons: [],
+    recommendation: "Continue monitoring driver activity.",
+  };
+}
+
+export default function DriverIntelligencePage() {
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [fuel, setFuel] = useState<Fuel[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadData() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const [
+        driversData,
+        tripsData,
+        fuelData,
+        expensesData,
+      ] = await Promise.all([
+        apiFetch("/drivers"),
+        apiFetch("/trips"),
+        apiFetch("/fuel"),
+        apiFetch("/expenses"),
+      ]);
+
+      setDrivers(Array.isArray(driversData) ? driversData : []);
+      setTrips(Array.isArray(tripsData) ? tripsData : []);
+      setFuel(Array.isArray(fuelData) ? fuelData : []);
+      setExpenses(Array.isArray(expensesData) ? expensesData : []);
+    } catch (err) {
+      console.error(err);
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to load driver intelligence data. Make sure the backend is running on port 3001.",
+        );
+      }
+    } finally {
+      setLoading(false);

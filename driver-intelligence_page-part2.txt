@@ -1,0 +1,200 @@
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const analysis = useMemo<DriverAnalysis[]>(() => {
+    const driverMap = new Map<string, DriverAnalysis>();
+
+    drivers.forEach((driver) => {
+      driverMap.set(
+        driver.driverCode,
+        emptyDriver(
+          driver.driverCode,
+          driver.name || driver.driverCode,
+          driver.status || "Unknown",
+        ),
+      );
+    });
+
+    /*
+     * Trips are the primary operational source.
+     *
+     * Fuel efficiency uses fuelUsed recorded directly against
+     * completed trips rather than fuel purchases. This avoids
+     * mixing fuel purchased at one point in time with distance
+     * driven over a different period.
+     */
+    trips.forEach((trip) => {
+      if (!trip.driverCode) return;
+
+      if (!driverMap.has(trip.driverCode)) {
+        driverMap.set(
+          trip.driverCode,
+          emptyDriver(trip.driverCode),
+        );
+      }
+
+      const driver = driverMap.get(trip.driverCode)!;
+
+      const status = trip.status?.toLowerCase() || "";
+
+      driver.trips += 1;
+
+      if (
+        status === "active" ||
+        status === "in progress" ||
+        status === "ongoing"
+      ) {
+        driver.activeTrips += 1;
+      }
+
+      if (status === "completed") {
+        driver.completedTrips += 1;
+        driver.distance += num(trip.distance);
+        driver.revenue += num(trip.revenue);
+        driver.tripFuelLiters += num(trip.fuelUsed);
+      }
+    });
+
+    /*
+     * Fuel records are used for financial cost analysis.
+     * They are not used directly for operational km/L because
+     * purchase timing may not match completed-trip timing.
+     */
+    fuel.forEach((record) => {
+      if (!record.driverCode) return;
+
+      if (!driverMap.has(record.driverCode)) {
+        driverMap.set(
+          record.driverCode,
+          emptyDriver(record.driverCode),
+        );
+      }
+
+      const driver = driverMap.get(record.driverCode)!;
+
+      driver.fuelPurchaseLiters += num(record.liters);
+      driver.fuelCost += num(record.cost);
+    });
+
+    expenses.forEach((record) => {
+      if (!record.driverCode) return;
+
+      if (!driverMap.has(record.driverCode)) {
+        driverMap.set(
+          record.driverCode,
+          emptyDriver(record.driverCode),
+        );
+      }
+
+      const driver = driverMap.get(record.driverCode)!;
+
+      driver.expenses += num(record.amount);
+    });
+
+    const rawDrivers = Array.from(driverMap.values());
+
+    const activeDrivers = rawDrivers.filter(
+      (driver) => driver.trips > 0,
+    );
+
+    const fleetAverageRevenuePerKm =
+      activeDrivers.length > 0
+        ? activeDrivers.reduce(
+            (sum, driver) => sum + driver.revenuePerKm,
+            0,
+          ) / activeDrivers.length
+        : 0;
+
+    const fleetAverageCostPerKm =
+      activeDrivers.length > 0
+        ? activeDrivers.reduce(
+            (sum, driver) => sum + driver.costPerKm,
+            0,
+          ) / activeDrivers.length
+        : 0;
+
+    const fleetAverageFuelEfficiency =
+      activeDrivers.filter(
+        (driver) => driver.tripFuelLiters > 0,
+      ).length > 0
+        ? activeDrivers
+            .filter((driver) => driver.tripFuelLiters > 0)
+            .reduce(
+              (sum, driver) => sum + driver.fuelEfficiency,
+              0,
+            ) /
+          activeDrivers.filter(
+            (driver) => driver.tripFuelLiters > 0,
+          ).length
+        : 0;
+
+    rawDrivers.forEach((driver) => {
+      driver.completionRate =
+        driver.trips > 0
+          ? (driver.completedTrips / driver.trips) * 100
+          : 0;
+
+      driver.totalCost =
+        driver.fuelCost + driver.expenses;
+
+      driver.profit =
+        driver.revenue - driver.totalCost;
+
+      driver.profitMargin =
+        driver.revenue > 0
+          ? (driver.profit / driver.revenue) * 100
+          : 0;
+
+      driver.fuelEfficiency =
+        driver.tripFuelLiters > 0
+          ? driver.distance / driver.tripFuelLiters
+          : 0;
+
+      driver.revenuePerKm =
+        driver.distance > 0
+          ? driver.revenue / driver.distance
+          : 0;
+
+      driver.costPerKm =
+        driver.distance > 0
+          ? driver.totalCost / driver.distance
+          : 0;
+
+      driver.utilization = Math.min(
+        100,
+        driver.trips > 0
+          ? ((driver.completedTrips + driver.activeTrips) /
+              driver.trips) *
+              100
+          : 0,
+      );
+
+      let score = 50;
+      const reasons: string[] = [];
+
+      /*
+       * 1. Completion performance
+       */
+      if (driver.completionRate >= 90) {
+        score += 15;
+        reasons.push("Excellent trip completion rate");
+      } else if (driver.completionRate >= 75) {
+        score += 9;
+        reasons.push("Strong trip completion rate");
+      } else if (
+        driver.trips > 0 &&
+        driver.completionRate < 50
+      ) {
+        score -= 12;
+        reasons.push("Low trip completion rate");
+      }
+
+      /*
+       * 2. Operational activity
+       */
+      if (driver.completedTrips >= 5) {
+        score += 10;

@@ -1,0 +1,200 @@
+
+  const worstEfficiency =
+    [...analysis]
+      .filter(
+        (item) => item.fuelEfficiency > 0,
+      )
+      .sort(
+        (a, b) =>
+          a.fuelEfficiency -
+          b.fuelEfficiency,
+      )[0];
+
+  const mostEfficient =
+    [...analysis]
+      .filter(
+        (item) => item.fuelEfficiency > 0,
+      )
+      .sort(
+        (a, b) =>
+          b.fuelEfficiency -
+          a.fuelEfficiency,
+      )[0];
+
+  const highestCostPerKm =
+    [...analysis]
+      .filter(
+        (item) => item.costPerKm > 0,
+      )
+      .sort(
+        (a, b) =>
+          b.costPerKm -
+          a.costPerKm,
+      )[0];
+
+  const bestPerformer =
+    [...analysis]
+      .filter(
+        (item) =>
+          item.fuelEfficiency > 0,
+      )
+      .sort(
+        (a, b) => {
+          const scoreA =
+            a.efficiencyVsFleet -
+            a.costPerKmVsFleet;
+
+          const scoreB =
+            b.efficiencyVsFleet -
+            b.costPerKmVsFleet;
+
+          return scoreB - scoreA;
+        },
+      )[0];
+
+  const criticalVehicles = [...analysis]
+    .filter(
+      (item) =>
+        item.riskLevel === "Critical" ||
+        item.riskLevel === "High",
+    )
+    .sort(
+      (a, b) =>
+        b.riskScore -
+        a.riskScore,
+    );
+
+  const insights = useMemo(() => {
+    const results: string[] = [];
+
+    if (criticalCount > 0) {
+      results.push(
+        `${criticalCount} vehicle${
+          criticalCount === 1 ? "" : "s"
+        } require immediate fuel investigation.`,
+      );
+    }
+
+    if (highCount > 0) {
+      results.push(
+        `${highCount} vehicle${
+          highCount === 1 ? "" : "s"
+        } show above-normal fuel risk.`,
+      );
+    }
+
+    if (
+      fleetBenchmarks.fleetEfficiency > 0 &&
+      worstEfficiency
+    ) {
+      results.push(
+        `${worstEfficiency.vehicleCode} has the weakest fuel efficiency at ${formatNumber(
+          worstEfficiency.fuelEfficiency,
+        )} km/L, ${formatNumber(
+          Math.abs(
+            worstEfficiency.efficiencyVsFleet,
+          ),
+          1,
+        )}% below the fleet benchmark.`,
+      );
+    }
+
+    if (
+      highestCostPerKm &&
+      fleetBenchmarks.fleetCostPerKm > 0
+    ) {
+      results.push(
+        `${highestCostPerKm.vehicleCode} has the highest fuel cost per kilometer at ${formatMoney(
+          highestCostPerKm.costPerKm,
+        )}.`,
+      );
+    }
+
+    if (
+      mostEfficient &&
+      worstEfficiency &&
+      mostEfficient.vehicleCode !==
+        worstEfficiency.vehicleCode
+    ) {
+      results.push(
+        `${mostEfficient.vehicleCode} is currently the strongest fuel-efficiency performer at ${formatNumber(
+          mostEfficient.fuelEfficiency,
+        )} km/L.`,
+      );
+    }
+
+    if (needsAttentionCount === 0) {
+      results.push(
+        "No vehicle is currently classified as needing immediate fuel attention.",
+      );
+    }
+
+    if (results.length === 0) {
+      results.push(
+        "Not enough fuel and trip data is available to generate detailed fleet insights.",
+      );
+    }
+
+    return results;
+  }, [
+    criticalCount,
+    highCount,
+    fleetBenchmarks,
+    worstEfficiency,
+    highestCostPerKm,
+    mostEfficient,
+    needsAttentionCount,
+  ]);
+
+  function formatMoney(value: number) {
+    return `${value.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} ETB`;
+  }
+
+  function formatNumber(
+    value: number,
+    decimals = 2,
+  ) {
+    return value.toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+
+  function formatPercent(
+    value: number,
+    decimals = 1,
+  ) {
+    return `${value.toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    })}%`;
+  }
+
+  function riskBadge(level: RiskLevel) {
+    const styles: Record<
+      RiskLevel,
+      string
+    > = {
+      Critical:
+        "bg-red-100 text-red-700",
+      High:
+        "bg-orange-100 text-orange-700",
+      Medium:
+        "bg-yellow-100 text-yellow-700",
+      Low:
+        "bg-green-100 text-green-700",
+    };
+
+    return (
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-semibold ${styles[level]}`}
+      >
+        {level}
+      </span>
+    );
+  }
+
+  function performanceBadge(

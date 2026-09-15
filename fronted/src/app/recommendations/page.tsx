@@ -778,9 +778,9 @@ export default function RecommendationsPage() {
   if (loading) {
     return (
       <ProtectedPage permission="recommendations">
-        <main className="min-h-screen bg-slate-50 p-6">
+        <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-7xl">
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
               <p className="text-sm text-slate-500">
                 Loading decision intelligence...
               </p>
@@ -793,16 +793,16 @@ export default function RecommendationsPage() {
 
   return (
     <ProtectedPage permission="recommendations">
-      <main className="min-h-screen bg-slate-50 p-4 md:p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl md:p-8">
+      <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-7xl space-y-5 sm:space-y-6">
+          <section className="rounded-3xl bg-slate-950 p-5 text-white shadow-xl sm:p-6 lg:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
                   FleetFlow Decision Intelligence
                 </p>
 
-                <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
                   Executive Recommendations
                 </h1>
 
@@ -819,7 +819,7 @@ export default function RecommendationsPage() {
                   loadData();
                 }}
                 disabled={refreshing}
-                className="rounded-xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {refreshing
                   ? "Refreshing..."
@@ -898,8 +898,8 @@ export default function RecommendationsPage() {
             </div>
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">
                 Executive Snapshot
               </p>
@@ -955,7 +955,7 @@ export default function RecommendationsPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
                 Performance Highlight
               </p>
@@ -1007,7 +1007,7 @@ export default function RecommendationsPage() {
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-6">
+            <div className="border-b border-slate-200 p-4 sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-orange-600">
                 Action Queue
               </p>
@@ -1040,9 +1040,9 @@ export default function RecommendationsPage() {
                   .map((item) => (
                     <div
                       key={item.id}
-                      className="p-5 transition hover:bg-slate-50"
+                      className="p-4 transition hover:bg-slate-50 sm:p-5"
                     >
-                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <span
@@ -1069,7 +1069,7 @@ export default function RecommendationsPage() {
                           </p>
                         </div>
 
-                        <div className="w-full shrink-0 rounded-xl bg-slate-50 p-4 md:max-w-md">
+                        <div className="w-full shrink-0 rounded-xl bg-slate-50 p-4 lg:max-w-md">
                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                             Recommended action
                           </p>
@@ -1086,7 +1086,7 @@ export default function RecommendationsPage() {
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-6">
+            <div className="border-b border-slate-200 p-4 sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
                 Vehicle Decision Matrix
               </p>
@@ -1096,115 +1096,139 @@ export default function RecommendationsPage() {
               </h2>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="min-w-[1100px] w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-5 py-4">Vehicle</th>
-                    <th className="px-5 py-4">Trips</th>
-                    <th className="px-5 py-4">Revenue</th>
-                    <th className="px-5 py-4">Cost</th>
-                    <th className="px-5 py-4">Result</th>
-                    <th className="px-5 py-4">Margin</th>
-                    <th className="px-5 py-4">Fuel Efficiency</th>
-                    <th className="px-5 py-4">Performance</th>
-                    <th className="px-5 py-4">Risk</th>
-                  </tr>
-                </thead>
+            <div>
+              <p className="px-4 pb-3 text-xs text-slate-400 sm:hidden">
+                Swipe horizontally to view all vehicle metrics →
+              </p>
 
-                <tbody className="divide-y divide-slate-100">
-                  {[...analyses]
-                    .sort(
-                      (a, b) =>
-                        riskRank(b.riskLevel) -
-                          riskRank(a.riskLevel) ||
-                        b.riskScore - a.riskScore,
-                    )
-                    .map((item) => (
-                      <tr
-                        key={item.vehicle.id}
-                        className="hover:bg-slate-50"
-                      >
-                        <td className="px-5 py-4">
-                          <div className="font-semibold text-slate-900">
-                            {item.vehicle.vehicleCode ??
-                              `Vehicle #${item.vehicle.id}`}
-                          </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[1100px] text-left text-sm">
+                  <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                    <tr>
+                      <th className="px-3 py-4 sm:px-5">
+                        Vehicle
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Trips
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Revenue
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Cost
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Result
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Margin
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Fuel Efficiency
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Performance
+                      </th>
+                      <th className="px-3 py-4 sm:px-5">
+                        Risk
+                      </th>
+                    </tr>
+                  </thead>
 
-                          <div className="text-xs text-slate-500">
-                            {item.vehicle.status ??
-                              "Unknown status"}
-                          </div>
-                        </td>
-
-                        <td className="px-5 py-4 text-slate-600">
-                          {item.completedTrips}/{item.trips}
-                        </td>
-
-                        <td className="px-5 py-4 font-medium text-slate-700">
-                          {money(item.revenue)}
-                        </td>
-
-                        <td className="px-5 py-4 text-slate-700">
-                          {money(item.totalCost)}
-                        </td>
-
-                        <td
-                          className={`px-5 py-4 font-semibold ${
-                            item.profit >= 0
-                              ? "text-emerald-600"
-                              : "text-red-600"
-                          }`}
+                  <tbody className="divide-y divide-slate-100">
+                    {[...analyses]
+                      .sort(
+                        (a, b) =>
+                          riskRank(b.riskLevel) -
+                            riskRank(a.riskLevel) ||
+                          b.riskScore - a.riskScore,
+                      )
+                      .map((item) => (
+                        <tr
+                          key={item.vehicle.id}
+                          className="hover:bg-slate-50"
                         >
-                          {money(item.profit)}
-                        </td>
+                          <td className="px-3 py-4 sm:px-5">
+                            <div className="font-semibold text-slate-900">
+                              {item.vehicle.vehicleCode ??
+                                `Vehicle #${item.vehicle.id}`}
+                            </div>
 
-                        <td className="px-5 py-4 text-slate-700">
-                          {percent(item.margin)}
-                        </td>
+                            <div className="text-xs text-slate-500">
+                              {item.vehicle.status ??
+                                "Unknown status"}
+                            </div>
+                          </td>
 
-                        <td className="px-5 py-4 text-slate-700">
-                          {item.operationalFuelEfficiency > 0
-                            ? `${number(
-                                item.operationalFuelEfficiency,
-                              )} km/L`
-                            : "N/A"}
-                        </td>
+                          <td className="px-3 py-4 text-slate-600 sm:px-5">
+                            {item.completedTrips}/{item.trips}
+                          </td>
 
-                        <td className="px-5 py-4">
-                          <span
-                            className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass(
-                              item.performance,
-                            )}`}
+                          <td className="px-3 py-4 font-medium text-slate-700 sm:px-5">
+                            {money(item.revenue)}
+                          </td>
+
+                          <td className="px-3 py-4 text-slate-700 sm:px-5">
+                            {money(item.totalCost)}
+                          </td>
+
+                          <td
+                            className={`px-3 py-4 font-semibold sm:px-5 ${
+                              item.profit >= 0
+                                ? "text-emerald-600"
+                                : "text-red-600"
+                            }`}
                           >
-                            {item.performance}
-                          </span>
-                        </td>
+                            {money(item.profit)}
+                          </td>
 
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-2">
+                          <td className="px-3 py-4 text-slate-700 sm:px-5">
+                            {percent(item.margin)}
+                          </td>
+
+                          <td className="px-3 py-4 text-slate-700 sm:px-5">
+                            {item.operationalFuelEfficiency > 0
+                              ? `${number(
+                                  item.operationalFuelEfficiency,
+                                )} km/L`
+                              : "N/A"}
+                          </td>
+
+                          <td className="px-3 py-4 sm:px-5">
                             <span
                               className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass(
-                                item.riskLevel,
+                                item.performance,
                               )}`}
                             >
-                              {item.riskLevel}
+                              {item.performance}
                             </span>
+                          </td>
 
-                            <span className="text-xs text-slate-500">
-                              {item.riskScore}/100
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+                          <td className="px-3 py-4 sm:px-5">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass(
+                                  item.riskLevel,
+                                )}`}
+                              >
+                                {item.riskLevel}
+                              </span>
+
+                              <span className="text-xs text-slate-500">
+                                {item.riskScore}/100
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="grid gap-5 lg:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">
                 Decision Engine
               </p>
@@ -1244,7 +1268,7 @@ export default function RecommendationsPage() {
                       {step}
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-semibold text-slate-900">
                         {title}
                       </p>
@@ -1258,7 +1282,7 @@ export default function RecommendationsPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">
                 Data & Model Note
               </p>
@@ -1290,7 +1314,7 @@ export default function RecommendationsPage() {
             </div>
           </section>
 
-          <footer className="pb-8 text-center text-xs text-slate-400">
+          <footer className="px-2 pb-8 text-center text-xs leading-5 text-slate-400 sm:px-0">
             FleetFlow Decision Intelligence · Operational recommendations
             based on current ERP data
           </footer>
@@ -1299,4 +1323,3 @@ export default function RecommendationsPage() {
     </ProtectedPage>
   );
 }
-

@@ -1,0 +1,179 @@
+              {criticalVehicles.map(
+                (item) => (
+                  <div
+                    key={item.vehicleCode}
+                    className="rounded-xl border border-slate-200 p-5"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h3 className="font-bold text-slate-900">
+                          {item.vehicleCode}
+                        </h3>
+
+                        <p className="mt-1 text-xs text-slate-400">
+                          Risk score{" "}
+                          {item.riskScore}
+                          /100
+                        </p>
+                      </div>
+
+                      {riskBadge(
+                        item.riskLevel,
+                      )}
+                    </div>
+
+                    <div className="mt-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Detected signals
+                      </p>
+
+                      <ul className="mt-2 space-y-2">
+                        {item.reasons.map(
+                          (reason) => (
+                            <li
+                              key={reason}
+                              className="text-sm text-slate-600"
+                            >
+                              • {reason}
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+
+                    <div className="mt-4 rounded-lg bg-blue-50 p-3">
+                      <p className="text-xs font-semibold text-blue-700">
+                        Recommended action
+                      </p>
+
+                      <p className="mt-1 text-sm text-blue-800">
+                        {
+                          item
+                            .recommendations[0]
+                        }
+                      </p>
+                    </div>
+                  </div>
+                ),
+              )}
+
+              {criticalVehicles.length ===
+                0 && (
+                <div className="rounded-xl bg-green-50 p-5 text-sm text-green-700 md:col-span-2">
+                  No high-risk fuel issues detected.
+                  Fleet fuel performance is currently
+                  within the monitored range.
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* DATA QUALITY NOTE */}
+          <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-lg">
+                !
+              </div>
+
+              <div>
+                <h2 className="font-bold text-amber-900">
+                  Fuel Intelligence Data Note
+                </h2>
+
+                <p className="mt-1 text-sm leading-6 text-amber-800">
+                  FleetFlow currently analyzes fuel purchase
+                  records against completed-trip distance.
+                  This provides a useful management signal,
+                  but it is not the same as trip-level fuel
+                  consumption. For the most accurate future
+                  efficiency analysis, fuel usage should be
+                  recorded directly against individual trips.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* HOW IT WORKS */}
+          <section className="rounded-2xl bg-slate-900 p-8 text-white shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
+              FLEETFLOW INTELLIGENCE
+            </p>
+
+            <h2 className="mt-2 text-2xl font-bold">
+              How Fuel Intelligence Works
+            </h2>
+
+            <div className="mt-6 grid gap-6 md:grid-cols-4">
+              <div>
+                <p className="text-lg font-bold">
+                  01
+                </p>
+
+                <h3 className="mt-2 font-semibold">
+                  Collect Data
+                </h3>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  FleetFlow collects vehicle, trip and fuel
+                  records.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg font-bold">
+                  02
+                </p>
+
+                <h3 className="mt-2 font-semibold">
+                  Build Benchmarks
+                </h3>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  Fleet-level efficiency and fuel-cost
+                  benchmarks are calculated.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg font-bold">
+                  03
+                </p>
+
+                <h3 className="mt-2 font-semibold">
+                  Detect Risk
+                </h3>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  Vehicles performing significantly below
+                  fleet benchmarks receive risk scores.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg font-bold">
+                  04
+                </p>
+
+                <h3 className="mt-2 font-semibold">
+                  Recommend Action
+                </h3>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  Managers receive prioritized vehicles and
+                  recommended fuel-optimization actions.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* FOOTER */}
+          <div className="pb-4 text-center text-xs text-slate-400">
+            FleetFlow Fuel Intelligence • Fleet benchmarking,
+            fuel risk detection and optimization
+          </div>
+        </div>
+      </main>
+    </ProtectedPage>
+  );
+}
+

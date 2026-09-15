@@ -1,0 +1,128 @@
+
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {alert.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="w-full rounded-xl bg-slate-50 p-4 xl:max-w-[380px]">
+                    <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                      Suggested Response
+                    </p>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-700">
+                      {alert.action}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            {filteredAlerts.length === 0 && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-12 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-xl font-bold text-emerald-600">
+                  ✓
+                </div>
+
+                <h3 className="mt-4 text-lg font-bold text-emerald-800">
+                  No alerts in this category
+                </h3>
+
+                <p className="mt-2 text-sm text-emerald-700">
+                  FleetFlow did not detect any issues
+                  matching the selected priority.
+                </p>
+              </div>
+            )}
+          </section>
+
+          {/* Monitoring Logic */}
+          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-6 sm:p-8">
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+              Automated Monitoring
+            </p>
+
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">
+              What FleetFlow Monitors
+            </h2>
+
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+              Alerts are generated from the same operational
+              signals used throughout FleetFlow Intelligence.
+            </p>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                [
+                  "01",
+                  "Financial",
+                  "Detects operating losses, weak margins, and poor revenue efficiency.",
+                ],
+                [
+                  "02",
+                  "Fuel",
+                  "Monitors fuel efficiency, fuel cost concentration, and missing fuel data.",
+                ],
+                [
+                  "03",
+                  "Maintenance",
+                  "Identifies unusually high maintenance spending and recurring service activity.",
+                ],
+                [
+                  "04",
+                  "Utilization",
+                  "Detects idle vehicles, incomplete trip data, and underused capacity.",
+                ],
+              ].map(([number, title, description]) => (
+                <div
+                  key={number}
+                  className="rounded-xl bg-white p-5 shadow-sm"
+                >
+                  <p className="text-xs font-bold text-blue-600">
+                    {number}
+                  </p>
+
+                  <h3 className="mt-2 font-bold text-slate-900">
+                    {title}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Model Note */}
+          <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-700">
+              Monitoring Model
+            </p>
+
+            <h2 className="mt-2 text-lg font-bold text-slate-900">
+              Decision-support alerts
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              FleetFlow alerts are generated from operational
+              rules, fleet-relative benchmarks, and current
+              transaction data. They are designed to prioritize
+              management attention rather than replace human
+              operational judgment. Future versions can add
+              historical alert trends, alert acknowledgement,
+              escalation workflows, and machine-learning-based
+              anomaly detection.
+            </p>
+          </section>
+
+          <footer className="border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
+            FleetFlow Alert Center • Automated Operational
+            Decision Support
+          </footer>
+        </div>
+      </main>
+    </ProtectedPage>
+  );
+}
+

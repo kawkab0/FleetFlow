@@ -1,0 +1,200 @@
+                            0 ? (
+                              <span
+                                className={`text-sm font-semibold ${
+                                  item.efficiencyVsFleet <
+                                  -15
+                                    ? "text-red-600"
+                                    : item.efficiencyVsFleet <
+                                        0
+                                      ? "text-yellow-600"
+                                      : "text-green-600"
+                                }`}
+                              >
+                                {item.efficiencyVsFleet >=
+                                0
+                                  ? "+"
+                                  : ""}
+                                {formatPercent(
+                                  item.efficiencyVsFleet,
+                                )}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-slate-400">
+                                N/A
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-slate-700">
+                              {item.costPerKm >
+                              0
+                                ? formatMoney(
+                                    item.costPerKm,
+                                  )
+                                : "N/A"}
+                            </div>
+
+                            {item.costPerKm >
+                              0 && (
+                              <div
+                                className={`text-xs ${
+                                  item.costPerKmVsFleet >=
+                                  20
+                                    ? "text-red-500"
+                                    : "text-slate-400"
+                                }`}
+                              >
+                                {item.costPerKmVsFleet >=
+                                0
+                                  ? "+"
+                                  : ""}
+                                {formatPercent(
+                                  item.costPerKmVsFleet,
+                                )}{" "}
+                                vs fleet
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="px-6 py-4">
+                            {performanceBadge(
+                              item.performance,
+                            )}
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col items-start gap-2">
+                              {riskBadge(
+                                item.riskLevel,
+                              )}
+
+                              <span className="text-xs text-slate-400">
+                                {item.riskScore}
+                                /100
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {/* MANAGEMENT INSIGHTS */}
+          <section className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-slate-900">
+                Automated Fuel Insights
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                FleetFlow converts operational fuel data into
+                management-level signals.
+              </p>
+
+              <div className="mt-6 space-y-3">
+                {insights.map(
+                  (insight, index) => (
+                    <div
+                      key={`${insight}-${index}`}
+                      className="rounded-xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div className="flex gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                          {index + 1}
+                        </span>
+
+                        <p className="text-sm leading-6 text-slate-700">
+                          {insight}
+                        </p>
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-400">
+                MANAGEMENT ACTION
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold">
+                Fuel Optimization Priorities
+              </h2>
+
+              <div className="mt-6 space-y-4">
+                {criticalVehicles.length >
+                0 ? (
+                  criticalVehicles
+                    .slice(0, 4)
+                    .map((item) => (
+                      <div
+                        key={item.vehicleCode}
+                        className="rounded-xl bg-white/10 p-4"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="font-semibold">
+                            {item.vehicleCode}
+                          </span>
+
+                          {riskBadge(
+                            item.riskLevel,
+                          )}
+                        </div>
+
+                        <p className="mt-2 text-sm text-slate-300">
+                          {item.recommendations[0]}
+                        </p>
+                      </div>
+                    ))
+                ) : (
+                  <div className="rounded-xl bg-white/10 p-5">
+                    <p className="font-semibold">
+                      No immediate fuel intervention required.
+                    </p>
+
+                    <p className="mt-2 text-sm text-slate-300">
+                      Continue monitoring fuel efficiency,
+                      cost per kilometer and fuel-record
+                      completeness.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* RISK DETAILS */}
+          <section className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  Fuel Risk Detection
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Detailed reasons behind high-risk fuel
+                  classifications.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 px-4 py-3">
+                <p className="text-xs text-slate-500">
+                  Average Risk Score
+                </p>
+
+                <p className="mt-1 text-xl font-bold text-slate-900">
+                  {formatNumber(
+                    totals.averageRisk,
+                    0,
+                  )}
+                  /100
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-5 md:grid-cols-2">

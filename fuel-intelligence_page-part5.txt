@@ -1,0 +1,200 @@
+    performance: Performance,
+  ) {
+    const styles: Record<
+      Performance,
+      string
+    > = {
+      Excellent:
+        "bg-emerald-100 text-emerald-700",
+      Good:
+        "bg-green-100 text-green-700",
+      Average:
+        "bg-slate-100 text-slate-700",
+      "Needs Attention":
+        "bg-red-100 text-red-700",
+    };
+
+    return (
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-semibold ${styles[performance]}`}
+      >
+        {performance}
+      </span>
+    );
+  }
+
+  if (loading) {
+    return (
+      <ProtectedPage permission="fuelIntelligence">
+        <main className="min-h-screen bg-slate-100 p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
+              <p className="text-slate-600">
+                Loading Fuel Intelligence...
+              </p>
+            </div>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProtectedPage permission="fuelIntelligence">
+        <main className="min-h-screen bg-slate-100 p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
+              <h1 className="text-xl font-bold text-red-700">
+                Fuel Intelligence
+              </h1>
+
+              <p className="mt-2 text-red-600">
+                {error}
+              </p>
+
+              <button
+                onClick={loadData}
+                className="mt-4 rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
+  }
+
+  return (
+    <ProtectedPage permission="fuelIntelligence">
+      <main className="min-h-screen bg-slate-100 p-8">
+        <div className="mx-auto max-w-7xl space-y-8">
+          {/* HEADER */}
+          <section className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                FLEET INTELLIGENCE
+              </p>
+
+              <h1 className="mt-1 text-3xl font-bold text-slate-900">
+                Fuel Intelligence
+              </h1>
+
+              <p className="mt-2 max-w-3xl text-slate-500">
+                Analyze fleet fuel efficiency, fuel cost
+                concentration, abnormal consumption and
+                vehicle-level fuel risk.
+              </p>
+            </div>
+
+            <button
+              onClick={loadData}
+              className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            >
+              Refresh Data
+            </button>
+          </section>
+
+          {/* KPI CARDS */}
+          <section className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm text-slate-500">
+                Total Fuel Cost
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                {formatMoney(
+                  totals.fuelCost,
+                )}
+              </h2>
+
+              <p className="mt-2 text-xs text-slate-400">
+                Across {analysis.length} vehicles
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm text-slate-500">
+                Fuel Recorded
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                {formatNumber(
+                  totals.fuelLiters,
+                )}{" "}
+                L
+              </h2>
+
+              <p className="mt-2 text-xs text-slate-400">
+                Recorded fuel purchases
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm text-slate-500">
+                Operational Efficiency
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                {formatNumber(
+                  totals.efficiency,
+                )}{" "}
+                km/L
+              </h2>
+
+              <p className="mt-2 text-xs text-slate-400">
+                Completed distance ÷ recorded fuel
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm text-slate-500">
+                Fuel Cost / KM
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                {formatMoney(
+                  totals.costPerKm,
+                )}
+              </h2>
+
+              <p className="mt-2 text-xs text-slate-400">
+                Fleet fuel cost per completed kilometer
+              </p>
+            </div>
+          </section>
+
+          {/* BENCHMARKS */}
+          <section className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  Fleet Fuel Benchmark
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Vehicle performance is compared against
+                  fleet-level operational averages.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-blue-50 px-5 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                  Fleet Efficiency
+                </p>
+
+                <p className="mt-1 text-xl font-bold text-blue-700">
+                  {formatNumber(
+                    fleetBenchmarks.fleetEfficiency,
+                  )}{" "}
+                  km/L
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-5 md:grid-cols-3">
+              <div className="rounded-xl bg-slate-50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Fleet Efficiency
+                </p>

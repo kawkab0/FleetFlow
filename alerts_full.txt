@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
@@ -953,7 +953,7 @@ export default function AlertsPage() {
   return (
     <ProtectedPage permission="alerts">
       <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
+        <div className="mx-auto max-w-7xl space-y-8">
           {/* Header */}
           <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-lg sm:p-8">
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
@@ -962,7 +962,7 @@ export default function AlertsPage() {
                   FleetFlow Monitoring
                 </p>
 
-                <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
+                <h1 className="mt-2 text-3xl font-bold">
                   Alerts & Notifications
                 </h1>
 
@@ -977,7 +977,7 @@ export default function AlertsPage() {
               <button
                 onClick={loadData}
                 disabled={loading}
-                className="w-full sm:w-auto rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
               >
                 {loading ? "Scanning..." : "Scan Again"}
               </button>
@@ -985,7 +985,7 @@ export default function AlertsPage() {
           </section>
 
           {/* Summary */}
-          <section className="grid gap-4 sm:grid-cols-2 xl:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {(
               [
                 {
@@ -1066,7 +1066,7 @@ export default function AlertsPage() {
                 </div>
 
                 <p
-                  className={`mt-3 text-2xl font-bold sm:text-3xl ${item.text}`}
+                  className={`mt-3 text-3xl font-bold ${item.text}`}
                 >
                   {item.count}
                 </p>
@@ -1075,7 +1075,7 @@ export default function AlertsPage() {
           </section>
 
           {/* Alert Health */}
-          <section className="grid gap-4 sm:grid-cols-2 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-3">
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <p className="text-sm text-slate-500">
                 Total Alerts
@@ -1221,7 +1221,7 @@ export default function AlertsPage() {
             {filteredAlerts.length === 0 && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-12 text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-xl font-bold text-emerald-600">
-                  âœ“
+                  ✓
                 </div>
 
                 <h3 className="mt-4 text-lg font-bold text-emerald-800">
@@ -1251,7 +1251,7 @@ export default function AlertsPage() {
               signals used throughout FleetFlow Intelligence.
             </p>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 [
                   "01",
@@ -1317,7 +1317,7 @@ export default function AlertsPage() {
           </section>
 
           <footer className="border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
-            FleetFlow Alert Center â€¢ Automated Operational
+            FleetFlow Alert Center • Automated Operational
             Decision Support
           </footer>
         </div>
@@ -1325,6 +1325,4 @@ export default function AlertsPage() {
     </ProtectedPage>
   );
 }
-
-
 

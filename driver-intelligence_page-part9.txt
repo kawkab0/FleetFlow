@@ -1,0 +1,200 @@
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                Decision Support
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold">
+                Automated Driver Insights
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                FleetFlow converts driver activity into actionable
+                management signals.
+              </p>
+            </div>
+
+            <div className="grid gap-4 p-6">
+
+              {insights.length === 0 ? (
+                <div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">
+                  Not enough operational data to generate driver
+                  insights yet.
+                </div>
+              ) : (
+                insights.map((insight, index) => (
+                  <div
+                    key={`${insight.title}-${index}`}
+                    className={`rounded-xl border p-5 ${
+                      insight.type === "critical"
+                        ? "border-red-200 bg-red-50"
+                        : insight.type === "warning"
+                          ? "border-amber-200 bg-amber-50"
+                          : "border-emerald-200 bg-emerald-50"
+                    }`}
+                  >
+                    <div className="flex gap-4">
+
+                      <div
+                        className={`mt-1 h-3 w-3 shrink-0 rounded-full ${
+                          insight.type === "critical"
+                            ? "bg-red-500"
+                            : insight.type === "warning"
+                              ? "bg-amber-500"
+                              : "bg-emerald-500"
+                        }`}
+                      />
+
+                      <div>
+                        <h3 className="font-semibold">
+                          {insight.title}
+                        </h3>
+
+                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                          {insight.description}
+                        </p>
+                      </div>
+
+                    </div>
+                  </div>
+                ))
+              )}
+
+            </div>
+          </section>
+
+          {/* MANAGEMENT RECOMMENDATIONS */}
+          <section className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 p-6">
+
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">
+              Management Actions
+            </p>
+
+            <h2 className="mt-1 text-xl font-bold text-slate-900">
+              Recommended Actions
+            </h2>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <p className="font-semibold">
+                  Reward strong performers
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Prioritize high-scoring drivers for
+                  revenue-sensitive and strategically important
+                  assignments.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <p className="font-semibold">
+                  Review high-risk drivers
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Investigate completion problems, negative
+                  profitability, and unusually high operating costs.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white p-5 shadow-sm">
+                <p className="font-semibold">
+                  Monitor fuel behavior
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Compare operational fuel efficiency between
+                  drivers and investigate significant deviations.
+                </p>
+              </div>
+
+            </div>
+          </section>
+
+          {/* HOW IT WORKS */}
+          <section className="mb-8 rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
+
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-300">
+              Intelligence Engine
+            </p>
+
+            <h2 className="mt-1 text-xl font-bold">
+              How Driver Intelligence Works
+            </h2>
+
+            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-5">
+
+              <div>
+                <p className="text-sm font-bold">
+                  01. Activity
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  FleetFlow analyzes trips, completion,
+                  assignments, and distance.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm font-bold">
+                  02. Efficiency
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Completed-trip fuel usage is used to calculate
+                  operational fuel efficiency.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm font-bold">
+                  03. Financial Impact
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Revenue, fuel costs, and driver-associated
+                  expenses reveal financial contribution.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm font-bold">
+                  04. Fleet Benchmark
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Drivers are compared against fleet-level
+                  efficiency, productivity, and cost benchmarks.
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm font-bold">
+                  05. Decision Score
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Multiple operational signals become a
+                  0–100 performance score and risk level.
+                </p>
+              </div>
+
+            </div>
+          </section>
+
+          {/* FOOTER */}
+          <div className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-6 text-xs text-slate-400 md:flex-row">
+            <p>
+              FleetFlow ERP • Driver Performance Intelligence
+            </p>
+
+            <p>
+              Data sources: Drivers • Trips • Fuel • Expenses
+            </p>
+          </div>
+
+        </div>
+      </main>
+    </ProtectedPage>
+  );
+}

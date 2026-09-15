@@ -1,0 +1,200 @@
+    );
+
+    const totalDistance = baseAnalysis.reduce(
+      (sum, item) => sum + item.completedDistance,
+      0,
+    );
+
+    const fleetEfficiency =
+      totalFuel > 0
+        ? totalDistance / totalFuel
+        : 0;
+
+    const fleetCostPerKm =
+      totalDistance > 0
+        ? totalFuelCost / totalDistance
+        : 0;
+
+    const averageVehicleEfficiency =
+      vehiclesWithFuelAndDistance.length > 0
+        ? vehiclesWithFuelAndDistance.reduce(
+            (sum, item) =>
+              sum +
+              item.completedDistance /
+                item.fuelLiters,
+            0,
+          ) / vehiclesWithFuelAndDistance.length
+        : 0;
+
+    const averageVehicleCostPerKm =
+      vehiclesWithFuelAndDistance.length > 0
+        ? vehiclesWithFuelAndDistance.reduce(
+            (sum, item) =>
+              sum +
+              item.fuelCost /
+                item.completedDistance,
+            0,
+          ) / vehiclesWithFuelAndDistance.length
+        : 0;
+
+    return {
+      fleetEfficiency,
+      fleetCostPerKm,
+      averageVehicleEfficiency,
+      averageVehicleCostPerKm,
+      totalFuel,
+      totalFuelCost,
+      totalDistance,
+    };
+  }, [baseAnalysis]);
+
+  const analysis = useMemo<VehicleFuelAnalysis[]>(() => {
+    const totalFuelCost =
+      fleetBenchmarks.totalFuelCost;
+
+    return baseAnalysis.map((item) => {
+      const fuelEfficiency =
+        item.fuelLiters > 0 &&
+        item.completedDistance > 0
+          ? item.completedDistance /
+            item.fuelLiters
+          : 0;
+
+      const costPerKm =
+        item.completedDistance > 0
+          ? item.fuelCost /
+            item.completedDistance
+          : 0;
+
+      const efficiencyVsFleet =
+        fleetBenchmarks.fleetEfficiency > 0 &&
+        fuelEfficiency > 0
+          ? (fuelEfficiency /
+              fleetBenchmarks.fleetEfficiency -
+              1) *
+            100
+          : 0;
+
+      const costPerKmVsFleet =
+        fleetBenchmarks.fleetCostPerKm > 0 &&
+        costPerKm > 0
+          ? (costPerKm /
+              fleetBenchmarks.fleetCostPerKm -
+              1) *
+            100
+          : 0;
+
+      const fuelCostShare =
+        totalFuelCost > 0
+          ? (item.fuelCost /
+              totalFuelCost) *
+            100
+          : 0;
+
+      let riskScore = 0;
+
+      const reasons: string[] = [];
+      const recommendations: string[] = [];
+
+      /*
+       * DATA QUALITY / COVERAGE
+       */
+
+      if (
+        item.completedTrips > 0 &&
+        item.fuelLiters === 0
+      ) {
+        riskScore += 25;
+
+        reasons.push(
+          "Completed trips have no recorded fuel data",
+        );
+
+        recommendations.push(
+          "Review fuel records and confirm fuel entries are being linked to this vehicle.",
+        );
+      }
+
+      if (
+        item.fuelLiters > 0 &&
+        item.completedDistance === 0
+      ) {
+        riskScore += 30;
+
+        reasons.push(
+          "Fuel purchases exist without completed-trip distance",
+        );
+
+        recommendations.push(
+          "Verify trip completion records before evaluating fuel efficiency.",
+        );
+      }
+
+      /*
+       * FUEL EFFICIENCY
+       */
+
+      if (
+        fuelEfficiency > 0 &&
+        fleetBenchmarks.fleetEfficiency > 0
+      ) {
+        if (efficiencyVsFleet <= -30) {
+          riskScore += 35;
+
+          reasons.push(
+            "Fuel efficiency is significantly below fleet average",
+          );
+
+          recommendations.push(
+            "Inspect vehicle condition, driving behavior, route conditions and possible fuel leakage.",
+          );
+        } else if (efficiencyVsFleet <= -15) {
+          riskScore += 20;
+
+          reasons.push(
+            "Fuel efficiency is below fleet average",
+          );
+
+          recommendations.push(
+            "Monitor fuel consumption and investigate recurring inefficiency.",
+          );
+        }
+      }
+
+      /*
+       * COST PER KM
+       */
+
+      if (
+        costPerKm > 0 &&
+        fleetBenchmarks.fleetCostPerKm > 0
+      ) {
+        if (costPerKmVsFleet >= 40) {
+          riskScore += 30;
+
+          reasons.push(
+            "Fuel cost per kilometer is significantly above fleet average",
+          );
+
+          recommendations.push(
+            "Review fuel prices, consumption patterns and route allocation.",
+          );
+        } else if (costPerKmVsFleet >= 20) {
+          riskScore += 15;
+
+          reasons.push(
+            "Fuel cost per kilometer is above fleet average",
+          );
+
+          recommendations.push(
+            "Monitor this vehicle closely for rising fuel costs.",
+          );
+        }
+      }
+
+      /*
+       * FUEL COST CONCENTRATION
+       */
+
+      if (fuelCostShare >= 30) {
+        riskScore += 15;

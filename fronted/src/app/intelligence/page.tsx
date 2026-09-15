@@ -404,9 +404,6 @@ export default function IntelligencePage() {
       const inactive =
         item.status.toLowerCase() === "inactive";
 
-      /*
-       * PROFITABILITY SIGNAL
-       */
       if (item.result < 0) {
         riskScore += 30;
         reasons.push("Vehicle is operating at a loss");
@@ -421,9 +418,6 @@ export default function IntelligencePage() {
         reasons.push("Below-average fleet profitability");
       }
 
-      /*
-       * REVENUE / KM
-       */
       if (
         item.distance > 0 &&
         averageRevenuePerKm > 0 &&
@@ -437,9 +431,6 @@ export default function IntelligencePage() {
         );
       }
 
-      /*
-       * COST / KM
-       */
       if (
         item.distance > 0 &&
         averageCostPerKm > 0 &&
@@ -453,9 +444,6 @@ export default function IntelligencePage() {
         );
       }
 
-      /*
-       * FUEL SIGNAL
-       */
       if (
         item.operationalFuelEfficiency > 0 &&
         averageFuelEfficiency > 0 &&
@@ -463,15 +451,14 @@ export default function IntelligencePage() {
           averageFuelEfficiency * 0.75
       ) {
         riskScore += 15;
-        reasons.push("Fuel efficiency is significantly below fleet average");
+        reasons.push(
+          "Fuel efficiency is significantly below fleet average",
+        );
         recommendations.push(
           "Investigate fuel consumption and vehicle operating conditions.",
         );
       }
 
-      /*
-       * MAINTENANCE SIGNAL
-       */
       if (
         averageMaintenanceCost > 0 &&
         item.maintenanceCost >
@@ -487,22 +474,22 @@ export default function IntelligencePage() {
       if (
         item.maintenanceEvents >= 5 &&
         item.maintenanceEvents >
-          Math.max(3, Math.round(
-            activeVehicles.reduce(
-              (sum, vehicle) =>
-                sum + vehicle.maintenanceEvents,
-              0,
-            ) /
-              Math.max(activeVehicles.length, 1),
-          ) * 1.5)
+          Math.max(
+            3,
+            Math.round(
+              activeVehicles.reduce(
+                (sum, vehicle) =>
+                  sum + vehicle.maintenanceEvents,
+                0,
+              ) /
+                Math.max(activeVehicles.length, 1),
+            ) * 1.5,
+          )
       ) {
         riskScore += 10;
         reasons.push("High maintenance frequency");
       }
 
-      /*
-       * UTILIZATION SIGNAL
-       */
       if (item.trips === 0) {
         riskScore += 15;
         reasons.push("No recorded trips");
@@ -514,9 +501,6 @@ export default function IntelligencePage() {
         reasons.push("No completed trips recorded");
       }
 
-      /*
-       * DATA QUALITY SIGNAL
-       */
       if (
         item.completedTrips > 0 &&
         item.distance === 0
@@ -537,17 +521,11 @@ export default function IntelligencePage() {
         );
       }
 
-      /*
-       * INACTIVE VEHICLE
-       */
       if (inactive) {
         riskScore += 5;
         reasons.push("Vehicle is currently inactive");
       }
 
-      /*
-       * FUEL PURCHASE DATA WARNING
-       */
       if (
         item.distance > 0 &&
         item.fuelLitersPurchased === 0
@@ -597,7 +575,10 @@ export default function IntelligencePage() {
         performance = "Average";
       }
 
-      if (riskLevel === "Low" && recommendations.length === 0) {
+      if (
+        riskLevel === "Low" &&
+        recommendations.length === 0
+      ) {
         recommendations.push(
           "Continue monitoring performance against fleet benchmarks.",
         );
@@ -810,16 +791,16 @@ export default function IntelligencePage() {
 
   return (
     <ProtectedPage permission="intelligence">
-      <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="min-h-screen bg-slate-50 p-3 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-7xl min-w-0">
           {/* Header */}
-          <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+          <div className="mb-6 flex flex-col gap-4 sm:mb-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 sm:text-sm">
                 Fleet Intelligence
               </p>
 
-              <h1 className="mt-1 text-3xl font-bold text-slate-900">
+              <h1 className="mt-1 break-words text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
                 Vehicle Risk & Performance Intelligence
               </h1>
 
@@ -833,7 +814,7 @@ export default function IntelligencePage() {
             <button
               onClick={loadData}
               disabled={loading}
-              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {loading ? "Refreshing..." : "Refresh Data"}
             </button>
@@ -841,15 +822,15 @@ export default function IntelligencePage() {
 
           {/* Error */}
           {error && (
-            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="mb-6 break-words rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               {error}
             </div>
           )}
 
           {/* Risk Summary */}
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-red-200 bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between">
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 sm:gap-4">
+            <div className="rounded-2xl border border-red-200 bg-white p-4 shadow-sm sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-medium text-slate-500">
                   Critical Risk
                 </p>
@@ -868,8 +849,8 @@ export default function IntelligencePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-orange-200 bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between">
+            <div className="rounded-2xl border border-orange-200 bg-white p-4 shadow-sm sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-medium text-slate-500">
                   High Risk
                 </p>
@@ -888,8 +869,8 @@ export default function IntelligencePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-yellow-200 bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between">
+            <div className="rounded-2xl border border-yellow-200 bg-white p-4 shadow-sm sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-medium text-slate-500">
                   Medium Risk
                 </p>
@@ -908,8 +889,8 @@ export default function IntelligencePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between">
+            <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-medium text-slate-500">
                   Low Risk
                 </p>
@@ -930,13 +911,13 @@ export default function IntelligencePage() {
           </section>
 
           {/* Financial / Operational KPIs */}
-          <section className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl bg-slate-900 p-5 text-white shadow-sm">
+          <section className="mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            <div className="min-w-0 rounded-2xl bg-slate-900 p-4 text-white shadow-sm sm:p-5">
               <p className="text-sm text-slate-400">
                 Fleet Revenue
               </p>
 
-              <p className="mt-2 text-2xl font-bold">
+              <p className="mt-2 break-words text-xl font-bold sm:text-2xl">
                 {money(summary.totalRevenue)}
               </p>
 
@@ -945,12 +926,12 @@ export default function IntelligencePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-900 p-5 text-white shadow-sm">
+            <div className="min-w-0 rounded-2xl bg-slate-900 p-4 text-white shadow-sm sm:p-5">
               <p className="text-sm text-slate-400">
                 Operating Cost
               </p>
 
-              <p className="mt-2 text-2xl font-bold">
+              <p className="mt-2 break-words text-xl font-bold sm:text-2xl">
                 {money(summary.totalCost)}
               </p>
 
@@ -959,13 +940,13 @@ export default function IntelligencePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-900 p-5 text-white shadow-sm">
+            <div className="min-w-0 rounded-2xl bg-slate-900 p-4 text-white shadow-sm sm:p-5">
               <p className="text-sm text-slate-400">
                 Fleet Result
               </p>
 
               <p
-                className={`mt-2 text-2xl font-bold ${
+                className={`mt-2 break-words text-xl font-bold sm:text-2xl ${
                   summary.totalResult >= 0
                     ? "text-emerald-400"
                     : "text-red-400"
@@ -979,13 +960,13 @@ export default function IntelligencePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-900 p-5 text-white shadow-sm">
+            <div className="min-w-0 rounded-2xl bg-slate-900 p-4 text-white shadow-sm sm:p-5">
               <p className="text-sm text-slate-400">
                 Operating Margin
               </p>
 
               <p
-                className={`mt-2 text-2xl font-bold ${
+                className={`mt-2 text-xl font-bold sm:text-2xl ${
                   summary.margin >= 0
                     ? "text-emerald-400"
                     : "text-red-400"
@@ -1001,43 +982,43 @@ export default function IntelligencePage() {
           </section>
 
           {/* Operational Metrics */}
-          <section className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm text-slate-500">
                 Distance Analyzed
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="mt-2 break-words text-xl font-bold text-slate-900 sm:text-2xl">
                 {formatNumber(summary.totalDistance)} km
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm text-slate-500">
                 Revenue / km
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="mt-2 break-words text-xl font-bold text-slate-900 sm:text-2xl">
                 {money(summary.revenuePerKm)}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm text-slate-500">
                 Cost / km
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="mt-2 break-words text-xl font-bold text-slate-900 sm:text-2xl">
                 {money(summary.costPerKm)}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm text-slate-500">
                 Average Risk Score
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="mt-2 text-xl font-bold text-slate-900 sm:text-2xl">
                 {summary.averageRisk.toFixed(0)}/100
               </p>
             </div>
@@ -1045,13 +1026,13 @@ export default function IntelligencePage() {
 
           {/* Highlights */}
           {intelligence.length > 0 && (
-            <section className="mt-8 grid gap-5 lg:grid-cols-3">
-              <div className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
+            <section className="mt-6 grid gap-4 sm:mt-8 lg:grid-cols-3">
+              <div className="min-w-0 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6">
                 <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                   Best Overall Result
                 </p>
 
-                <h2 className="mt-2 text-xl font-bold text-slate-900">
+                <h2 className="mt-2 break-words text-xl font-bold text-slate-900">
                   {bestVehicle?.vehicleCode}
                 </h2>
 
@@ -1059,7 +1040,7 @@ export default function IntelligencePage() {
                   Operating result
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-emerald-600">
+                <p className="mt-1 break-words text-2xl font-bold text-emerald-600">
                   {money(bestVehicle?.result || 0)}
                 </p>
 
@@ -1068,12 +1049,12 @@ export default function IntelligencePage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+              <div className="min-w-0 rounded-2xl border border-red-200 bg-white p-5 shadow-sm sm:p-6">
                 <p className="text-xs font-bold uppercase tracking-wide text-red-600">
                   Weakest Result
                 </p>
 
-                <h2 className="mt-2 text-xl font-bold text-slate-900">
+                <h2 className="mt-2 break-words text-xl font-bold text-slate-900">
                   {worstVehicle?.vehicleCode}
                 </h2>
 
@@ -1081,7 +1062,7 @@ export default function IntelligencePage() {
                   Operating result
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-red-600">
+                <p className="mt-1 break-words text-2xl font-bold text-red-600">
                   {money(worstVehicle?.result || 0)}
                 </p>
 
@@ -1090,12 +1071,12 @@ export default function IntelligencePage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm">
+              <div className="min-w-0 rounded-2xl border border-orange-200 bg-white p-5 shadow-sm sm:p-6">
                 <p className="text-xs font-bold uppercase tracking-wide text-orange-600">
                   Highest Cost / km
                 </p>
 
-                <h2 className="mt-2 text-xl font-bold text-slate-900">
+                <h2 className="mt-2 break-words text-xl font-bold text-slate-900">
                   {highestCostVehicle?.vehicleCode}
                 </h2>
 
@@ -1103,7 +1084,7 @@ export default function IntelligencePage() {
                   Operating cost per km
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-orange-600">
+                <p className="mt-1 break-words text-2xl font-bold text-orange-600">
                   {money(
                     highestCostVehicle?.costPerKm || 0,
                   )}
@@ -1117,198 +1098,205 @@ export default function IntelligencePage() {
           )}
 
           {/* Main Intelligence Table */}
-          <section className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-6">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">
+          <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:mt-8">
+            <div className="border-b border-slate-200 p-4 sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <h2 className="break-words text-lg font-bold text-slate-900 sm:text-xl">
                     Vehicle Intelligence Overview
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
                     Combined operational, financial, fuel,
                     maintenance, and utilization analysis.
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
+                <div className="w-fit rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
                   {intelligence.length} vehicles analyzed
                 </div>
               </div>
             </div>
 
             {loading ? (
-              <div className="py-16 text-center text-slate-500">
+              <div className="px-4 py-16 text-center text-slate-500 sm:px-6">
                 Loading intelligence data...
               </div>
             ) : intelligence.length === 0 ? (
-              <div className="py-16 text-center text-slate-500">
+              <div className="px-4 py-16 text-center text-slate-500 sm:px-6">
                 No vehicle intelligence data available.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[1300px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                      <th className="px-4 py-3">
-                        Vehicle
-                      </th>
+              <>
+                <div className="border-b border-slate-100 px-4 py-3 text-xs font-medium text-slate-400 sm:hidden">
+                  Swipe horizontally to view all vehicle metrics →
+                </div>
 
-                      <th className="px-4 py-3">
-                        Trips
-                      </th>
+                <div className="overflow-x-auto overscroll-x-contain">
+                  <table className="w-full min-w-[1300px] text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Vehicle
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Revenue
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Trips
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Cost
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Revenue
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Result
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Cost
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Margin
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Result
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Revenue/km
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Margin
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Cost/km
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Revenue/km
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Fuel
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Cost/km
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Performance
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Fuel
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Risk
-                      </th>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Performance
+                        </th>
 
-                      <th className="px-4 py-3">
-                        Score
-                      </th>
-                    </tr>
-                  </thead>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Risk
+                        </th>
 
-                  <tbody>
-                    {intelligence
-                      .sort(
-                        (a, b) =>
-                          b.riskScore - a.riskScore,
-                      )
-                      .map((item) => (
-                        <tr
-                          key={item.vehicleCode}
-                          className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
-                        >
-                          <td className="px-4 py-4 font-semibold text-slate-900">
-                            {item.vehicleCode}
-                          </td>
+                        <th className="whitespace-nowrap px-3 py-3 sm:px-4">
+                          Score
+                        </th>
+                      </tr>
+                    </thead>
 
-                          <td className="px-4 py-4 text-slate-600">
-                            <span className="font-semibold">
-                              {item.completedTrips}
-                            </span>
-                            <span className="text-slate-400">
-                              {" "}
-                              / {item.trips}
-                            </span>
-                          </td>
-
-                          <td className="px-4 py-4 font-medium text-slate-700">
-                            {money(item.revenue)}
-                          </td>
-
-                          <td className="px-4 py-4 text-slate-700">
-                            {money(item.totalCost)}
-                          </td>
-
-                          <td
-                            className={`px-4 py-4 font-semibold ${
-                              item.result >= 0
-                                ? "text-emerald-600"
-                                : "text-red-600"
-                            }`}
+                    <tbody>
+                      {[...intelligence]
+                        .sort(
+                          (a, b) =>
+                            b.riskScore - a.riskScore,
+                        )
+                        .map((item) => (
+                          <tr
+                            key={item.vehicleCode}
+                            className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
                           >
-                            {money(item.result)}
-                          </td>
+                            <td className="whitespace-nowrap px-3 py-4 font-semibold text-slate-900 sm:px-4">
+                              {item.vehicleCode}
+                            </td>
 
-                          <td className="px-4 py-4 font-semibold text-slate-700">
-                            {percent(item.margin)}
-                          </td>
+                            <td className="whitespace-nowrap px-3 py-4 text-slate-600 sm:px-4">
+                              <span className="font-semibold">
+                                {item.completedTrips}
+                              </span>
 
-                          <td className="px-4 py-4 text-slate-700">
-                            {money(item.revenuePerKm)}
-                          </td>
+                              <span className="text-slate-400">
+                                {" "}
+                                / {item.trips}
+                              </span>
+                            </td>
 
-                          <td className="px-4 py-4 text-slate-700">
-                            {money(item.costPerKm)}
-                          </td>
+                            <td className="whitespace-nowrap px-3 py-4 font-medium text-slate-700 sm:px-4">
+                              {money(item.revenue)}
+                            </td>
 
-                          <td className="px-4 py-4 text-slate-700">
-                            {item.operationalFuelEfficiency > 0
-                              ? `${item.operationalFuelEfficiency.toFixed(
-                                  2,
-                                )} km/L`
-                              : "N/A"}
-                          </td>
+                            <td className="whitespace-nowrap px-3 py-4 text-slate-700 sm:px-4">
+                              {money(item.totalCost)}
+                            </td>
 
-                          <td className="px-4 py-4">
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs font-bold ${performanceClasses(
-                                item.performance,
-                              )}`}
+                            <td
+                              className={`whitespace-nowrap px-3 py-4 font-semibold sm:px-4 ${
+                                item.result >= 0
+                                  ? "text-emerald-600"
+                                  : "text-red-600"
+                              }`}
                             >
-                              {item.performance}
-                            </span>
-                          </td>
+                              {money(item.result)}
+                            </td>
 
-                          <td className="px-4 py-4">
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs font-bold ${riskClasses(
-                                item.riskLevel,
-                              )}`}
-                            >
-                              {item.riskLevel}
-                            </span>
-                          </td>
+                            <td className="whitespace-nowrap px-3 py-4 font-semibold text-slate-700 sm:px-4">
+                              {percent(item.margin)}
+                            </td>
 
-                          <td className="px-4 py-4 font-bold text-slate-900">
-                            {item.riskScore}/100
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+                            <td className="whitespace-nowrap px-3 py-4 text-slate-700 sm:px-4">
+                              {money(item.revenuePerKm)}
+                            </td>
+
+                            <td className="whitespace-nowrap px-3 py-4 text-slate-700 sm:px-4">
+                              {money(item.costPerKm)}
+                            </td>
+
+                            <td className="whitespace-nowrap px-3 py-4 text-slate-700 sm:px-4">
+                              {item.operationalFuelEfficiency > 0
+                                ? `${item.operationalFuelEfficiency.toFixed(
+                                    2,
+                                  )} km/L`
+                                : "N/A"}
+                            </td>
+
+                            <td className="whitespace-nowrap px-3 py-4 sm:px-4">
+                              <span
+                                className={`rounded-full px-3 py-1 text-xs font-bold ${performanceClasses(
+                                  item.performance,
+                                )}`}
+                              >
+                                {item.performance}
+                              </span>
+                            </td>
+
+                            <td className="whitespace-nowrap px-3 py-4 sm:px-4">
+                              <span
+                                className={`rounded-full px-3 py-1 text-xs font-bold ${riskClasses(
+                                  item.riskLevel,
+                                )}`}
+                              >
+                                {item.riskLevel}
+                              </span>
+                            </td>
+
+                            <td className="whitespace-nowrap px-3 py-4 font-bold text-slate-900 sm:px-4">
+                              {item.riskScore}/100
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </section>
 
           {/* Highest Risk */}
-          <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-slate-900">
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:mt-8 sm:p-6">
+            <div className="mb-5">
+              <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
                 Priority Vehicles
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 Vehicles with the strongest combination of
                 financial, operational, fuel, maintenance,
                 and utilization risk signals.
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {topRiskVehicles.length === 0 ? (
                 <p className="py-6 text-center text-slate-500">
                   No vehicle intelligence data available.
@@ -1317,12 +1305,12 @@ export default function IntelligencePage() {
                 topRiskVehicles.map((item) => (
                   <div
                     key={item.vehicleCode}
-                    className="rounded-xl border border-slate-200 p-5"
+                    className="min-w-0 rounded-xl border border-slate-200 p-4 sm:p-5"
                   >
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-5">
                       <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="font-bold text-slate-900">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                          <h3 className="break-words font-bold text-slate-900">
                             {item.vehicleCode}
                           </h3>
 
@@ -1343,7 +1331,7 @@ export default function IntelligencePage() {
                           </span>
                         </div>
 
-                        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
+                        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500 sm:gap-x-5">
                           <span>
                             Risk:{" "}
                             <strong className="text-slate-800">
@@ -1373,7 +1361,7 @@ export default function IntelligencePage() {
                         </div>
                       </div>
 
-                      <div className="w-full lg:max-w-xs">
+                      <div className="w-full shrink-0 lg:max-w-xs">
                         <div className="mb-2 flex justify-between text-xs text-slate-500">
                           <span>Risk Score</span>
                           <span>
@@ -1395,7 +1383,7 @@ export default function IntelligencePage() {
                     </div>
 
                     {item.reasons.length > 0 && (
-                      <div className="mt-5">
+                      <div className="mt-4 sm:mt-5">
                         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
                           Detected Signals
                         </p>
@@ -1404,7 +1392,7 @@ export default function IntelligencePage() {
                           {item.reasons.map((reason) => (
                             <span
                               key={reason}
-                              className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600"
+                              className="max-w-full rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium leading-5 text-slate-600"
                             >
                               {reason}
                             </span>
@@ -1414,15 +1402,18 @@ export default function IntelligencePage() {
                     )}
 
                     {item.recommendations.length > 0 && (
-                      <div className="mt-4 rounded-xl bg-blue-50 p-4">
+                      <div className="mt-4 rounded-xl bg-blue-50 p-3 sm:p-4">
                         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-600">
                           Recommended Action
                         </p>
 
-                        <ul className="space-y-1 text-sm text-slate-700">
+                        <ul className="space-y-1 text-sm leading-6 text-slate-700">
                           {item.recommendations.map(
                             (recommendation) => (
-                              <li key={recommendation}>
+                              <li
+                                key={recommendation}
+                                className="break-words"
+                              >
                                 • {recommendation}
                               </li>
                             ),
@@ -1437,17 +1428,17 @@ export default function IntelligencePage() {
           </section>
 
           {/* Automated Insights */}
-          <section className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-6">
-            <div className="mb-5">
+          <section className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 sm:mt-8 sm:p-6">
+            <div className="mb-4 sm:mb-5">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Decision Support
               </p>
 
-              <h2 className="mt-1 text-xl font-bold text-slate-900">
+              <h2 className="mt-1 text-lg font-bold text-slate-900 sm:text-xl">
                 Automated Fleet Insights
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 FleetFlow translates operational data into
                 management-level signals.
               </p>
@@ -1462,14 +1453,14 @@ export default function IntelligencePage() {
                 {insights.map((insight) => (
                   <div
                     key={insight}
-                    className="rounded-xl bg-white p-4 shadow-sm"
+                    className="min-w-0 rounded-xl bg-white p-3 shadow-sm sm:p-4"
                   >
                     <div className="flex gap-3">
                       <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">
                         ✓
                       </div>
 
-                      <p className="text-sm leading-6 text-slate-700">
+                      <p className="break-words text-sm leading-6 text-slate-700">
                         {insight}
                       </p>
                     </div>
@@ -1480,18 +1471,18 @@ export default function IntelligencePage() {
           </section>
 
           {/* Management Actions */}
-          <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:mt-8 sm:p-6">
+            <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
               Management Actions
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm leading-6 text-slate-500">
               Suggested actions based on the strongest fleet
               signals.
             </p>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl border border-red-100 bg-red-50 p-5">
+            <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-xl border border-red-100 bg-red-50 p-4 sm:p-5">
                 <p className="text-xs font-bold uppercase tracking-wide text-red-600">
                   Risk
                 </p>
@@ -1506,7 +1497,7 @@ export default function IntelligencePage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-orange-100 bg-orange-50 p-5">
+              <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 sm:p-5">
                 <p className="text-xs font-bold uppercase tracking-wide text-orange-600">
                   Cost
                 </p>
@@ -1521,7 +1512,7 @@ export default function IntelligencePage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-5">
+              <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-4 sm:p-5">
                 <p className="text-xs font-bold uppercase tracking-wide text-yellow-700">
                   Efficiency
                 </p>
@@ -1536,7 +1527,7 @@ export default function IntelligencePage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-blue-100 bg-blue-50 p-5">
+              <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 sm:p-5">
                 <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
                   Utilization
                 </p>
@@ -1554,13 +1545,13 @@ export default function IntelligencePage() {
           </section>
 
           {/* Methodology */}
-          <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div>
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:mt-8 sm:p-6">
+            <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Intelligence Method
               </p>
 
-              <h2 className="mt-1 text-xl font-bold text-slate-900">
+              <h2 className="mt-1 break-words text-lg font-bold text-slate-900 sm:text-xl">
                 How FleetFlow Intelligence Works
               </h2>
 
@@ -1571,7 +1562,7 @@ export default function IntelligencePage() {
               </p>
             </div>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 md:grid-cols-2 lg:grid-cols-5">
               {[
                 [
                   "01",
@@ -1601,7 +1592,7 @@ export default function IntelligencePage() {
               ].map(([step, title, description]) => (
                 <div
                   key={step}
-                  className="rounded-xl bg-slate-50 p-5"
+                  className="min-w-0 rounded-xl bg-slate-50 p-4 sm:p-5"
                 >
                   <p className="text-xs font-bold text-blue-600">
                     {step}
@@ -1611,7 +1602,7 @@ export default function IntelligencePage() {
                     {title}
                   </h3>
 
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                  <p className="mt-2 break-words text-xs leading-5 text-slate-500">
                     {description}
                   </p>
                 </div>
@@ -1620,12 +1611,12 @@ export default function IntelligencePage() {
           </section>
 
           {/* Data Model Note */}
-          <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6">
+          <section className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:mt-8 sm:p-6">
             <h2 className="text-lg font-bold text-slate-900">
               Intelligence Model Note
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
               FleetFlow Intelligence is currently a decision-support
               system based on operational rules, historical data,
               and fleet-relative benchmarks. It is not claiming to
@@ -1637,13 +1628,11 @@ export default function IntelligencePage() {
             </p>
           </section>
 
-          <footer className="mt-8 border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
-            FleetFlow Intelligence • Vehicle Risk Detection &
-            Decision Support
+          <footer className="mt-6 border-t border-slate-200 pt-5 text-center text-xs leading-5 text-slate-400 sm:mt-8 sm:pt-6">
+            FleetFlow Intelligence • Vehicle Risk Detection & Decision Support
           </footer>
         </div>
       </main>
     </ProtectedPage>
   );
 }
-

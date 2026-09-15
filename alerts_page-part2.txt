@@ -1,0 +1,200 @@
+      vehicleCode?: string,
+    ) => {
+      generated.push({
+        id: id++,
+        priority,
+        category,
+        title,
+        description,
+        action,
+        vehicleCode,
+      });
+    };
+
+    /*
+     * FLEET-LEVEL OPERATIONAL DATA
+     */
+    const completedTrips = trips.filter((trip) =>
+      isCompletedTrip(trip.status),
+    );
+
+    const totalRevenue = completedTrips.reduce(
+      (sum, trip) => sum + num(trip.revenue),
+      0,
+    );
+
+    const totalDistance = completedTrips.reduce(
+      (sum, trip) => sum + num(trip.distance),
+      0,
+    );
+
+    const totalOperationalFuel = completedTrips.reduce(
+      (sum, trip) => sum + num(trip.fuelUsed),
+      0,
+    );
+
+    const totalFuelCost = fuel.reduce(
+      (sum, record) => sum + num(record.cost),
+      0,
+    );
+
+    const totalFuelLiters = fuel.reduce(
+      (sum, record) => sum + num(record.liters),
+      0,
+    );
+
+    const totalMaintenanceCost = maintenance.reduce(
+      (sum, record) => sum + num(record.cost),
+      0,
+    );
+
+    const totalExpenses = expenses.reduce(
+      (sum, expense) => sum + num(expense.amount),
+      0,
+    );
+
+    const totalCost =
+      totalFuelCost +
+      totalMaintenanceCost +
+      totalExpenses;
+
+    const totalResult = totalRevenue - totalCost;
+
+    const fleetMargin =
+      totalRevenue > 0
+        ? (totalResult / totalRevenue) * 100
+        : 0;
+
+    const operationalFuelEfficiency =
+      totalOperationalFuel > 0
+        ? totalDistance / totalOperationalFuel
+        : 0;
+
+    const purchasedFuelEfficiency =
+      totalFuelLiters > 0
+        ? totalDistance / totalFuelLiters
+        : 0;
+
+    const fleetCostPerKm =
+      totalDistance > 0
+        ? totalCost / totalDistance
+        : 0;
+
+    /*
+     * VEHICLE BASE DATA
+     */
+    const vehicleData = vehicles.map((vehicle) => {
+      const code =
+        String(vehicle.vehicleCode ?? "").trim() ||
+        String(vehicle.plateNumber ?? "").trim() ||
+        `Vehicle #${vehicle.id}`;
+
+      const vehicleTrips = trips.filter(
+        (trip) => trip.vehicleCode === code,
+      );
+
+      const vehicleCompletedTrips =
+        vehicleTrips.filter((trip) =>
+          isCompletedTrip(trip.status),
+        );
+
+      const vehicleFuel = fuel.filter(
+        (record) => record.vehicleCode === code,
+      );
+
+      const vehicleMaintenance = maintenance.filter(
+        (record) => record.vehicleCode === code,
+      );
+
+      const vehicleExpenses = expenses.filter(
+        (expense) => expense.vehicleCode === code,
+      );
+
+      const distance = vehicleCompletedTrips.reduce(
+        (sum, trip) => sum + num(trip.distance),
+        0,
+      );
+
+      const revenue = vehicleCompletedTrips.reduce(
+        (sum, trip) => sum + num(trip.revenue),
+        0,
+      );
+
+      const operationalFuel = vehicleCompletedTrips.reduce(
+        (sum, trip) => sum + num(trip.fuelUsed),
+        0,
+      );
+
+      const fuelLiters = vehicleFuel.reduce(
+        (sum, record) => sum + num(record.liters),
+        0,
+      );
+
+      const fuelCost = vehicleFuel.reduce(
+        (sum, record) => sum + num(record.cost),
+        0,
+      );
+
+      const maintenanceCost =
+        vehicleMaintenance.reduce(
+          (sum, record) => sum + num(record.cost),
+          0,
+        );
+
+      const otherExpenses = vehicleExpenses.reduce(
+        (sum, expense) => sum + num(expense.amount),
+        0,
+      );
+
+      const totalVehicleCost =
+        fuelCost +
+        maintenanceCost +
+        otherExpenses;
+
+      const result =
+        revenue - totalVehicleCost;
+
+      const margin =
+        revenue > 0
+          ? (result / revenue) * 100
+          : 0;
+
+      const revenuePerKm =
+        distance > 0
+          ? revenue / distance
+          : 0;
+
+      const costPerKm =
+        distance > 0
+          ? totalVehicleCost / distance
+          : 0;
+
+      const fuelEfficiency =
+        operationalFuel > 0
+          ? distance / operationalFuel
+          : 0;
+
+      return {
+        code,
+        status: vehicle.status || "Unknown",
+        trips: vehicleTrips.length,
+        completedTrips: vehicleCompletedTrips.length,
+        distance,
+        revenue,
+        fuelLiters,
+        fuelCost,
+        maintenanceCost,
+        maintenanceEvents:
+          vehicleMaintenance.length,
+        otherExpenses,
+        totalVehicleCost,
+        result,
+        margin,
+        revenuePerKm,
+        costPerKm,
+        fuelEfficiency,
+      };
+    });
+
+    /*
+     * FLEET BENCHMARKS

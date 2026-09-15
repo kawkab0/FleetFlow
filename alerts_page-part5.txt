@@ -1,0 +1,200 @@
+       * MISSING MAINTENANCE
+       */
+      if (
+        vehicleCompletedTripCount > 0 &&
+        maintenanceEvents === 0
+      ) {
+        addAlert(
+          "Medium",
+          "Preventive Maintenance",
+          `${code} has no maintenance history`,
+          `${code} has completed trip activity but no maintenance records.`,
+          "Verify maintenance records and schedule a preventive inspection if necessary.",
+          code,
+        );
+      }
+
+      /*
+       * MISSING FUEL DATA
+       */
+      if (
+        distance > 0 &&
+        fuelLiters === 0
+      ) {
+        addAlert(
+          "Medium",
+          "Data Quality",
+          `${code} has no linked fuel purchase data`,
+          `${code} has ${formatNumber(
+            distance,
+          )} km of completed-trip distance but no linked fuel purchase records.`,
+          "Verify fuel records and confirm the vehicle code is consistent across modules.",
+          code,
+        );
+      }
+
+      /*
+       * INACTIVE
+       */
+      if (isInactive) {
+        addAlert(
+          "Low",
+          "Fleet Status",
+          `${code} is currently inactive`,
+          "The vehicle is marked as inactive in FleetFlow.",
+          "Review whether the vehicle should remain inactive or be returned to service.",
+          code,
+        );
+      }
+    });
+
+    return generated.sort(
+      (a, b) =>
+        priorityRank(a.priority) -
+        priorityRank(b.priority),
+    );
+  }, [
+    vehicles,
+    trips,
+    fuel,
+    maintenance,
+    expenses,
+  ]);
+
+  const filteredAlerts =
+    filter === "All"
+      ? alerts
+      : alerts.filter(
+          (alert) => alert.priority === filter,
+        );
+
+  const criticalCount = alerts.filter(
+    (alert) => alert.priority === "Critical",
+  ).length;
+
+  const highCount = alerts.filter(
+    (alert) => alert.priority === "High",
+  ).length;
+
+  const mediumCount = alerts.filter(
+    (alert) => alert.priority === "Medium",
+  ).length;
+
+  const lowCount = alerts.filter(
+    (alert) => alert.priority === "Low",
+  ).length;
+
+  const uniqueVehiclesWithAlerts = new Set(
+    alerts
+      .map((alert) => alert.vehicleCode)
+      .filter(Boolean),
+  ).size;
+
+  const criticalVehicleAlerts = alerts.filter(
+    (alert) =>
+      alert.priority === "Critical" &&
+      alert.vehicleCode,
+  ).length;
+
+  if (loading) {
+    return (
+      <ProtectedPage permission="alerts">
+        <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+
+              <p className="mt-5 text-lg font-semibold text-slate-700">
+                Scanning FleetFlow...
+              </p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Checking operational, financial, fuel,
+                maintenance, and utilization signals.
+              </p>
+            </div>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProtectedPage permission="alerts">
+        <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-8">
+              <p className="text-xs font-bold uppercase tracking-wider text-red-600">
+                Monitoring Error
+              </p>
+
+              <h1 className="mt-2 text-2xl font-bold text-red-800">
+                Alert Center could not load
+              </h1>
+
+              <p className="mt-2 text-sm text-red-700">
+                {error}
+              </p>
+
+              <button
+                onClick={loadData}
+                className="mt-5 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+              >
+                Retry Scan
+              </button>
+            </div>
+          </div>
+        </main>
+      </ProtectedPage>
+    );
+  }
+
+  return (
+    <ProtectedPage permission="alerts">
+      <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-7xl space-y-8">
+          {/* Header */}
+          <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-lg sm:p-8">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+                  FleetFlow Monitoring
+                </p>
+
+                <h1 className="mt-2 text-3xl font-bold">
+                  Alerts & Notifications
+                </h1>
+
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+                  A centralized decision-support feed for
+                  financial, operational, fuel, maintenance,
+                  utilization, and data-quality risks detected
+                  across FleetFlow.
+                </p>
+              </div>
+
+              <button
+                onClick={loadData}
+                disabled={loading}
+                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+              >
+                {loading ? "Scanning..." : "Scan Again"}
+              </button>
+            </div>
+          </section>
+
+          {/* Summary */}
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {(
+              [
+                {
+                  label: "Critical",
+                  count: criticalCount,
+                  description: "Immediate attention",
+                  value: "Critical" as const,
+                  active:
+                    filter === "Critical",
+                  classes:
+                    "border-red-200 bg-white hover:border-red-400",
+                  activeClasses:

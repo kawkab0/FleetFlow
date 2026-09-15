@@ -1,0 +1,200 @@
+                Driver Contribution
+              </h2>
+
+              <div className="mt-5 space-y-4">
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Revenue / KM
+                  </span>
+
+                  <span className="font-bold">
+                    {money(summary.revenuePerKm)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Cost / KM
+                  </span>
+
+                  <span className="font-bold">
+                    {money(summary.costPerKm)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Operating Margin
+                  </span>
+
+                  <span
+                    className={`font-bold ${
+                      summary.profitMargin >= 0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {percent(summary.profitMargin)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+                  <span className="text-sm font-medium">
+                    Operating Result
+                  </span>
+
+                  <span
+                    className={`font-bold ${
+                      summary.profit >= 0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {money(summary.profit)}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                Activity
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold">
+                Driver Workload
+              </h2>
+
+              <div className="mt-5 space-y-4">
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Total Trips
+                  </span>
+
+                  <span className="font-bold">
+                    {summary.totalTrips}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Completed
+                  </span>
+
+                  <span className="font-bold">
+                    {summary.completedTrips}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Active
+                  </span>
+
+                  <span className="font-bold">
+                    {summary.activeTrips}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Distance
+                  </span>
+
+                  <span className="font-bold">
+                    {number(summary.totalDistance)} km
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                Efficiency
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold">
+                Fuel Intelligence
+              </h2>
+
+              <div className="mt-5 space-y-4">
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Trip Fuel
+                  </span>
+
+                  <span className="font-bold">
+                    {number(summary.totalTripFuel)} L
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Recorded Purchases
+                  </span>
+
+                  <span className="font-bold">
+                    {number(summary.totalPurchasedFuel)} L
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">
+                    Fuel Efficiency
+                  </span>
+
+                  <span className="font-bold">
+                    {summary.fuelEfficiency > 0
+                      ? `${summary.fuelEfficiency.toFixed(2)} km/L`
+                      : "N/A"}
+                  </span>
+                </div>
+
+                <div className="border-t border-slate-100 pt-4 text-xs leading-5 text-slate-400">
+                  Efficiency uses fuel recorded on completed
+                  trips, while fuel purchases are used for
+                  cost analysis.
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          {/* BEST / WORST */}
+          <div className="mb-8 grid gap-6 lg:grid-cols-2">
+
+            <div className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
+
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                    Top Performer
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold">
+                    Best Driver
+                  </h2>
+                </div>
+
+                <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                  TOP
+                </div>
+              </div>
+
+              {summary.bestDriver ? (
+                <>
+                  <p className="text-lg font-semibold">
+                    {summary.bestDriver.name}
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    {summary.bestDriver.driverCode}
+                  </p>
+
+                  <div className="mt-5 grid grid-cols-2 gap-4">

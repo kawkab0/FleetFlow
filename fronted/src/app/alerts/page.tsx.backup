@@ -985,7 +985,7 @@ export default function AlertsPage() {
           </section>
 
           {/* Summary */}
-          <section className="grid gap-4 sm:grid-cols-2 xl:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 xl:sm:grid-cols-2 lg:grid-cols-4">
             {(
               [
                 {
@@ -1075,7 +1075,7 @@ export default function AlertsPage() {
           </section>
 
           {/* Alert Health */}
-          <section className="grid gap-4 sm:grid-cols-2 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-3">
+          <section className="grid gap-4 sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <p className="text-sm text-slate-500">
                 Total Alerts
@@ -1251,7 +1251,7 @@ export default function AlertsPage() {
               signals used throughout FleetFlow Intelligence.
             </p>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
               {[
                 [
                   "01",
@@ -1325,6 +1325,5 @@ export default function AlertsPage() {
     </ProtectedPage>
   );
 }
-
 
 

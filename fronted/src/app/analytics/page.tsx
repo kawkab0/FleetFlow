@@ -79,12 +79,6 @@ function money(value: number): string {
   }).format(value)} ETB`;
 }
 
-function number(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 2,
-  }).format(value);
-}
-
 function whole(value: number): string {
   return new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
@@ -93,18 +87,6 @@ function whole(value: number): string {
 
 function percent(value: number): string {
   return `${value.toFixed(1)}%`;
-}
-
-function isCompletedTrip(status?: string): boolean {
-  const normalized = status?.toLowerCase().trim();
-
-  return (
-    normalized === "completed" ||
-    normalized === "complete" ||
-    normalized === "delivered" ||
-    normalized === "closed" ||
-    normalized === "finished"
-  );
 }
 
 function insightClasses(
@@ -232,15 +214,6 @@ export default function AnalyticsPage() {
       (vehicle) => vehicle.profit < 0,
     ).length;
 
-  const averageProfit =
-    fleetSize > 0
-      ? vehiclePerformance.reduce(
-          (sum, vehicle) =>
-            sum + num(vehicle.profit),
-          0,
-        ) / fleetSize
-      : 0;
-
   const averageRevenuePerKm =
     fleetSize > 0
       ? vehiclePerformance.reduce(
@@ -277,11 +250,6 @@ export default function AnalyticsPage() {
           (vehicle) =>
             num(vehicle.fuelEfficiency) > 0,
         ).length
-      : 0;
-
-  const fleetUtilization =
-    kpis && kpis.totalTrips > 0
-      ? (kpis.completedTrips / kpis.totalTrips) * 100
       : 0;
 
   const bestVehicle = useMemo(() => {
@@ -352,9 +320,6 @@ export default function AnalyticsPage() {
 
     const results: Insight[] = [];
 
-    /*
-     * PROFITABILITY
-     */
     if (kpis.profit < 0) {
       results.push({
         title: "Fleet profitability requires immediate attention",
@@ -391,20 +356,13 @@ export default function AnalyticsPage() {
       });
     }
 
-    /*
-     * VEHICLE PROFITABILITY
-     */
     if (lossMakingVehicles > 0) {
       results.push({
         title: "Loss-making vehicles detected",
         description: `${lossMakingVehicles} vehicle${
-          lossMakingVehicles === 1
-            ? ""
-            : "s"
+          lossMakingVehicles === 1 ? "" : "s"
         } currently generate${
-          lossMakingVehicles === 1
-            ? "s"
-            : ""
+          lossMakingVehicles === 1 ? "s" : ""
         } a negative operating result.`,
         type: "critical",
       });
@@ -416,9 +374,6 @@ export default function AnalyticsPage() {
       });
     }
 
-    /*
-     * COMPLETION
-     */
     if (kpis.completionRate >= 80) {
       results.push({
         title: "Strong trip completion",
@@ -445,9 +400,6 @@ export default function AnalyticsPage() {
       });
     }
 
-    /*
-     * FUEL
-     */
     if (kpis.fuelEfficiency > 0) {
       if (
         averageFuelEfficiency > 0 &&
@@ -479,9 +431,6 @@ export default function AnalyticsPage() {
       });
     }
 
-    /*
-     * COST PER KM
-     */
     if (
       kpis.costPerKm > 0 &&
       kpis.revenuePerKm > 0
@@ -512,16 +461,11 @@ export default function AnalyticsPage() {
       }
     }
 
-    /*
-     * ACTIVE TRIPS
-     */
     if (kpis.activeTrips > 0) {
       results.push({
         title: "Active operations are underway",
         description: `${kpis.activeTrips} trip${
-          kpis.activeTrips === 1
-            ? ""
-            : "s"
+          kpis.activeTrips === 1 ? "" : "s"
         } currently have an active or in-progress status.`,
         type: "info",
       });
@@ -571,14 +515,14 @@ export default function AnalyticsPage() {
         <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-7xl">
             <div className="flex min-h-[70vh] items-center justify-center">
-              <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+              <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10">
                 <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
 
                 <p className="mt-5 text-lg font-semibold text-slate-700">
                   Loading FleetFlow Analytics...
                 </p>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm leading-6 text-slate-500">
                   Preparing business intelligence and
                   performance analysis.
                 </p>
@@ -595,12 +539,12 @@ export default function AnalyticsPage() {
       <ProtectedPage permission="analytics">
         <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-3xl">
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-8">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 sm:p-8">
               <p className="text-xs font-bold uppercase tracking-wider text-red-600">
                 Business Intelligence Error
               </p>
 
-              <h1 className="mt-2 text-2xl font-bold text-red-800">
+              <h1 className="mt-2 text-xl font-bold text-red-800 sm:text-2xl">
                 Analytics could not load
               </h1>
 
@@ -610,7 +554,7 @@ export default function AnalyticsPage() {
 
               <button
                 onClick={loadAnalytics}
-                className="mt-6 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+                className="mt-6 w-full rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700 sm:w-auto"
               >
                 Retry Analytics
               </button>
@@ -623,17 +567,18 @@ export default function AnalyticsPage() {
 
   return (
     <ProtectedPage permission="analytics">
-      <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto max-w-7xl space-y-8">
+      <main className="min-h-screen bg-slate-50 p-3 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
+
           {/* HEADER */}
-          <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-lg sm:p-8">
-            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+          <section className="rounded-2xl bg-slate-900 p-5 text-white shadow-lg sm:p-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400 sm:text-sm sm:tracking-widest">
                   FleetFlow Business Intelligence
                 </p>
 
-                <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
+                <h1 className="mt-2 text-2xl font-bold sm:text-4xl">
                   Business Analytics
                 </h1>
 
@@ -646,7 +591,7 @@ export default function AnalyticsPage() {
 
               <button
                 onClick={loadAnalytics}
-                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+                className="w-full shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 sm:w-auto"
               >
                 Refresh Analytics
               </button>
@@ -654,156 +599,127 @@ export default function AnalyticsPage() {
           </section>
 
           {/* PRIMARY KPIs */}
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm font-medium text-slate-500">
-                Fleet Revenue
-              </p>
-
-              <p className="mt-3 text-2xl font-bold text-slate-900">
-                {money(num(kpis?.totalRevenue))}
-              </p>
-
-              <p className="mt-2 text-xs text-slate-400">
-                {money(
+          <section className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+            {[
+              {
+                label: "Fleet Revenue",
+                value: money(num(kpis?.totalRevenue)),
+                detail: `${money(
                   num(kpis?.revenuePerKm),
-                )}{" "}
-                revenue / km
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm font-medium text-slate-500">
-                Operating Cost
-              </p>
-
-              <p className="mt-3 text-2xl font-bold text-slate-900">
-                {money(
+                )} revenue / km`,
+              },
+              {
+                label: "Operating Cost",
+                value: money(
                   num(kpis?.totalOperatingCost),
-                )}
-              </p>
-
-              <p className="mt-2 text-xs text-slate-400">
-                {money(
+                ),
+                detail: `${money(
                   num(kpis?.costPerKm),
-                )}{" "}
-                cost / km
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm font-medium text-slate-500">
-                Operating Result
-              </p>
-
-              <p
-                className={`mt-3 text-2xl font-bold ${
+                )} cost / km`,
+              },
+              {
+                label: "Operating Result",
+                value: money(num(kpis?.profit)),
+                detail: `${percent(
+                  num(kpis?.profitMargin),
+                )} operating margin`,
+                valueClass:
                   num(kpis?.profit) >= 0
                     ? "text-emerald-600"
-                    : "text-red-600"
-                }`}
-              >
-                {money(num(kpis?.profit))}
-              </p>
-
-              <p className="mt-2 text-xs text-slate-400">
-                {percent(
-                  num(kpis?.profitMargin),
-                )}{" "}
-                operating margin
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm font-medium text-slate-500">
-                Completed Trips
-              </p>
-
-              <p className="mt-3 text-2xl font-bold text-slate-900">
-                {whole(
+                    : "text-red-600",
+              },
+              {
+                label: "Completed Trips",
+                value: whole(
                   num(kpis?.completedTrips),
-                )}
-              </p>
-
-              <p className="mt-2 text-xs text-slate-400">
-                {percent(
+                ),
+                detail: `${percent(
                   num(kpis?.completionRate),
-                )}{" "}
-                completion rate
-              </p>
-            </div>
+                )} completion rate`,
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6"
+              >
+                <p className="text-xs font-medium text-slate-500 sm:text-sm">
+                  {item.label}
+                </p>
+
+                <p
+                  className={`mt-2 break-words text-xl font-bold leading-tight sm:mt-3 sm:text-2xl ${
+                    item.valueClass ??
+                    "text-slate-900"
+                  }`}
+                >
+                  {item.value}
+                </p>
+
+                <p className="mt-2 text-xs leading-5 text-slate-400">
+                  {item.detail}
+                </p>
+              </div>
+            ))}
           </section>
 
           {/* OPERATIONAL KPIs */}
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm text-slate-500">
-                Fleet Size
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-slate-900">
-                {whole(fleetSize)}
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                Vehicles with analytics data
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm text-slate-500">
-                Distance
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-slate-900">
-                {whole(
+          <section className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            {[
+              {
+                label: "Fleet Size",
+                value: whole(fleetSize),
+                detail: "Vehicles with analytics data",
+              },
+              {
+                label: "Distance",
+                value: `${whole(
                   num(kpis?.totalDistance),
-                )}{" "}
-                km
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                Completed-trip distance
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm text-slate-500">
-                Fuel Efficiency
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-slate-900">
-                {num(
+                )} km`,
+                detail: "Completed-trip distance",
+              },
+              {
+                label: "Fuel Efficiency",
+                value: `${num(
                   kpis?.fuelEfficiency,
-                ).toFixed(2)}{" "}
-                km/L
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                Fleet operational efficiency
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm text-slate-500">
-                Active Trips
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-blue-600">
-                {whole(
+                ).toFixed(2)} km/L`,
+                detail: "Fleet operational efficiency",
+              },
+              {
+                label: "Active Trips",
+                value: whole(
                   num(kpis?.activeTrips),
-                )}
-              </p>
+                ),
+                detail: "Current operational activity",
+                valueClass: "text-blue-600",
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+              >
+                <p className="text-sm text-slate-500">
+                  {item.label}
+                </p>
 
-              <p className="mt-1 text-xs text-slate-400">
-                Current operational activity
-              </p>
-            </div>
+                <p
+                  className={`mt-2 break-words text-xl font-bold sm:text-2xl ${
+                    item.valueClass ??
+                    "text-slate-900"
+                  }`}
+                >
+                  {item.value}
+                </p>
+
+                <p className="mt-1 text-xs leading-5 text-slate-400">
+                  {item.detail}
+                </p>
+              </div>
+            ))}
           </section>
 
           {/* MANAGEMENT SNAPSHOT */}
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+          <section className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:p-5">
               <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">
                 Profitable Vehicles
               </p>
@@ -812,7 +728,7 @@ export default function AnalyticsPage() {
                 {profitableVehicles}
               </p>
 
-              <p className="mt-1 text-xs text-emerald-700">
+              <p className="mt-1 text-xs leading-5 text-emerald-700">
                 {fleetSize > 0
                   ? percent(
                       (profitableVehicles /
@@ -824,7 +740,7 @@ export default function AnalyticsPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 sm:p-5">
               <p className="text-xs font-bold uppercase tracking-wide text-red-700">
                 Loss-Making Vehicles
               </p>
@@ -833,39 +749,35 @@ export default function AnalyticsPage() {
                 {lossMakingVehicles}
               </p>
 
-              <p className="mt-1 text-xs text-red-700">
+              <p className="mt-1 text-xs leading-5 text-red-700">
                 Priority for profitability review
               </p>
             </div>
 
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
               <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
                 Avg Revenue / KM
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-blue-800">
-                {money(
-                  averageRevenuePerKm,
-                )}
+              <p className="mt-2 break-words text-xl font-bold text-blue-800 sm:text-2xl">
+                {money(averageRevenuePerKm)}
               </p>
 
-              <p className="mt-1 text-xs text-blue-700">
+              <p className="mt-1 text-xs leading-5 text-blue-700">
                 Vehicle-level benchmark
               </p>
             </div>
 
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
               <p className="text-xs font-bold uppercase tracking-wide text-amber-700">
                 Avg Cost / KM
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-amber-800">
-                {money(
-                  averageCostPerKm,
-                )}
+              <p className="mt-2 break-words text-xl font-bold text-amber-800 sm:text-2xl">
+                {money(averageCostPerKm)}
               </p>
 
-              <p className="mt-1 text-xs text-amber-700">
+              <p className="mt-1 text-xs leading-5 text-amber-700">
                 Vehicle-level benchmark
               </p>
             </div>
@@ -873,33 +785,33 @@ export default function AnalyticsPage() {
 
           {/* BUSINESS INSIGHTS */}
           <section>
-            <div className="mb-5">
+            <div className="mb-4 sm:mb-5">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Decision Support
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+              <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
                 Business Insights
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 Automatically generated observations from
                 current fleet performance data.
               </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
               {insights.map(
                 (insight, index) => (
                   <div
                     key={`${insight.title}-${index}`}
-                    className={`rounded-2xl border p-5 ${insightClasses(
+                    className={`min-w-0 rounded-2xl border p-4 sm:p-5 ${insightClasses(
                       insight.type,
                     )}`}
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
                       <div
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${insightIconClasses(
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold sm:h-9 sm:w-9 ${insightIconClasses(
                           insight.type,
                         )}`}
                       >
@@ -908,12 +820,12 @@ export default function AnalyticsPage() {
                         )}
                       </div>
 
-                      <div>
-                        <h3 className="font-bold text-slate-900">
+                      <div className="min-w-0">
+                        <h3 className="break-words font-bold text-slate-900">
                           {insight.title}
                         </h3>
 
-                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                        <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                           {insight.description}
                         </p>
                       </div>
@@ -926,124 +838,120 @@ export default function AnalyticsPage() {
 
           {/* PERFORMANCE HIGHLIGHTS */}
           <section>
-            <div className="mb-5">
+            <div className="mb-4 sm:mb-5">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Fleet Leaders
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+              <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
                 Performance Highlights
               </h2>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
-                  Best Result
-                </p>
-
-                <p className="mt-3 text-lg font-bold text-slate-900">
-                  {bestVehicle?.vehicleCode ??
-                    "N/A"}
-                </p>
-
-                <p className="mt-1 text-sm text-emerald-600">
-                  {bestVehicle
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                {
+                  label: "Best Result",
+                  color: "text-emerald-600",
+                  vehicle:
+                    bestVehicle?.vehicleCode ??
+                    "N/A",
+                  value: bestVehicle
                     ? money(
                         num(
                           bestVehicle.profit,
                         ),
                       )
-                    : "No data"}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-red-600">
-                  Weakest Result
-                </p>
-
-                <p className="mt-3 text-lg font-bold text-slate-900">
-                  {worstVehicle?.vehicleCode ??
-                    "N/A"}
-                </p>
-
-                <p className="mt-1 text-sm text-red-600">
-                  {worstVehicle
+                    : "No data",
+                },
+                {
+                  label: "Weakest Result",
+                  color: "text-red-600",
+                  vehicle:
+                    worstVehicle?.vehicleCode ??
+                    "N/A",
+                  value: worstVehicle
                     ? money(
                         num(
                           worstVehicle.profit,
                         ),
                       )
-                    : "No data"}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
-                  Most Fuel Efficient
-                </p>
-
-                <p className="mt-3 text-lg font-bold text-slate-900">
-                  {mostEfficientVehicle?.vehicleCode ??
-                    "N/A"}
-                </p>
-
-                <p className="mt-1 text-sm text-blue-600">
-                  {mostEfficientVehicle
+                    : "No data",
+                },
+                {
+                  label: "Most Fuel Efficient",
+                  color: "text-blue-600",
+                  vehicle:
+                    mostEfficientVehicle?.vehicleCode ??
+                    "N/A",
+                  value: mostEfficientVehicle
                     ? `${num(
                         mostEfficientVehicle.fuelEfficiency,
                       ).toFixed(2)} km/L`
-                    : "No data"}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-amber-600">
-                  Highest Cost / KM
-                </p>
-
-                <p className="mt-3 text-lg font-bold text-slate-900">
-                  {highestCostPerKmVehicle?.vehicleCode ??
-                    "N/A"}
-                </p>
-
-                <p className="mt-1 text-sm text-amber-600">
-                  {highestCostPerKmVehicle
+                    : "No data",
+                },
+                {
+                  label: "Highest Cost / KM",
+                  color: "text-amber-600",
+                  vehicle:
+                    highestCostPerKmVehicle?.vehicleCode ??
+                    "N/A",
+                  value: highestCostPerKmVehicle
                     ? money(
                         num(
                           highestCostPerKmVehicle.costPerKm,
                         ),
                       )
-                    : "No data"}
-                </p>
-              </div>
+                    : "No data",
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+                >
+                  <p
+                    className={`text-xs font-bold uppercase tracking-wide ${item.color}`}
+                  >
+                    {item.label}
+                  </p>
+
+                  <p className="mt-3 break-words text-lg font-bold text-slate-900">
+                    {item.vehicle}
+                  </p>
+
+                  <p
+                    className={`mt-1 break-words text-sm ${item.color}`}
+                  >
+                    {item.value}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
 
           {/* MONTHLY PERFORMANCE */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <div className="mb-6">
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8">
+            <div className="mb-5 sm:mb-6">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Trend Analysis
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+              <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
                 Monthly Performance
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 Revenue and operating-result movement over
                 time.
               </p>
             </div>
 
             {monthlyAnalytics.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 sm:p-10">
                 No monthly analytics data available.
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {monthlyAnalytics.map(
                   (month) => {
                     const revenue =
@@ -1065,15 +973,15 @@ export default function AnalyticsPage() {
                     return (
                       <div
                         key={month.month}
-                        className="rounded-xl border border-slate-100 p-4"
+                        className="rounded-xl border border-slate-100 p-4 sm:p-5"
                       >
                         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
+                          <div className="min-w-0">
                             <p className="font-semibold text-slate-900">
                               {month.month}
                             </p>
 
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs leading-5 text-slate-400">
                               {whole(
                                 num(
                                   month.trips,
@@ -1090,7 +998,7 @@ export default function AnalyticsPage() {
                           </div>
 
                           <div
-                            className={`text-sm font-bold ${
+                            className={`break-words text-sm font-bold sm:text-right ${
                               profit >= 0
                                 ? "text-emerald-600"
                                 : "text-red-600"
@@ -1100,21 +1008,17 @@ export default function AnalyticsPage() {
                           </div>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           <div>
-                            <div className="mb-1 flex justify-between text-xs text-slate-500">
-                              <span>
-                                Revenue
-                              </span>
+                            <div className="mb-1 flex items-start justify-between gap-3 text-xs text-slate-500">
+                              <span>Revenue</span>
 
-                              <span>
-                                {money(
-                                  revenue,
-                                )}
+                              <span className="break-words text-right">
+                                {money(revenue)}
                               </span>
                             </div>
 
-                            <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                            <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 sm:h-3">
                               <div
                                 className="h-full rounded-full bg-blue-500"
                                 style={{
@@ -1131,19 +1035,17 @@ export default function AnalyticsPage() {
                           </div>
 
                           <div>
-                            <div className="mb-1 flex justify-between text-xs text-slate-500">
+                            <div className="mb-1 flex items-start justify-between gap-3 text-xs text-slate-500">
                               <span>
                                 Operating Result
                               </span>
 
-                              <span>
-                                {money(
-                                  profit,
-                                )}
+                              <span className="break-words text-right">
+                                {money(profit)}
                               </span>
                             </div>
 
-                            <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                            <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 sm:h-3">
                               <div
                                 className={`h-full rounded-full ${
                                   profit >= 0
@@ -1207,62 +1109,68 @@ export default function AnalyticsPage() {
           </section>
 
           {/* VEHICLE PERFORMANCE */}
-          <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 p-6 sm:p-8">
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 p-4 sm:p-8">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Fleet Benchmarking
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+              <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
                 Vehicle Performance
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 Ranked financial and operational performance
                 by vehicle.
               </p>
+
+              {vehiclePerformance.length > 0 && (
+                <p className="mt-3 text-xs text-slate-400 sm:hidden">
+                  Swipe horizontally to view all vehicle metrics →
+                </p>
+              )}
             </div>
 
             {vehiclePerformance.length === 0 ? (
-              <div className="p-10 text-center text-sm text-slate-500">
+              <div className="p-8 text-center text-sm text-slate-500 sm:p-10">
                 No vehicle analytics data available.
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overscroll-x-contain">
                 <table className="w-full min-w-[1200px] text-left">
                   <thead>
                     <tr className="border-b border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Rank
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Vehicle
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Trips
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Distance
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Revenue
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Cost
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Result
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Margin
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Revenue/km
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Cost/km
                       </th>
-                      <th className="px-5 py-4">
+                      <th className="whitespace-nowrap px-4 py-4 sm:px-5">
                         Fuel Efficiency
                       </th>
                     </tr>
@@ -1272,9 +1180,7 @@ export default function AnalyticsPage() {
                     {rankedVehicles.map(
                       (vehicle, index) => {
                         const profit =
-                          num(
-                            vehicle.profit,
-                          );
+                          num(vehicle.profit);
 
                         const profitBar =
                           profit > 0
@@ -1293,17 +1199,15 @@ export default function AnalyticsPage() {
                             }
                             className="border-b border-slate-100 transition hover:bg-slate-50"
                           >
-                            <td className="px-5 py-5">
+                            <td className="px-4 py-4 sm:px-5 sm:py-5">
                               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">
                                 {index + 1}
                               </span>
                             </td>
 
-                            <td className="px-5 py-5">
+                            <td className="px-4 py-4 sm:px-5 sm:py-5">
                               <p className="font-bold text-slate-900">
-                                {
-                                  vehicle.vehicleCode
-                                }
+                                {vehicle.vehicleCode}
                               </p>
 
                               <div className="mt-2 h-1.5 w-24 overflow-hidden rounded-full bg-slate-100">
@@ -1315,8 +1219,7 @@ export default function AnalyticsPage() {
                                   }`}
                                   style={{
                                     width: `${
-                                      profit >=
-                                      0
+                                      profit >= 0
                                         ? profitBar
                                         : 100
                                     }%`,
@@ -1325,7 +1228,7 @@ export default function AnalyticsPage() {
                               </div>
                             </td>
 
-                            <td className="px-5 py-5 text-sm text-slate-600">
+                            <td className="px-4 py-4 text-sm text-slate-600 sm:px-5 sm:py-5">
                               {
                                 vehicle.completedTrips
                               }{" "}
@@ -1335,7 +1238,7 @@ export default function AnalyticsPage() {
                               }
                             </td>
 
-                            <td className="px-5 py-5 text-sm text-slate-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600 sm:px-5 sm:py-5">
                               {whole(
                                 num(
                                   vehicle.distance,
@@ -1344,7 +1247,7 @@ export default function AnalyticsPage() {
                               km
                             </td>
 
-                            <td className="px-5 py-5 text-sm font-medium text-slate-700">
+                            <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-700 sm:px-5 sm:py-5">
                               {money(
                                 num(
                                   vehicle.revenue,
@@ -1352,7 +1255,7 @@ export default function AnalyticsPage() {
                               )}
                             </td>
 
-                            <td className="px-5 py-5 text-sm text-slate-700">
+                            <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-700 sm:px-5 sm:py-5">
                               {money(
                                 num(
                                   vehicle.totalCost,
@@ -1361,7 +1264,7 @@ export default function AnalyticsPage() {
                             </td>
 
                             <td
-                              className={`px-5 py-5 text-sm font-bold ${
+                              className={`whitespace-nowrap px-4 py-4 text-sm font-bold sm:px-5 sm:py-5 ${
                                 profit >= 0
                                   ? "text-emerald-600"
                                   : "text-red-600"
@@ -1370,7 +1273,7 @@ export default function AnalyticsPage() {
                               {money(profit)}
                             </td>
 
-                            <td className="px-5 py-5 text-sm text-slate-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600 sm:px-5 sm:py-5">
                               {percent(
                                 num(
                                   vehicle.profitMargin,
@@ -1378,7 +1281,7 @@ export default function AnalyticsPage() {
                               )}
                             </td>
 
-                            <td className="px-5 py-5 text-sm text-slate-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600 sm:px-5 sm:py-5">
                               {money(
                                 num(
                                   vehicle.revenuePerKm,
@@ -1386,7 +1289,7 @@ export default function AnalyticsPage() {
                               )}
                             </td>
 
-                            <td className="px-5 py-5 text-sm text-slate-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600 sm:px-5 sm:py-5">
                               {money(
                                 num(
                                   vehicle.costPerKm,
@@ -1394,7 +1297,7 @@ export default function AnalyticsPage() {
                               )}
                             </td>
 
-                            <td className="px-5 py-5 text-sm text-slate-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600 sm:px-5 sm:py-5">
                               {num(
                                 vehicle.fuelEfficiency,
                               ) > 0
@@ -1416,21 +1319,21 @@ export default function AnalyticsPage() {
           </section>
 
           {/* COST STRUCTURE + EXPENSE BREAKDOWN */}
-          <section className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                 Cost Analysis
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+              <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
                 Cost Structure
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 Composition of recorded operating costs.
               </p>
 
-              <div className="mt-8 space-y-6">
+              <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
                 {[
                   {
                     label: "Fuel",
@@ -1472,19 +1375,17 @@ export default function AnalyticsPage() {
 
                   return (
                     <div key={item.label}>
-                      <div className="mb-2 flex items-center justify-between">
+                      <div className="mb-2 flex items-start justify-between gap-3">
                         <span className="text-sm font-medium text-slate-600">
                           {item.label}
                         </span>
 
-                        <span className="text-sm font-semibold text-slate-900">
-                          {money(
-                            item.value,
-                          )}
+                        <span className="break-words text-right text-sm font-semibold text-slate-900">
+                          {money(item.value)}
                         </span>
                       </div>
 
-                      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 sm:h-3">
                         <div
                           className={`h-full rounded-full ${item.className}`}
                           style={{
@@ -1500,8 +1401,7 @@ export default function AnalyticsPage() {
                       </div>
 
                       <p className="mt-1 text-xs text-slate-400">
-                        {percent(share)} of
-                        operating cost
+                        {percent(share)} of operating cost
                       </p>
                     </div>
                   );
@@ -1509,25 +1409,25 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
               <p className="text-xs font-bold uppercase tracking-wider text-purple-600">
                 Expense Analysis
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+              <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
                 Expense Breakdown
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 Recorded expenses grouped by category.
               </p>
 
               {expenseBreakdown.length === 0 ? (
-                <div className="mt-8 rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
+                <div className="mt-6 rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 sm:mt-8 sm:p-8">
                   No expense breakdown available.
                 </div>
               ) : (
-                <div className="mt-6 space-y-5">
+                <div className="mt-5 space-y-5 sm:mt-6">
                   {expenseBreakdown.map(
                     (item) => {
                       const amount =
@@ -1547,17 +1447,13 @@ export default function AnalyticsPage() {
                             item.category
                           }
                         >
-                          <div className="mb-2 flex justify-between gap-4 text-sm">
-                            <span className="font-medium text-slate-600">
-                              {
-                                item.category
-                              }
+                          <div className="mb-2 flex items-start justify-between gap-4 text-sm">
+                            <span className="min-w-0 break-words font-medium text-slate-600">
+                              {item.category}
                             </span>
 
-                            <span className="font-semibold text-slate-900">
-                              {money(
-                                amount,
-                              )}
+                            <span className="shrink-0 font-semibold text-slate-900">
+                              {money(amount)}
                             </span>
                           </div>
 
@@ -1577,9 +1473,7 @@ export default function AnalyticsPage() {
                           </div>
 
                           <p className="mt-1 text-xs text-slate-400">
-                            {percent(
-                              share,
-                            )}
+                            {percent(share)}
                           </p>
                         </div>
                       );
@@ -1591,145 +1485,131 @@ export default function AnalyticsPage() {
           </section>
 
           {/* MANAGEMENT ACTIONS */}
-          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-6 sm:p-8">
+          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
               Management Actions
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold text-slate-900">
+            <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
               Where Management Should Focus
             </h2>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-xl bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold text-red-600">
-                  01
-                </p>
+            <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                {
+                  number: "01",
+                  color: "text-red-600",
+                  title:
+                    "Review loss-making vehicles",
+                  description:
+                    "Investigate vehicles producing negative operating results and compare their revenue, fuel, maintenance, and expense patterns.",
+                },
+                {
+                  number: "02",
+                  color: "text-amber-600",
+                  title:
+                    "Control cost per km",
+                  description:
+                    "Prioritize vehicles with unusually high operating cost relative to their distance.",
+                },
+                {
+                  number: "03",
+                  color: "text-blue-600",
+                  title:
+                    "Improve fuel efficiency",
+                  description:
+                    "Compare inefficient vehicles against fleet benchmarks and investigate operational causes.",
+                },
+                {
+                  number: "04",
+                  color: "text-emerald-600",
+                  title:
+                    "Replicate strong performers",
+                  description:
+                    "Identify the vehicles and operating patterns producing the strongest financial results.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.number}
+                  className="rounded-xl bg-white p-4 shadow-sm sm:p-5"
+                >
+                  <p
+                    className={`text-xs font-bold ${item.color}`}
+                  >
+                    {item.number}
+                  </p>
 
-                <h3 className="mt-2 font-bold text-slate-900">
-                  Review loss-making vehicles
-                </h3>
+                  <h3 className="mt-2 font-bold text-slate-900">
+                    {item.title}
+                  </h3>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Investigate vehicles producing negative
-                  operating results and compare their revenue,
-                  fuel, maintenance, and expense patterns.
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold text-amber-600">
-                  02
-                </p>
-
-                <h3 className="mt-2 font-bold text-slate-900">
-                  Control cost per km
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Prioritize vehicles with unusually high
-                  operating cost relative to their distance.
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold text-blue-600">
-                  03
-                </p>
-
-                <h3 className="mt-2 font-bold text-slate-900">
-                  Improve fuel efficiency
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Compare inefficient vehicles against fleet
-                  benchmarks and investigate operational causes.
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold text-emerald-600">
-                  04
-                </p>
-
-                <h3 className="mt-2 font-bold text-slate-900">
-                  Replicate strong performers
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Identify the vehicles and operating patterns
-                  producing the strongest financial results.
-                </p>
-              </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
 
           {/* DATA SUMMARY */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Analytics Data
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold text-slate-900">
+            <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
               Data Summary
             </h2>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-xl bg-slate-50 p-5">
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  Total Trips
-                </p>
-
-                <p className="mt-2 text-xl font-bold text-slate-900">
-                  {whole(
+            <div className="mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+              {[
+                {
+                  label: "Total Trips",
+                  value: whole(
                     num(kpis?.totalTrips),
-                  )}
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-slate-50 p-5">
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  Fuel Records
-                </p>
-
-                <p className="mt-2 text-xl font-bold text-slate-900">
-                  {whole(
+                  ),
+                },
+                {
+                  label: "Fuel Records",
+                  value: `${whole(
                     num(
                       kpis?.totalFuelLiters,
                     ),
-                  )}{" "}
-                  L
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-slate-50 p-5">
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  Maintenance Cost
-                </p>
-
-                <p className="mt-2 text-xl font-bold text-slate-900">
-                  {money(
+                  )} L`,
+                },
+                {
+                  label: "Maintenance Cost",
+                  value: money(
                     num(
                       kpis?.maintenanceCost,
                     ),
-                  )}
-                </p>
-              </div>
+                  ),
+                },
+                {
+                  label: "Expense Categories",
+                  value: String(
+                    expenseBreakdown.length,
+                  ),
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="min-w-0 rounded-xl bg-slate-50 p-4 sm:p-5"
+                >
+                  <p className="text-xs uppercase tracking-wide text-slate-400">
+                    {item.label}
+                  </p>
 
-              <div className="rounded-xl bg-slate-50 p-5">
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  Expense Categories
-                </p>
-
-                <p className="mt-2 text-xl font-bold text-slate-900">
-                  {expenseBreakdown.length}
-                </p>
-              </div>
+                  <p className="mt-2 break-words text-lg font-bold text-slate-900 sm:text-xl">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
 
           {/* MODEL NOTE */}
-          <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+          <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
             <p className="text-xs font-bold uppercase tracking-wider text-amber-700">
               Analytics Model
             </p>
@@ -1751,7 +1631,7 @@ export default function AnalyticsPage() {
           </section>
 
           {/* FOOTER */}
-          <footer className="border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
+          <footer className="border-t border-slate-200 pt-5 text-center text-xs leading-5 text-slate-400 sm:pt-6">
             FleetFlow Business Intelligence • Operational
             Analytics & Decision Support
           </footer>
@@ -1760,4 +1640,3 @@ export default function AnalyticsPage() {
     </ProtectedPage>
   );
 }
-

@@ -1,0 +1,200 @@
+    const completedTrips = analysis.reduce(
+      (sum, driver) => sum + driver.completedTrips,
+      0,
+    );
+
+    const totalTrips = analysis.reduce(
+      (sum, driver) => sum + driver.trips,
+      0,
+    );
+
+    const activeTrips = analysis.reduce(
+      (sum, driver) => sum + driver.activeTrips,
+      0,
+    );
+
+    const excellentDrivers = analysis.filter(
+      (driver) => driver.performance === "Excellent",
+    ).length;
+
+    const needsAttention = analysis.filter(
+      (driver) => driver.performance === "Needs Attention",
+    ).length;
+
+    const highRiskDrivers = analysis.filter(
+      (driver) =>
+        driver.risk === "High" ||
+        driver.risk === "Critical",
+    ).length;
+
+    const bestDriver =
+      analysis.length > 0
+        ? [...analysis].sort(
+            (a, b) =>
+              b.performanceScore - a.performanceScore,
+          )[0]
+        : null;
+
+    const highestRevenueDriver =
+      analysis.length > 0
+        ? [...analysis].sort(
+            (a, b) => b.revenue - a.revenue,
+          )[0]
+        : null;
+
+    const mostEfficientDriver =
+      analysis
+        .filter((driver) => driver.fuelEfficiency > 0)
+        .sort(
+          (a, b) =>
+            b.fuelEfficiency - a.fuelEfficiency,
+        )[0] || null;
+
+    const lowestCostDriver =
+      analysis
+        .filter((driver) => driver.costPerKm > 0)
+        .sort(
+          (a, b) =>
+            a.costPerKm - b.costPerKm,
+        )[0] || null;
+
+    const worstDriver =
+      analysis.length > 0
+        ? [...analysis].sort(
+            (a, b) =>
+              a.performanceScore - b.performanceScore,
+          )[0]
+        : null;
+
+    return {
+      totalRevenue,
+      totalCost,
+      totalDistance,
+      totalTripFuel,
+      totalPurchasedFuel,
+
+      completedTrips,
+      totalTrips,
+      activeTrips,
+
+      excellentDrivers,
+      needsAttention,
+      highRiskDrivers,
+
+      bestDriver,
+      highestRevenueDriver,
+      mostEfficientDriver,
+      lowestCostDriver,
+      worstDriver,
+
+      profit: totalRevenue - totalCost,
+
+      completionRate:
+        totalTrips > 0
+          ? (completedTrips / totalTrips) * 100
+          : 0,
+
+      fuelEfficiency:
+        totalTripFuel > 0
+          ? totalDistance / totalTripFuel
+          : 0,
+
+      revenuePerKm:
+        totalDistance > 0
+          ? totalRevenue / totalDistance
+          : 0,
+
+      costPerKm:
+        totalDistance > 0
+          ? totalCost / totalDistance
+          : 0,
+
+      profitMargin:
+        totalRevenue > 0
+          ? ((totalRevenue - totalCost) /
+              totalRevenue) *
+            100
+          : 0,
+
+      averageScore:
+        analysis.length > 0
+          ? analysis.reduce(
+              (sum, driver) =>
+                sum + driver.performanceScore,
+              0,
+            ) / analysis.length
+          : 0,
+    };
+  }, [analysis]);
+
+  const insights = useMemo(() => {
+    const result: {
+      title: string;
+      description: string;
+      type: "positive" | "warning" | "critical";
+    }[] = [];
+
+    if (summary.bestDriver) {
+      result.push({
+        title: "Top driver identified",
+        description: `${summary.bestDriver.name} has the strongest overall performance score at ${summary.bestDriver.performanceScore}/100.`,
+        type: "positive",
+      });
+    }
+
+    if (summary.highestRevenueDriver) {
+      result.push({
+        title: "Highest revenue contributor",
+        description: `${summary.highestRevenueDriver.name} generated ${money(
+          summary.highestRevenueDriver.revenue,
+        )} from completed trips.`,
+        type: "positive",
+      });
+    }
+
+    if (summary.mostEfficientDriver) {
+      result.push({
+        title: "Fuel efficiency leader",
+        description: `${summary.mostEfficientDriver.name} currently records the strongest operational fuel efficiency at ${summary.mostEfficientDriver.fuelEfficiency.toFixed(
+          2,
+        )} km/L.`,
+        type: "positive",
+      });
+    }
+
+    if (summary.highRiskDrivers > 0) {
+      result.push({
+        title: "Driver risk detected",
+        description: `${summary.highRiskDrivers} driver${
+          summary.highRiskDrivers === 1 ? "" : "s"
+        } currently have High or Critical performance risk and should be reviewed.`,
+        type: "critical",
+      });
+    }
+
+    if (summary.needsAttention > 0) {
+      result.push({
+        title: "Performance attention required",
+        description: `${summary.needsAttention} driver${
+          summary.needsAttention === 1 ? "" : "s"
+        } currently fall into the Needs Attention category.`,
+        type: "critical",
+      });
+    }
+
+    if (summary.completionRate >= 85) {
+      result.push({
+        title: "Strong trip completion",
+        description: `The driver fleet has a ${summary.completionRate.toFixed(
+          1,
+        )}% trip completion rate.`,
+        type: "positive",
+      });
+    } else if (summary.totalTrips > 0) {
+      result.push({
+        title: "Trip completion opportunity",
+        description: `The current completion rate is ${summary.completionRate.toFixed(
+          1,
+        )}%. Delayed or incomplete assignments should be reviewed.`,
+        type: "warning",
+      });

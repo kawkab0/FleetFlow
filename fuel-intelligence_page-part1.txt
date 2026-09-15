@@ -1,0 +1,200 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
+import ProtectedPage from "@/components/ProtectedPage";
+
+interface Vehicle {
+  id: number;
+  vehicleCode?: string;
+  status?: string;
+  vehicleType?: string;
+  model?: string;
+}
+
+interface Trip {
+  id: number;
+  vehicleCode?: string;
+  distance?: number | string;
+  revenue?: number | string;
+  status?: string;
+}
+
+interface Fuel {
+  id: number;
+  vehicleCode?: string;
+  liters?: number | string;
+  cost?: number | string;
+  fuelDate?: string;
+}
+
+type RiskLevel = "Low" | "Medium" | "High" | "Critical";
+
+type Performance =
+  | "Excellent"
+  | "Good"
+  | "Average"
+  | "Needs Attention";
+
+interface VehicleFuelAnalysis {
+  vehicleCode: string;
+  status: string;
+  vehicleType: string;
+  fuelLiters: number;
+  fuelCost: number;
+  completedDistance: number;
+  allTripDistance: number;
+  completedTrips: number;
+  totalTrips: number;
+  fuelEfficiency: number;
+  costPerKm: number;
+  fuelCostShare: number;
+  efficiencyVsFleet: number;
+  costPerKmVsFleet: number;
+  riskScore: number;
+  riskLevel: RiskLevel;
+  performance: Performance;
+  reasons: string[];
+  recommendations: string[];
+}
+
+function number(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function normalizeStatus(value?: string) {
+  return (value || "").trim().toLowerCase();
+}
+
+function isCompletedTrip(trip: Trip) {
+  const status = normalizeStatus(trip.status);
+
+  return (
+    status === "completed" ||
+    status === "complete" ||
+    status === "delivered" ||
+    status === "closed" ||
+    status === "finished"
+  );
+}
+
+export default function FuelIntelligencePage() {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [fuel, setFuel] = useState<Fuel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadData() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const [vehiclesData, tripsData, fuelData] =
+        await Promise.all([
+          apiFetch("/vehicles"),
+          apiFetch("/trips"),
+          apiFetch("/fuel"),
+        ]);
+
+      setVehicles(
+        Array.isArray(vehiclesData) ? vehiclesData : [],
+      );
+
+      setTrips(
+        Array.isArray(tripsData) ? tripsData : [],
+      );
+
+      setFuel(
+        Array.isArray(fuelData) ? fuelData : [],
+      );
+    } catch (err) {
+      console.error(err);
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Could not connect to the FleetFlow backend.",
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const baseAnalysis = useMemo(() => {
+    return vehicles.map((vehicle) => {
+      const vehicleCode =
+        vehicle.vehicleCode || `Vehicle #${vehicle.id}`;
+
+      const vehicleTrips = trips.filter(
+        (trip) => trip.vehicleCode === vehicleCode,
+      );
+
+      const completedTrips = vehicleTrips.filter(
+        isCompletedTrip,
+      );
+
+      const vehicleFuel = fuel.filter(
+        (record) => record.vehicleCode === vehicleCode,
+      );
+
+      const fuelLiters = vehicleFuel.reduce(
+        (sum, record) => sum + number(record.liters),
+        0,
+      );
+
+      const fuelCost = vehicleFuel.reduce(
+        (sum, record) => sum + number(record.cost),
+        0,
+      );
+
+      const completedDistance = completedTrips.reduce(
+        (sum, trip) => sum + number(trip.distance),
+        0,
+      );
+
+      const allTripDistance = vehicleTrips.reduce(
+        (sum, trip) => sum + number(trip.distance),
+        0,
+      );
+
+      return {
+        vehicleCode,
+        status: vehicle.status || "Unknown",
+        vehicleType:
+          vehicle.vehicleType ||
+          vehicle.model ||
+          "Unknown type",
+        fuelLiters,
+        fuelCost,
+        completedDistance,
+        allTripDistance,
+        completedTrips: completedTrips.length,
+        totalTrips: vehicleTrips.length,
+      };
+    });
+  }, [vehicles, trips, fuel]);
+
+  const fleetBenchmarks = useMemo(() => {
+    const vehiclesWithFuelAndDistance =
+      baseAnalysis.filter(
+        (item) =>
+          item.fuelLiters > 0 &&
+          item.completedDistance > 0,
+      );
+
+    const totalFuel = baseAnalysis.reduce(
+      (sum, item) => sum + item.fuelLiters,
+      0,
+    );
+
+    const totalFuelCost = baseAnalysis.reduce(
+      (sum, item) => sum + item.fuelCost,
+      0,

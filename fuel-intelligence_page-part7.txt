@@ -1,0 +1,200 @@
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    {formatPercent(
+                      mostEfficient.efficiencyVsFleet,
+                      1,
+                    )}{" "}
+                    vs fleet
+                  </p>
+                </>
+              ) : (
+                <p className="mt-3 text-slate-400">
+                  No efficiency data available.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold text-slate-500">
+                Highest Cost / KM
+              </p>
+
+              {highestCostPerKm ? (
+                <>
+                  <h3 className="mt-3 text-xl font-bold text-orange-600">
+                    {highestCostPerKm.vehicleCode}
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-500">
+                    {formatMoney(
+                      highestCostPerKm.costPerKm,
+                    )}
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    {formatPercent(
+                      highestCostPerKm.costPerKmVsFleet,
+                      1,
+                    )}{" "}
+                    vs fleet
+                  </p>
+                </>
+              ) : (
+                <p className="mt-3 text-slate-400">
+                  No cost-per-km data available.
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* VEHICLE ANALYSIS TABLE */}
+          <section className="rounded-2xl bg-white shadow-sm">
+            <div className="border-b border-slate-200 p-6">
+              <h2 className="text-xl font-bold text-slate-900">
+                Vehicle Fuel Analysis
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Fleet-relative analysis of fuel consumption,
+                efficiency and cost performance.
+              </p>
+            </div>
+
+            {analysis.length === 0 ? (
+              <div className="p-8 text-center text-slate-500">
+                No vehicles found.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[1250px] text-left">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Vehicle
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Trips
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Fuel
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Distance
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Efficiency
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Vs Fleet
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Cost / KM
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Performance
+                      </th>
+
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Risk
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-slate-100">
+                    {[...analysis]
+                      .sort(
+                        (a, b) =>
+                          b.riskScore -
+                          a.riskScore,
+                      )
+                      .map((item) => (
+                        <tr
+                          key={item.vehicleCode}
+                          className="hover:bg-slate-50"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-slate-900">
+                              {item.vehicleCode}
+                            </div>
+
+                            <div className="text-xs text-slate-400">
+                              {item.vehicleType} •{" "}
+                              {item.status}
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-slate-700">
+                              {item.completedTrips}
+                            </div>
+
+                            <div className="text-xs text-slate-400">
+                              {item.totalTrips} total
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-slate-700">
+                              {formatNumber(
+                                item.fuelLiters,
+                              )}{" "}
+                              L
+                            </div>
+
+                            <div className="text-xs text-slate-400">
+                              {formatMoney(
+                                item.fuelCost,
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-slate-700">
+                              {formatNumber(
+                                item.completedDistance,
+                                0,
+                              )}{" "}
+                              km
+                            </div>
+
+                            <div className="text-xs text-slate-400">
+                              Completed trips
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            <span
+                              className={`text-sm font-semibold ${
+                                item.fuelEfficiency >
+                                  0 &&
+                                fleetBenchmarks.fleetEfficiency >
+                                  0 &&
+                                item.fuelEfficiency <
+                                  fleetBenchmarks.fleetEfficiency *
+                                    0.7
+                                  ? "text-red-600"
+                                  : item.fuelEfficiency <
+                                      fleetBenchmarks.fleetEfficiency
+                                    ? "text-yellow-600"
+                                    : "text-green-600"
+                              }`}
+                            >
+                              {item.fuelEfficiency >
+                              0
+                                ? `${formatNumber(
+                                    item.fuelEfficiency,
+                                  )} km/L`
+                                : "N/A"}
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4">
+                            {item.fuelEfficiency >

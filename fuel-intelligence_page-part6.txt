@@ -1,0 +1,200 @@
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {formatNumber(
+                    fleetBenchmarks.fleetEfficiency,
+                  )}{" "}
+                  km/L
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Fleet Cost / KM
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {formatMoney(
+                    fleetBenchmarks.fleetCostPerKm,
+                  )}
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Average Vehicle Efficiency
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {formatNumber(
+                    fleetBenchmarks.averageVehicleEfficiency,
+                  )}{" "}
+                  km/L
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* RISK SUMMARY */}
+          <section>
+            <div className="mb-4 flex flex-col justify-between gap-2 md:flex-row md:items-end">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  Fuel Risk Summary
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Vehicles are scored using fleet-relative
+                  efficiency, cost and data-quality signals.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-slate-500">
+                  Critical Risk
+                </p>
+
+                <p className="mt-2 text-3xl font-bold text-red-600">
+                  {criticalCount}
+                </p>
+
+                <p className="mt-2 text-xs text-slate-400">
+                  Immediate investigation recommended
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-slate-500">
+                  High Risk
+                </p>
+
+                <p className="mt-2 text-3xl font-bold text-orange-600">
+                  {highCount}
+                </p>
+
+                <p className="mt-2 text-xs text-slate-400">
+                  Requires management attention
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-slate-500">
+                  Medium Risk
+                </p>
+
+                <p className="mt-2 text-3xl font-bold text-yellow-600">
+                  {mediumCount}
+                </p>
+
+                <p className="mt-2 text-xs text-slate-400">
+                  Monitor performance
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-slate-500">
+                  Low Risk
+                </p>
+
+                <p className="mt-2 text-3xl font-bold text-green-600">
+                  {lowCount}
+                </p>
+
+                <p className="mt-2 text-xs text-slate-400">
+                  Normal fuel performance
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* INTELLIGENCE HIGHLIGHTS */}
+          <section className="grid gap-6 lg:grid-cols-4">
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold text-slate-500">
+                Highest Fuel Consumer
+              </p>
+
+              {highestFuelConsumer ? (
+                <>
+                  <h3 className="mt-3 text-xl font-bold text-slate-900">
+                    {highestFuelConsumer.vehicleCode}
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-500">
+                    {formatMoney(
+                      highestFuelConsumer.fuelCost,
+                    )}
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    {formatNumber(
+                      highestFuelConsumer.fuelLiters,
+                    )}{" "}
+                    liters
+                  </p>
+
+                  <div className="mt-4">
+                    {riskBadge(
+                      highestFuelConsumer.riskLevel,
+                    )}
+                  </div>
+                </>
+              ) : (
+                <p className="mt-3 text-slate-400">
+                  No fuel data available.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold text-slate-500">
+                Worst Efficiency
+              </p>
+
+              {worstEfficiency ? (
+                <>
+                  <h3 className="mt-3 text-xl font-bold text-red-600">
+                    {worstEfficiency.vehicleCode}
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-500">
+                    {formatNumber(
+                      worstEfficiency.fuelEfficiency,
+                    )}{" "}
+                    km/L
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    {formatPercent(
+                      Math.abs(
+                        worstEfficiency.efficiencyVsFleet,
+                      ),
+                      1,
+                    )}{" "}
+                    below fleet average
+                  </p>
+                </>
+              ) : (
+                <p className="mt-3 text-slate-400">
+                  No efficiency data available.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold text-slate-500">
+                Most Efficient Vehicle
+              </p>
+
+              {mostEfficient ? (
+                <>
+                  <h3 className="mt-3 text-xl font-bold text-green-600">
+                    {mostEfficient.vehicleCode}
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-500">
+                    {formatNumber(
+                      mostEfficient.fuelEfficiency,
+                    )}{" "}
+                    km/L

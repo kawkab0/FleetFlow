@@ -1,0 +1,200 @@
+     */
+    const activeVehicles = vehicleData.filter(
+      (vehicle) =>
+        vehicle.status.toLowerCase() !==
+        "inactive",
+    );
+
+    const activeWithFuel = activeVehicles.filter(
+      (vehicle) => vehicle.fuelEfficiency > 0,
+    );
+
+    const averageRevenuePerKm =
+      activeVehicles.length > 0
+        ? activeVehicles.reduce(
+            (sum, vehicle) =>
+              sum + vehicle.revenuePerKm,
+            0,
+          ) / activeVehicles.length
+        : 0;
+
+    const averageCostPerKm =
+      activeVehicles.length > 0
+        ? activeVehicles.reduce(
+            (sum, vehicle) =>
+              sum + vehicle.costPerKm,
+            0,
+          ) / activeVehicles.length
+        : 0;
+
+    const averageFuelEfficiency =
+      activeWithFuel.length > 0
+        ? activeWithFuel.reduce(
+            (sum, vehicle) =>
+              sum + vehicle.fuelEfficiency,
+            0,
+          ) / activeWithFuel.length
+        : 0;
+
+    const averageMaintenanceCost =
+      activeVehicles.length > 0
+        ? activeVehicles.reduce(
+            (sum, vehicle) =>
+              sum + vehicle.maintenanceCost,
+            0,
+          ) / activeVehicles.length
+        : 0;
+
+    const averageMaintenanceEvents =
+      activeVehicles.length > 0
+        ? activeVehicles.reduce(
+            (sum, vehicle) =>
+              sum + vehicle.maintenanceEvents,
+            0,
+          ) / activeVehicles.length
+        : 0;
+
+    /*
+     * FLEET-LEVEL ALERTS
+     */
+
+    if (totalResult < 0) {
+      addAlert(
+        "Critical",
+        "Financial",
+        "Fleet operating result is negative",
+        `The fleet generated ${money(
+          totalRevenue,
+        )} in revenue against ${money(
+          totalCost,
+        )} in operating costs.`,
+        "Review vehicle profitability, route performance, fuel consumption, maintenance, and operating expenses.",
+      );
+    }
+
+    if (
+      totalRevenue > 0 &&
+      fleetMargin < 10
+    ) {
+      addAlert(
+        "High",
+        "Profitability",
+        "Fleet operating margin is below target",
+        `Current fleet operating margin is ${percent(
+          fleetMargin,
+        )}.`,
+        "Review low-margin vehicles and prioritize improvements in revenue per km and cost per km.",
+      );
+    }
+
+    if (
+      totalRevenue > 0 &&
+      fleetMargin >= 25
+    ) {
+      addAlert(
+        "Low",
+        "Profitability",
+        "Fleet profitability is strong",
+        `The fleet is currently operating at a ${percent(
+          fleetMargin,
+        )} margin.`,
+        "Continue monitoring the strongest vehicles and replicate their operating practices where possible.",
+      );
+    }
+
+    if (
+      totalDistance > 0 &&
+      operationalFuelEfficiency > 0 &&
+      operationalFuelEfficiency <
+        Math.max(
+          2.5,
+          averageFuelEfficiency * 0.75,
+        )
+    ) {
+      addAlert(
+        "High",
+        "Fuel Efficiency",
+        "Fleet fuel efficiency is significantly below benchmark",
+        `Operational fuel efficiency is ${operationalFuelEfficiency.toFixed(
+          2,
+        )} km/L.`,
+        "Investigate vehicle condition, driving behavior, idling, loads, and route efficiency.",
+      );
+    }
+
+    if (
+      totalDistance > 0 &&
+      fleetCostPerKm >
+        Math.max(
+          0,
+          averageCostPerKm * 1.25,
+        )
+    ) {
+      addAlert(
+        "High",
+        "Operating Cost",
+        "Fleet cost per km requires attention",
+        `Fleet operating cost is ${money(
+          fleetCostPerKm,
+        )} per km.`,
+        "Investigate vehicles with unusually high operating cost per km.",
+      );
+    }
+
+    if (
+      totalCost > 0 &&
+      totalFuelCost / totalCost >= 0.5
+    ) {
+      addAlert(
+        "High",
+        "Fuel Cost",
+        "Fuel is the dominant operating cost",
+        `Fuel represents ${percent(
+          (totalFuelCost / totalCost) * 100,
+        )} of recorded operating costs.`,
+        "Review fuel efficiency, high-consumption vehicles, routes, and fuel usage records.",
+      );
+    }
+
+    if (
+      totalDistance > 0 &&
+      totalFuelLiters === 0
+    ) {
+      addAlert(
+        "Medium",
+        "Data Quality",
+        "Fleet distance has no linked fuel purchase data",
+        "Completed-trip distance exists, but no fuel purchase records are linked to the fleet.",
+        "Verify fuel records and vehicle codes before relying heavily on fuel-cost analysis.",
+      );
+    }
+
+    if (
+      completedTrips.length === 0 &&
+      trips.length > 0
+    ) {
+      addAlert(
+        "Medium",
+        "Trip Status",
+        "No completed trips are available for analysis",
+        `${trips.length} trip records exist, but none are currently marked as completed.`,
+        "Review trip statuses so completed operations can be included in profitability and efficiency analysis.",
+      );
+    }
+
+    /*
+     * VEHICLE ALERTS
+     */
+    vehicleData.forEach((vehicle) => {
+      const {
+        code,
+        status,
+        trips: vehicleTripCount,
+        completedTrips: vehicleCompletedTripCount,
+        distance,
+        revenue,
+        fuelLiters,
+        fuelCost,
+        maintenanceCost,
+        maintenanceEvents,
+        totalVehicleCost,

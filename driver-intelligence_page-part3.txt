@@ -1,0 +1,200 @@
+        reasons.push("Strong completed-trip activity");
+      } else if (driver.completedTrips >= 2) {
+        score += 5;
+      } else if (driver.completedTrips === 0) {
+        score -= 10;
+        reasons.push("No completed trips recorded");
+      }
+
+      /*
+       * 3. Profitability
+       */
+      if (driver.profit > 0) {
+        score += 10;
+        reasons.push("Positive operating contribution");
+      } else if (
+        driver.revenue > 0 &&
+        driver.profit < 0
+      ) {
+        score -= 15;
+        reasons.push("Operating at a loss");
+      }
+
+      /*
+       * 4. Fuel efficiency relative to fleet.
+       */
+      if (
+        driver.fuelEfficiency > 0 &&
+        fleetAverageFuelEfficiency > 0
+      ) {
+        const fuelRatio =
+          driver.fuelEfficiency /
+          fleetAverageFuelEfficiency;
+
+        if (fuelRatio >= 1.1) {
+          score += 10;
+          reasons.push("Above-average fuel efficiency");
+        } else if (fuelRatio < 0.85) {
+          score -= 10;
+          reasons.push("Below-average fuel efficiency");
+        }
+      }
+
+      /*
+       * 5. Revenue productivity.
+       */
+      if (
+        driver.revenuePerKm > 0 &&
+        fleetAverageRevenuePerKm > 0
+      ) {
+        const revenueRatio =
+          driver.revenuePerKm /
+          fleetAverageRevenuePerKm;
+
+        if (revenueRatio >= 1.1) {
+          score += 8;
+          reasons.push("Above-average revenue per kilometer");
+        } else if (revenueRatio < 0.85) {
+          score -= 6;
+          reasons.push("Below-average revenue per kilometer");
+        }
+      }
+
+      /*
+       * 6. Cost efficiency.
+       */
+      if (
+        driver.costPerKm > 0 &&
+        fleetAverageCostPerKm > 0
+      ) {
+        const costRatio =
+          driver.costPerKm /
+          fleetAverageCostPerKm;
+
+        if (costRatio <= 0.85) {
+          score += 7;
+          reasons.push("Below-average operating cost per kilometer");
+        } else if (costRatio >= 1.15) {
+          score -= 8;
+          reasons.push("Above-average operating cost per kilometer");
+        }
+      }
+
+      /*
+       * 7. Account status.
+       */
+      if (driver.status.toLowerCase() === "inactive") {
+        score -= 5;
+        reasons.push("Driver is currently inactive");
+      }
+
+      driver.performanceScore = Math.max(
+        0,
+        Math.min(100, Math.round(score)),
+      );
+
+      if (driver.performanceScore >= 80) {
+        driver.performance = "Excellent";
+      } else if (driver.performanceScore >= 65) {
+        driver.performance = "Good";
+      } else if (driver.performanceScore >= 45) {
+        driver.performance = "Average";
+      } else {
+        driver.performance = "Needs Attention";
+      }
+
+      /*
+       * Risk classification.
+       */
+      if (
+        driver.performanceScore < 40 ||
+        (driver.profit < 0 &&
+          driver.completionRate < 50)
+      ) {
+        driver.risk = "Critical";
+      } else if (
+        driver.performanceScore < 55 ||
+        (driver.fuelEfficiency > 0 &&
+          fleetAverageFuelEfficiency > 0 &&
+          driver.fuelEfficiency <
+            fleetAverageFuelEfficiency * 0.8)
+      ) {
+        driver.risk = "High";
+      } else if (driver.performanceScore < 70) {
+        driver.risk = "Medium";
+      } else {
+        driver.risk = "Low";
+      }
+
+      /*
+       * Management recommendation.
+       */
+      if (driver.risk === "Critical") {
+        driver.recommendation =
+          "Review recent trips, completion issues, and operating costs before assigning additional high-value routes.";
+      } else if (
+        driver.fuelEfficiency > 0 &&
+        fleetAverageFuelEfficiency > 0 &&
+        driver.fuelEfficiency <
+          fleetAverageFuelEfficiency * 0.8
+      ) {
+        driver.recommendation =
+          "Investigate driving behavior, vehicle condition, route patterns, and fuel consumption.";
+      } else if (
+        driver.completionRate < 60 &&
+        driver.trips > 0
+      ) {
+        driver.recommendation =
+          "Review delayed or incomplete assignments and identify the operational causes.";
+      } else if (driver.profit < 0 && driver.revenue > 0) {
+        driver.recommendation =
+          "Review route profitability and driver-associated operating costs before increasing workload.";
+      } else if (
+        driver.revenuePerKm > 0 &&
+        fleetAverageRevenuePerKm > 0 &&
+        driver.revenuePerKm >
+          fleetAverageRevenuePerKm * 1.1
+      ) {
+        driver.recommendation =
+          "Strong commercial performance. Consider prioritizing this driver for revenue-sensitive assignments.";
+      } else {
+        driver.recommendation =
+          "Performance is stable. Continue monitoring productivity, efficiency, and profitability.";
+      }
+
+      driver.reasons = reasons;
+    });
+
+    return rawDrivers.sort(
+      (a, b) =>
+        b.performanceScore - a.performanceScore ||
+        b.revenue - a.revenue,
+    );
+  }, [drivers, trips, fuel, expenses]);
+
+  const summary = useMemo(() => {
+    const totalRevenue = analysis.reduce(
+      (sum, driver) => sum + driver.revenue,
+      0,
+    );
+
+    const totalCost = analysis.reduce(
+      (sum, driver) => sum + driver.totalCost,
+      0,
+    );
+
+    const totalDistance = analysis.reduce(
+      (sum, driver) => sum + driver.distance,
+      0,
+    );
+
+    const totalTripFuel = analysis.reduce(
+      (sum, driver) => sum + driver.tripFuelLiters,
+      0,
+    );
+
+    const totalPurchasedFuel = analysis.reduce(
+      (sum, driver) => sum + driver.fuelPurchaseLiters,
+      0,
+    );
+

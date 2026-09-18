@@ -218,14 +218,14 @@ export default function ProductsPage() {
 
   return (
     <ProtectedPage permission="products">
-      <main className="ml-64 min-h-screen bg-slate-50 p-6 lg:p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-6 lg:p-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-2xl">□</span>
 
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Products
               </h1>
             </div>
@@ -240,7 +240,7 @@ export default function ProductsPage() {
             type="button"
             onClick={() => fetchProducts(true)}
             disabled={refreshing}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className={refreshing ? "animate-spin" : ""}>
               ↻
@@ -281,14 +281,14 @@ export default function ProductsPage() {
 
         {/* KPI Cards */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
                   Total Products
                 </p>
 
-                <p className="mt-2 text-3xl font-bold text-slate-900">
+                <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                   {totalProducts}
                 </p>
               </div>
@@ -299,7 +299,7 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
@@ -317,14 +317,14 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
                   Inactive Products
                 </p>
 
-                <p className="mt-2 text-3xl font-bold text-slate-600">
+                <p className="mt-2 text-3xl font-bold text-slate-600 dark:text-slate-300">
                   {inactiveProducts}
                 </p>
               </div>
@@ -335,7 +335,7 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
@@ -355,11 +355,11 @@ export default function ProductsPage() {
         </div>
 
         {/* Product Form */}
-        <section className="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 bg-slate-50 px-6 py-5">
+        <section className="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
+          <div className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900 px-6 py-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                   {editingProduct
                     ? "Edit Product"
                     : "Add Product"}
@@ -385,7 +385,7 @@ export default function ProductsPage() {
             className="grid grid-cols-1 gap-5 p-6 md:grid-cols-2"
           >
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Product Name *
               </label>
 
@@ -400,12 +400,12 @@ export default function ProductsPage() {
                   })
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Price *
               </label>
 
@@ -427,13 +427,13 @@ export default function ProductsPage() {
                   required
                   min="0"
                   step="0.01"
-                  className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-8 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 py-2.5 pl-8 pr-4 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Stock *
               </label>
 
@@ -450,12 +450,12 @@ export default function ProductsPage() {
                 required
                 min="0"
                 step="1"
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Category
               </label>
 
@@ -469,12 +469,12 @@ export default function ProductsPage() {
                     category: e.target.value,
                   })
                 }
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Location
               </label>
 
@@ -488,12 +488,12 @@ export default function ProductsPage() {
                     location: e.target.value,
                   })
                 }
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Phone
               </label>
 
@@ -507,12 +507,12 @@ export default function ProductsPage() {
                     phone: e.target.value,
                   })
                 }
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Status
               </label>
 
@@ -524,7 +524,7 @@ export default function ProductsPage() {
                     status: e.target.value,
                   })
                 }
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
@@ -548,7 +548,7 @@ export default function ProductsPage() {
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-slate-900"
                 >
                   Cancel
                 </button>
@@ -558,7 +558,7 @@ export default function ProductsPage() {
         </section>
 
         {/* Search */}
-        <section className="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="mb-5 rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -585,10 +585,10 @@ export default function ProductsPage() {
 
         {/* Products Table */}
         {loading ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
 
-            <p className="text-sm font-medium text-slate-600">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
               Loading products...
             </p>
 
@@ -597,12 +597,12 @@ export default function ProductsPage() {
             </p>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl text-slate-400">
               □
             </div>
 
-            <h3 className="mt-4 text-lg font-semibold text-slate-900">
+            <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
               No products found
             </h3>
 
@@ -623,10 +623,10 @@ export default function ProductsPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
               <div>
-                <h2 className="font-semibold text-slate-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Product Catalog
                 </h2>
 
@@ -635,14 +635,14 @@ export default function ProductsPage() {
                 </p>
               </div>
 
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {filteredProducts.length} shown
               </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="border-b border-slate-200 bg-slate-50">
+                <thead className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900">
                   <tr>
                     <th className="whitespace-nowrap px-6 py-3.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Product
@@ -678,7 +678,7 @@ export default function ProductsPage() {
                   {filteredProducts.map((product) => (
                     <tr
                       key={product.id}
-                      className="transition hover:bg-slate-50"
+                      className="transition hover:bg-slate-50 dark:bg-slate-900"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -689,7 +689,7 @@ export default function ProductsPage() {
                           </div>
 
                           <div>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-slate-900 dark:text-white">
                               {product.name}
                             </p>
 
@@ -700,12 +700,12 @@ export default function ProductsPage() {
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 text-sm text-slate-600">
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                         {product.category || "—"}
                       </td>
 
                       <td className="px-6 py-4">
-                        <span className="text-sm font-semibold text-slate-900">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
                           ${Number(product.price).toFixed(2)}
                         </span>
                       </td>
@@ -714,7 +714,7 @@ export default function ProductsPage() {
                         <span
                           className={`text-sm font-semibold ${
                             Number(product.stock) > 0
-                              ? "text-slate-700"
+                              ? "text-slate-700 dark:text-slate-200"
                               : "text-red-600"
                           }`}
                         >
@@ -722,7 +722,7 @@ export default function ProductsPage() {
                         </span>
                       </td>
 
-                      <td className="max-w-xs px-6 py-4 text-sm text-slate-600">
+                      <td className="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                         {product.location || "—"}
                       </td>
 
@@ -733,7 +733,7 @@ export default function ProductsPage() {
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                             <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
                             Inactive
                           </span>
@@ -774,14 +774,14 @@ export default function ProductsPage() {
               </table>
             </div>
 
-            <div className="border-t border-slate-200 bg-slate-50 px-6 py-3">
+            <div className="border-t border-slate-200 bg-slate-50 dark:bg-slate-900 px-6 py-3">
               <p className="text-xs text-slate-500">
                 Showing{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   {filteredProducts.length}
                 </span>{" "}
                 of{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   {products.length}
                 </span>{" "}
                 products
@@ -793,4 +793,5 @@ export default function ProductsPage() {
     </ProtectedPage>
   );
 }
+
 

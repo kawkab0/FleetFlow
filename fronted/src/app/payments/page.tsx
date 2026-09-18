@@ -239,7 +239,7 @@ export default function PaymentsPage() {
 
   return (
     <ProtectedPage permission="payments">
-      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -249,7 +249,7 @@ export default function PaymentsPage() {
               </div>
 
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                   Payments
                 </h1>
 
@@ -264,7 +264,7 @@ export default function PaymentsPage() {
             type="button"
             onClick={fetchData}
             disabled={loading}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900 disabled:opacity-50"
           >
             ↻ Refresh
           </button>
@@ -301,12 +301,12 @@ export default function PaymentsPage() {
 
         {/* KPI Cards */}
         <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Total Payments
             </p>
 
-            <p className="mt-2 text-3xl font-bold text-slate-900">
+            <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
               {totalPayments}
             </p>
 
@@ -315,7 +315,7 @@ export default function PaymentsPage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Total Amount
             </p>
@@ -329,7 +329,7 @@ export default function PaymentsPage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Completed
             </p>
@@ -343,7 +343,7 @@ export default function PaymentsPage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Pending
             </p>
@@ -359,10 +359,10 @@ export default function PaymentsPage() {
         </div>
 
         {/* Form */}
-        <div className="mb-8 rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="mb-8 rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-slate-900">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                 {editingPayment
                   ? "Edit Payment"
                   : "Add Payment"}
@@ -388,7 +388,7 @@ export default function PaymentsPage() {
           >
             {/* Sales Order */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Sales Order
               </label>
 
@@ -401,7 +401,7 @@ export default function PaymentsPage() {
                   })
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">
                   Select sales order
@@ -420,7 +420,7 @@ export default function PaymentsPage() {
 
             {/* Amount */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Amount
               </label>
 
@@ -449,7 +449,7 @@ export default function PaymentsPage() {
 
             {/* Payment Date */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Payment Date
               </label>
 
@@ -472,7 +472,7 @@ export default function PaymentsPage() {
 
             {/* Status */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Status
               </label>
 
@@ -485,7 +485,7 @@ export default function PaymentsPage() {
                   })
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="Completed">
                   Completed
@@ -507,7 +507,7 @@ export default function PaymentsPage() {
 
             {/* Payment Method */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Payment Method
               </label>
 
@@ -520,7 +520,7 @@ export default function PaymentsPage() {
                   })
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="Cash">
                   Cash
@@ -546,7 +546,7 @@ export default function PaymentsPage() {
 
             {/* Reference */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Reference Number
               </label>
 
@@ -567,7 +567,7 @@ export default function PaymentsPage() {
 
             {/* Notes */}
             <div className="md:col-span-2">
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Notes
               </label>
 
@@ -602,7 +602,7 @@ export default function PaymentsPage() {
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="rounded-lg border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="rounded-lg border border-slate-300 px-5 py-3 font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-slate-900"
               >
                 Cancel
               </button>
@@ -611,7 +611,7 @@ export default function PaymentsPage() {
         </div>
 
         {/* Search */}
-        <div className="mb-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+        <div className="mb-4 rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="relative flex-1">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
@@ -631,11 +631,11 @@ export default function PaymentsPage() {
 
             <div className="text-sm text-slate-500">
               Showing{" "}
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-slate-900 dark:text-white">
                 {filteredPayments.length}
               </span>{" "}
               of{" "}
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-slate-900 dark:text-white">
                 {totalPayments}
               </span>{" "}
               records
@@ -645,7 +645,7 @@ export default function PaymentsPage() {
 
         {/* Table */}
         {loading ? (
-          <div className="rounded-xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
 
             <p className="text-sm text-slate-500">
@@ -653,12 +653,12 @@ export default function PaymentsPage() {
             </p>
           </div>
         ) : filteredPayments.length === 0 ? (
-          <div className="rounded-xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-xl font-bold text-emerald-600">
               $
             </div>
 
-            <h3 className="font-semibold text-slate-900">
+            <h3 className="font-semibold text-slate-900 dark:text-white">
               No payments found
             </h3>
 
@@ -679,10 +679,10 @@ export default function PaymentsPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-100 bg-white dark:bg-slate-800 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
               <div>
-                <h2 className="font-semibold text-slate-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Payment Transactions
                 </h2>
 
@@ -694,7 +694,7 @@ export default function PaymentsPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50">
+                <thead className="bg-slate-50 dark:bg-slate-900">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Reference
@@ -743,7 +743,7 @@ export default function PaymentsPage() {
                     return (
                       <tr
                         key={payment.id}
-                        className="border-t border-slate-100 transition hover:bg-slate-50"
+                        className="border-t border-slate-100 transition hover:bg-slate-50 dark:bg-slate-900"
                       >
                         {/* Reference */}
                         <td className="px-6 py-4">
@@ -753,7 +753,7 @@ export default function PaymentsPage() {
                             </div>
 
                             <div>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-semibold text-slate-900 dark:text-white">
                                 {payment.referenceNumber}
                               </p>
 
@@ -766,7 +766,7 @@ export default function PaymentsPage() {
 
                         {/* Sales Order */}
                         <td className="px-6 py-4">
-                          <p className="font-semibold text-slate-900">
+                          <p className="font-semibold text-slate-900 dark:text-white">
                             {getOrderNumber(
                               payment.salesOrderId,
                             )}
@@ -779,7 +779,7 @@ export default function PaymentsPage() {
 
                         {/* Amount */}
                         <td className="px-6 py-4">
-                          <span className="font-bold text-slate-900">
+                          <span className="font-bold text-slate-900 dark:text-white">
                             $
                             {Number(
                               payment.amount,
@@ -788,13 +788,13 @@ export default function PaymentsPage() {
                         </td>
 
                         {/* Date */}
-                        <td className="px-6 py-4 text-sm text-slate-600">
+                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                           {payment.paymentDate}
                         </td>
 
                         {/* Method */}
                         <td className="px-6 py-4">
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                             {payment.paymentMethod}
                           </span>
                         </td>
@@ -851,4 +851,5 @@ export default function PaymentsPage() {
     </ProtectedPage>
   );
 }
+
 

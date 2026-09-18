@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
@@ -272,7 +272,7 @@ export default function UsersPage() {
 
   return (
     <ProtectedPage permission="users">
-      <main className="min-h-screen bg-slate-950 p-6 text-white">
+      <main className="min-h-screen bg-white p-6 text-white">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
           <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
@@ -308,7 +308,7 @@ export default function UsersPage() {
 
           {/* Stats */}
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+            <div className="rounded-xl border border-slate-800 bg-white p-5">
               <p className="text-sm text-slate-400">
                 Total Users
               </p>
@@ -317,7 +317,7 @@ export default function UsersPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+            <div className="rounded-xl border border-slate-800 bg-white p-5">
               <p className="text-sm text-slate-400">
                 Active Users
               </p>
@@ -326,7 +326,7 @@ export default function UsersPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+            <div className="rounded-xl border border-slate-800 bg-white p-5">
               <p className="text-sm text-slate-400">
                 Inactive Users
               </p>
@@ -335,7 +335,7 @@ export default function UsersPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+            <div className="rounded-xl border border-slate-800 bg-white p-5">
               <p className="text-sm text-slate-400">
                 Administrators
               </p>
@@ -346,7 +346,7 @@ export default function UsersPage() {
           </div>
 
           {/* Filters */}
-          <div className="mb-5 rounded-xl border border-slate-800 bg-slate-900 p-4">
+          <div className="mb-5 rounded-xl border border-slate-800 bg-white p-4">
             <div className="grid grid-cols-1 gap-3 md:sm:grid-cols-2 lg:sm:grid-cols-2 lg:grid-cols-3">
               <input
                 value={search}
@@ -354,7 +354,7 @@ export default function UsersPage() {
                   setSearch(event.target.value)
                 }
                 placeholder="Search by name or email..."
-                className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-500"
+                className="rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-500"
               />
 
               <select
@@ -362,7 +362,7 @@ export default function UsersPage() {
                 onChange={(event) =>
                   setRoleFilter(event.target.value)
                 }
-                className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                className="rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
               >
                 <option value="All">All Roles</option>
 
@@ -378,7 +378,7 @@ export default function UsersPage() {
                 onChange={(event) =>
                   setStatusFilter(event.target.value)
                 }
-                className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                className="rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
               >
                 <option value="All">All Statuses</option>
                 <option value="Active">Active</option>
@@ -388,7 +388,7 @@ export default function UsersPage() {
           </div>
 
           {/* Users Table */}
-          <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+          <div className="overflow-hidden rounded-xl border border-slate-800 bg-white">
             {loading ? (
               <div className="p-10 text-center text-slate-400">
                 Loading users...
@@ -400,7 +400,7 @@ export default function UsersPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[900px]">
-                  <thead className="border-b border-slate-800 bg-slate-950/60">
+                  <thead className="border-b border-slate-800 bg-white/60">
                     <tr>
                       <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">
                         User
@@ -428,7 +428,7 @@ export default function UsersPage() {
                     {filteredUsers.map((user) => (
                       <tr
                         key={user.id}
-                        className="transition hover:bg-slate-800/40"
+                        className="transition hover:bg-white/40"
                       >
                         <td className="px-5 py-4">
                           <div>
@@ -472,7 +472,7 @@ export default function UsersPage() {
                               onClick={() =>
                                 openEditModal(user)
                               }
-                              className="rounded-md border border-slate-700 px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800"
+                              className="rounded-md border border-slate-700 px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-white"
                             >
                               Edit
                             </button>
@@ -481,7 +481,7 @@ export default function UsersPage() {
                               onClick={() =>
                                 openPasswordModal(user)
                               }
-                              className="rounded-md border border-slate-700 px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800"
+                              className="rounded-md border border-slate-700 px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-white"
                             >
                               Password
                             </button>
@@ -527,7 +527,7 @@ export default function UsersPage() {
         {/* Create / Edit Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-white p-6 shadow-2xl">
               <div className="mb-6">
                 <h2 className="text-xl font-bold">
                   {editingUser
@@ -561,7 +561,7 @@ export default function UsersPage() {
                         name: event.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -580,7 +580,7 @@ export default function UsersPage() {
                         email: event.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -602,7 +602,7 @@ export default function UsersPage() {
                         })
                       }
                       placeholder="Minimum 8 characters"
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                      className="w-full rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
                     />
                   </div>
                 )}
@@ -620,7 +620,7 @@ export default function UsersPage() {
                         role: event.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
                   >
                     {roles.map((role) => (
                       <option key={role} value={role}>
@@ -635,7 +635,7 @@ export default function UsersPage() {
                     type="button"
                     onClick={closeModal}
                     disabled={saving}
-                    className="rounded-lg border border-slate-700 px-5 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800"
+                    className="rounded-lg border border-slate-700 px-5 py-3 text-sm font-medium text-slate-300 hover:bg-white"
                   >
                     Cancel
                   </button>
@@ -660,7 +660,7 @@ export default function UsersPage() {
         {/* Password Modal */}
         {showPasswordModal && passwordUser && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-            <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+            <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-white p-6 shadow-2xl">
               <div className="mb-6">
                 <h2 className="text-xl font-bold">
                   Change Password
@@ -689,7 +689,7 @@ export default function UsersPage() {
                       setNewPassword(event.target.value)
                     }
                     placeholder="Minimum 8 characters"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-slate-700 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -703,7 +703,7 @@ export default function UsersPage() {
                       }
                     }}
                     disabled={saving}
-                    className="rounded-lg border border-slate-700 px-5 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800"
+                    className="rounded-lg border border-slate-700 px-5 py-3 text-sm font-medium text-slate-300 hover:bg-white"
                   >
                     Cancel
                   </button>
@@ -726,6 +726,7 @@ export default function UsersPage() {
     </ProtectedPage>
   );
 }
+
 
 
 

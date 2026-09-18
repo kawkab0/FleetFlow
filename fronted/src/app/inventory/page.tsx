@@ -251,14 +251,14 @@ export default function InventoryPage() {
 
   return (
     <ProtectedPage permission="inventory">
-      <main className="ml-64 min-h-screen bg-slate-50 p-6 lg:p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-6 lg:p-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-2xl">▥</span>
 
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Inventory
               </h1>
             </div>
@@ -273,7 +273,7 @@ export default function InventoryPage() {
             type="button"
             onClick={() => fetchData(true)}
             disabled={refreshing}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className={refreshing ? "animate-spin" : ""}>
               ↻
@@ -314,14 +314,14 @@ export default function InventoryPage() {
 
         {/* KPI Cards */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
                   Inventory Records
                 </p>
 
-                <p className="mt-2 text-3xl font-bold text-slate-900">
+                <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                   {totalRecords}
                 </p>
               </div>
@@ -332,7 +332,7 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
@@ -350,7 +350,7 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
@@ -368,7 +368,7 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
@@ -388,11 +388,11 @@ export default function InventoryPage() {
         </div>
 
         {/* Inventory Form */}
-        <section className="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 bg-slate-50 px-6 py-5">
+        <section className="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
+          <div className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900 px-6 py-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                   {editingInventory
                     ? "Edit Inventory"
                     : "Add Inventory"}
@@ -418,7 +418,7 @@ export default function InventoryPage() {
             className="grid grid-cols-1 gap-5 p-6 md:grid-cols-2"
           >
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Product *
               </label>
 
@@ -431,7 +431,7 @@ export default function InventoryPage() {
                   })
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">Select product</option>
 
@@ -447,7 +447,7 @@ export default function InventoryPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Warehouse *
               </label>
 
@@ -460,7 +460,7 @@ export default function InventoryPage() {
                   })
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">Select warehouse</option>
 
@@ -476,7 +476,7 @@ export default function InventoryPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Quantity *
               </label>
 
@@ -492,12 +492,12 @@ export default function InventoryPage() {
                 }
                 required
                 min="0"
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Reorder Level *
               </label>
 
@@ -513,7 +513,7 @@ export default function InventoryPage() {
                 }
                 required
                 min="0"
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
@@ -534,7 +534,7 @@ export default function InventoryPage() {
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-6 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-slate-900"
                 >
                   Cancel
                 </button>
@@ -544,7 +544,7 @@ export default function InventoryPage() {
         </section>
 
         {/* Search */}
-        <section className="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="mb-5 rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -571,10 +571,10 @@ export default function InventoryPage() {
 
         {/* Inventory Table */}
         {loading ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
 
-            <p className="text-sm font-medium text-slate-600">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
               Loading inventory...
             </p>
 
@@ -583,12 +583,12 @@ export default function InventoryPage() {
             </p>
           </div>
         ) : filteredInventory.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl text-slate-400">
               ▥
             </div>
 
-            <h3 className="mt-4 text-lg font-semibold text-slate-900">
+            <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
               No inventory records found
             </h3>
 
@@ -609,10 +609,10 @@ export default function InventoryPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
               <div>
-                <h2 className="font-semibold text-slate-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Inventory Overview
                 </h2>
 
@@ -621,14 +621,14 @@ export default function InventoryPage() {
                 </p>
               </div>
 
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {filteredInventory.length} shown
               </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="border-b border-slate-200 bg-slate-50">
+                <thead className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900">
                   <tr>
                     <th className="whitespace-nowrap px-6 py-3.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Product
@@ -681,7 +681,7 @@ export default function InventoryPage() {
                     return (
                       <tr
                         key={item.id}
-                        className="transition hover:bg-slate-50"
+                        className="transition hover:bg-slate-50 dark:bg-slate-900"
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -692,7 +692,7 @@ export default function InventoryPage() {
                             </div>
 
                             <div>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-semibold text-slate-900 dark:text-white">
                                 {productName}
                               </p>
 
@@ -704,7 +704,7 @@ export default function InventoryPage() {
                         </td>
 
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-slate-700">
+                          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                             {warehouseName}
                           </p>
 
@@ -718,14 +718,14 @@ export default function InventoryPage() {
                             className={`text-sm font-bold ${
                               isLowStock
                                 ? "text-red-600"
-                                : "text-slate-900"
+                                : "text-slate-900 dark:text-white"
                             }`}
                           >
                             {quantity}
                           </span>
                         </td>
 
-                        <td className="px-6 py-4 text-sm text-slate-600">
+                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                           {reorderLevel}
                         </td>
 
@@ -778,14 +778,14 @@ export default function InventoryPage() {
               </table>
             </div>
 
-            <div className="border-t border-slate-200 bg-slate-50 px-6 py-3">
+            <div className="border-t border-slate-200 bg-slate-50 dark:bg-slate-900 px-6 py-3">
               <p className="text-xs text-slate-500">
                 Showing{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   {filteredInventory.length}
                 </span>{" "}
                 of{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   {inventory.length}
                 </span>{" "}
                 inventory records
@@ -797,4 +797,5 @@ export default function InventoryPage() {
     </ProtectedPage>
   );
 }
+
 

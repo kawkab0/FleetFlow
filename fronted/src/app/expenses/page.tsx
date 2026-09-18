@@ -210,7 +210,7 @@ export default function ExpensesPage() {
 
   return (
     <ProtectedPage permission="expenses">
-      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
         <div className="mx-auto max-w-7xl">
 
           {/* HEADER */}
@@ -223,7 +223,7 @@ export default function ExpensesPage() {
                 </p>
               </div>
 
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Expenses
               </h1>
 
@@ -238,7 +238,7 @@ export default function ExpensesPage() {
                 type="button"
                 onClick={() => fetchExpenses(false)}
                 disabled={refreshing}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <svg
                   className={`h-4 w-4 ${
@@ -313,15 +313,15 @@ export default function ExpensesPage() {
 
           {/* ADD EXPENSE FORM */}
           {showForm && (
-            <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
+            <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
+              <div className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900/70 px-6 py-5">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                     $
                   </div>
 
                   <div>
-                    <h2 className="font-semibold text-slate-900">
+                    <h2 className="font-semibold text-slate-900 dark:text-white">
                       Add Expense
                     </h2>
 
@@ -338,7 +338,7 @@ export default function ExpensesPage() {
               >
                 {/* EXPENSE CODE */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Expense Code
                   </label>
 
@@ -353,13 +353,13 @@ export default function ExpensesPage() {
                       })
                     }
                     required
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* VEHICLE CODE */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Vehicle Code
                   </label>
 
@@ -374,13 +374,13 @@ export default function ExpensesPage() {
                       })
                     }
                     required
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* DRIVER CODE */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Driver Code
                   </label>
 
@@ -395,13 +395,13 @@ export default function ExpensesPage() {
                       })
                     }
                     required
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* DATE */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Expense Date
                   </label>
 
@@ -418,13 +418,13 @@ export default function ExpensesPage() {
                     pattern="\d{4}-\d{2}-\d{2}"
                     maxLength={10}
                     required
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* CATEGORY */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Category
                   </label>
 
@@ -436,7 +436,7 @@ export default function ExpensesPage() {
                         category: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="Fuel">Fuel</option>
                     <option value="Toll">Toll</option>
@@ -452,7 +452,7 @@ export default function ExpensesPage() {
 
                 {/* DESCRIPTION */}
                 <div className="sm:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Description
                   </label>
 
@@ -467,13 +467,13 @@ export default function ExpensesPage() {
                       })
                     }
                     required
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* AMOUNT */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Amount
                   </label>
 
@@ -490,13 +490,13 @@ export default function ExpensesPage() {
                     min="0"
                     step="0.01"
                     required
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* VENDOR */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Vendor
                   </label>
 
@@ -511,13 +511,13 @@ export default function ExpensesPage() {
                       })
                     }
                     required
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* PAYMENT METHOD */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Payment Method
                   </label>
 
@@ -529,7 +529,7 @@ export default function ExpensesPage() {
                         paymentMethod: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="Cash">Cash</option>
                     <option value="Bank Transfer">
@@ -544,7 +544,7 @@ export default function ExpensesPage() {
 
                 {/* STATUS */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Status
                   </label>
 
@@ -556,7 +556,7 @@ export default function ExpensesPage() {
                         status: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="Paid">Paid</option>
                     <option value="Pending">Pending</option>
@@ -566,7 +566,7 @@ export default function ExpensesPage() {
 
                 {/* NOTES */}
                 <div className="sm:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Notes
                   </label>
 
@@ -580,7 +580,7 @@ export default function ExpensesPage() {
                         notes: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
@@ -605,14 +605,14 @@ export default function ExpensesPage() {
           {/* KPI CARDS */}
           <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
                     Total Expenses
                   </p>
 
-                  <p className="mt-2 text-3xl font-bold text-slate-900">
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                     {expenses.length}
                   </p>
 
@@ -621,13 +621,13 @@ export default function ExpensesPage() {
                   </p>
                 </div>
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:text-slate-300">
                   #
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -649,7 +649,7 @@ export default function ExpensesPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -671,7 +671,7 @@ export default function ExpensesPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -696,13 +696,13 @@ export default function ExpensesPage() {
           </div>
 
           {/* EXPENSE REGISTRY */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
 
             <div className="border-b border-slate-200 px-6 py-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
                 <div>
-                  <h2 className="font-semibold text-slate-900">
+                  <h2 className="font-semibold text-slate-900 dark:text-white">
                     Expense Registry
                   </h2>
 
@@ -734,7 +734,7 @@ export default function ExpensesPage() {
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search expenses..."
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-200 bg-slate-50 dark:bg-slate-900 py-2.5 pl-9 pr-4 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
@@ -742,7 +742,7 @@ export default function ExpensesPage() {
                     <button
                       type="button"
                       onClick={() => setSearch("")}
-                      className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                      className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900"
                     >
                       Clear
                     </button>
@@ -753,7 +753,7 @@ export default function ExpensesPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1250px] text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-slate-50 dark:bg-slate-900 text-xs uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-6 py-4 font-semibold">
                       Expense ID
@@ -808,7 +808,7 @@ export default function ExpensesPage() {
                         <div className="flex flex-col items-center">
                           <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
 
-                          <p className="mt-4 text-sm font-medium text-slate-600">
+                          <p className="mt-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                             Loading expenses...
                           </p>
 
@@ -845,7 +845,7 @@ export default function ExpensesPage() {
                             <button
                               type="button"
                               onClick={() => setSearch("")}
-                              className="mt-4 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                              className="mt-4 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-slate-900"
                             >
                               Clear Search
                             </button>
@@ -865,10 +865,10 @@ export default function ExpensesPage() {
                     filteredExpenses.map((expense) => (
                       <tr
                         key={expense.id}
-                        className="transition hover:bg-slate-50"
+                        className="transition hover:bg-slate-50 dark:bg-slate-900"
                       >
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-slate-900">
+                          <div className="font-semibold text-slate-900 dark:text-white">
                             {expense.expenseCode}
                           </div>
 
@@ -877,25 +877,25 @@ export default function ExpensesPage() {
                           </div>
                         </td>
 
-                        <td className="px-6 py-4 font-medium text-slate-700">
+                        <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-200">
                           {expense.vehicleCode}
                         </td>
 
-                        <td className="px-6 py-4 text-slate-600">
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                           {expense.driverCode}
                         </td>
 
-                        <td className="px-6 py-4 whitespace-nowrap text-slate-600">
+                        <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
                           {formatDate(expense.expenseDate)}
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200">
                             {expense.category}
                           </span>
                         </td>
 
-                        <td className="max-w-[240px] px-6 py-4 text-slate-600">
+                        <td className="max-w-[240px] px-6 py-4 text-slate-600 dark:text-slate-300">
                           <div
                             className="truncate"
                             title={expense.description}
@@ -904,15 +904,15 @@ export default function ExpensesPage() {
                           </div>
                         </td>
 
-                        <td className="px-6 py-4 font-semibold text-slate-900">
+                        <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
                           {formatNumber(expense.amount)}
                         </td>
 
-                        <td className="px-6 py-4 text-slate-600">
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                           {expense.vendor}
                         </td>
 
-                        <td className="px-6 py-4 text-slate-600">
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                           {expense.paymentMethod}
                         </td>
 
@@ -939,4 +939,5 @@ export default function ExpensesPage() {
     </ProtectedPage>
   );
 }
+
 

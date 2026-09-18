@@ -268,7 +268,7 @@ export default function PurchaseDetailsPage() {
 
   return (
     <ProtectedPage permission="purchases">
-      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -278,7 +278,7 @@ export default function PurchaseDetailsPage() {
               </div>
 
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                   Purchase Details
                 </h1>
 
@@ -293,7 +293,7 @@ export default function PurchaseDetailsPage() {
             type="button"
             onClick={fetchData}
             disabled={loading}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-lg border border-slate-200 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900 disabled:opacity-50"
           >
             ↻ Refresh
           </button>
@@ -330,12 +330,12 @@ export default function PurchaseDetailsPage() {
 
         {/* KPI Cards */}
         <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Total Line Items
             </p>
 
-            <p className="mt-2 text-3xl font-bold text-slate-900">
+            <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
               {totalDetails}
             </p>
 
@@ -344,7 +344,7 @@ export default function PurchaseDetailsPage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Total Quantity
             </p>
@@ -358,7 +358,7 @@ export default function PurchaseDetailsPage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Total Value
             </p>
@@ -372,7 +372,7 @@ export default function PurchaseDetailsPage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-500">
               Average Line Value
             </p>
@@ -388,10 +388,10 @@ export default function PurchaseDetailsPage() {
         </div>
 
         {/* Form */}
-        <div className="mb-8 rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="mb-8 rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-slate-900">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                 {editingDetail
                   ? "Edit Purchase Detail"
                   : "Add Purchase Detail"}
@@ -417,7 +417,7 @@ export default function PurchaseDetailsPage() {
           >
             {/* Purchase */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Purchase
               </label>
 
@@ -430,7 +430,7 @@ export default function PurchaseDetailsPage() {
                   })
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">
                   Select purchase
@@ -449,7 +449,7 @@ export default function PurchaseDetailsPage() {
 
             {/* Product */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Product
               </label>
 
@@ -459,7 +459,7 @@ export default function PurchaseDetailsPage() {
                   handleProductChange(e.target.value)
                 }
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">
                   Select product
@@ -478,7 +478,7 @@ export default function PurchaseDetailsPage() {
 
             {/* Quantity */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Quantity
               </label>
 
@@ -501,7 +501,7 @@ export default function PurchaseDetailsPage() {
 
             {/* Unit Price */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Unit Price
               </label>
 
@@ -562,7 +562,7 @@ export default function PurchaseDetailsPage() {
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="rounded-lg border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="rounded-lg border border-slate-300 px-5 py-3 font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-slate-900"
               >
                 Cancel
               </button>
@@ -571,7 +571,7 @@ export default function PurchaseDetailsPage() {
         </div>
 
         {/* Search */}
-        <div className="mb-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+        <div className="mb-4 rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="relative flex-1">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
@@ -591,11 +591,11 @@ export default function PurchaseDetailsPage() {
 
             <div className="text-sm text-slate-500">
               Showing{" "}
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-slate-900 dark:text-white">
                 {filteredDetails.length}
               </span>{" "}
               of{" "}
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-slate-900 dark:text-white">
                 {totalDetails}
               </span>{" "}
               records
@@ -605,7 +605,7 @@ export default function PurchaseDetailsPage() {
 
         {/* Table */}
         {loading ? (
-          <div className="rounded-xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
 
             <p className="text-sm text-slate-500">
@@ -613,12 +613,12 @@ export default function PurchaseDetailsPage() {
             </p>
           </div>
         ) : filteredDetails.length === 0 ? (
-          <div className="rounded-xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-100 bg-white dark:bg-slate-800 p-12 text-center shadow-sm">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-xl text-slate-400">
               PO
             </div>
 
-            <h3 className="font-semibold text-slate-900">
+            <h3 className="font-semibold text-slate-900 dark:text-white">
               No purchase details found
             </h3>
 
@@ -639,10 +639,10 @@ export default function PurchaseDetailsPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-100 bg-white dark:bg-slate-800 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
               <div>
-                <h2 className="font-semibold text-slate-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Purchase Line Items
                 </h2>
 
@@ -654,7 +654,7 @@ export default function PurchaseDetailsPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50">
+                <thead className="bg-slate-50 dark:bg-slate-900">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Purchase
@@ -686,7 +686,7 @@ export default function PurchaseDetailsPage() {
                   {filteredDetails.map((detail) => (
                     <tr
                       key={detail.id}
-                      className="border-t border-slate-100 transition hover:bg-slate-50"
+                      className="border-t border-slate-100 transition hover:bg-slate-50 dark:bg-slate-900"
                     >
                       {/* Purchase */}
                       <td className="px-6 py-4">
@@ -696,7 +696,7 @@ export default function PurchaseDetailsPage() {
                           </div>
 
                           <div>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-slate-900 dark:text-white">
                               {getPurchaseReference(
                                 detail.purchaseId,
                               )}
@@ -721,7 +721,7 @@ export default function PurchaseDetailsPage() {
                           </div>
 
                           <div>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-slate-900 dark:text-white">
                               {getProductName(
                                 detail.productId,
                               )}
@@ -736,7 +736,7 @@ export default function PurchaseDetailsPage() {
 
                       {/* Quantity */}
                       <td className="px-6 py-4">
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           {detail.quantity}
                         </span>
                         <span className="ml-1 text-xs text-slate-400">
@@ -745,7 +745,7 @@ export default function PurchaseDetailsPage() {
                       </td>
 
                       {/* Unit Price */}
-                      <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                      <td className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                         $
                         {Number(
                           detail.unitPrice,
@@ -754,7 +754,7 @@ export default function PurchaseDetailsPage() {
 
                       {/* Total */}
                       <td className="px-6 py-4">
-                        <span className="font-bold text-slate-900">
+                        <span className="font-bold text-slate-900 dark:text-white">
                           $
                           {Number(
                             detail.totalPrice,
@@ -802,4 +802,5 @@ export default function PurchaseDetailsPage() {
     </ProtectedPage>
   );
 }
+
 

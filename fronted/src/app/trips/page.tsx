@@ -309,25 +309,25 @@ export default function TripsPage() {
   const getStatusClasses = (status: string) => {
     switch (status) {
       case "Completed":
-        return "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200";
+        return "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 ring-1 ring-inset ring-emerald-200";
 
       case "In Progress":
-        return "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200";
+        return "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 ring-1 ring-inset ring-blue-200";
 
       case "Cancelled":
-        return "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200";
+        return "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 ring-1 ring-inset ring-red-200";
 
       case "Scheduled":
-        return "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200";
+        return "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 ring-1 ring-inset ring-amber-200";
 
       default:
-        return "bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200";
+        return "bg-slate-100 text-slate-700 dark:text-slate-200 ring-1 ring-inset ring-slate-200";
     }
   };
 
   return (
     <ProtectedPage permission="trips">
-      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
         <div className="mx-auto max-w-7xl">
 
           {/* HEADER */}
@@ -340,7 +340,7 @@ export default function TripsPage() {
                 </p>
               </div>
 
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Trips
               </h1>
 
@@ -354,7 +354,7 @@ export default function TripsPage() {
                 type="button"
                 onClick={() => fetchTrips(true)}
                 disabled={refreshing}
-                className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {refreshing ? "Refreshing..." : "Refresh"}
               </button>
@@ -400,25 +400,25 @@ export default function TripsPage() {
 
           {/* KPI CARDS */}
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Total Trips
                   </p>
 
-                  <p className="mt-2 text-3xl font-bold text-slate-900">
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                     {trips.length}
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-slate-100 px-3 py-2 text-lg">
+                <div className="rounded-lg bg-slate-100 dark:bg-slate-700 px-3 py-2 text-lg">
                   🚚
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -430,13 +430,13 @@ export default function TripsPage() {
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-blue-50 px-3 py-2 text-lg">
+                <div className="rounded-lg bg-blue-50 dark:bg-blue-950 px-3 py-2 text-lg">
                   ↗
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -448,13 +448,13 @@ export default function TripsPage() {
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-amber-50 px-3 py-2 text-lg">
+                <div className="rounded-lg bg-amber-50 dark:bg-amber-950 px-3 py-2 text-lg">
                   ◷
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -466,7 +466,7 @@ export default function TripsPage() {
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-emerald-50 px-3 py-2 text-lg">
+                <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950 px-3 py-2 text-lg">
                   ✓
                 </div>
               </div>
@@ -475,12 +475,12 @@ export default function TripsPage() {
 
           {/* SECONDARY METRICS */}
           <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Total Distance
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                 {totalDistance.toLocaleString()}{" "}
                 <span className="text-sm font-medium text-slate-400">
                   km
@@ -488,7 +488,7 @@ export default function TripsPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Total Revenue
               </p>
@@ -504,10 +504,10 @@ export default function TripsPage() {
 
           {/* FORM */}
           {showForm && (
-            <div className="mb-8 rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="mb-8 rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     {editingTripId !== null
                       ? "Edit Trip"
                       : "Create New Trip"}
@@ -521,7 +521,7 @@ export default function TripsPage() {
                 </div>
 
                 {editingTripId !== null && (
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                  <span className="rounded-full bg-blue-50 dark:bg-blue-950 px-3 py-1 text-xs font-semibold text-blue-700">
                     Editing Trip #{editingTripId}
                   </span>
                 )}
@@ -535,7 +535,7 @@ export default function TripsPage() {
 
                   {/* TRIP CODE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Trip Code
                     </label>
 
@@ -550,13 +550,13 @@ export default function TripsPage() {
                         )
                       }
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* ORIGIN */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Origin
                     </label>
 
@@ -571,13 +571,13 @@ export default function TripsPage() {
                         )
                       }
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* DESTINATION */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Destination
                     </label>
 
@@ -592,13 +592,13 @@ export default function TripsPage() {
                         )
                       }
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* VEHICLE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Vehicle Code
                     </label>
 
@@ -613,13 +613,13 @@ export default function TripsPage() {
                         )
                       }
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* DRIVER */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Driver Code
                     </label>
 
@@ -634,13 +634,13 @@ export default function TripsPage() {
                         )
                       }
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* DATE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Trip Date
                     </label>
 
@@ -657,7 +657,7 @@ export default function TripsPage() {
                       pattern="\d{4}-\d{2}-\d{2}"
                       maxLength={10}
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
 
                     <p className="mt-1 text-xs text-slate-400">
@@ -667,7 +667,7 @@ export default function TripsPage() {
 
                   {/* DISTANCE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Distance (km)
                     </label>
 
@@ -684,13 +684,13 @@ export default function TripsPage() {
                       min="0"
                       step="0.01"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* FUEL */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Fuel Used (L)
                     </label>
 
@@ -706,13 +706,13 @@ export default function TripsPage() {
                       }
                       min="0"
                       step="0.01"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* REVENUE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Revenue
                     </label>
 
@@ -728,13 +728,13 @@ export default function TripsPage() {
                       }
                       min="0"
                       step="0.01"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* CARGO */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Cargo
                     </label>
 
@@ -748,13 +748,13 @@ export default function TripsPage() {
                           e.target.value,
                         )
                       }
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* STATUS */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Status
                     </label>
 
@@ -766,7 +766,7 @@ export default function TripsPage() {
                           e.target.value,
                         )
                       }
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     >
                       <option value="Planned">
                         Planned
@@ -792,7 +792,7 @@ export default function TripsPage() {
 
                   {/* NOTES */}
                   <div className="md:col-span-2 lg:col-span-2">
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Notes
                     </label>
 
@@ -806,13 +806,13 @@ export default function TripsPage() {
                         )
                       }
                       rows={3}
-                      className="w-full resize-none rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full resize-none rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
                 </div>
 
                 {/* FORM ACTIONS */}
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-100 pt-5">
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-100 dark:border-slate-700 dark:border-slate-700 pt-5">
                   <button
                     type="submit"
                     disabled={saving}
@@ -829,7 +829,7 @@ export default function TripsPage() {
                     type="button"
                     onClick={handleCancel}
                     disabled={saving}
-                    className="rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+                    className="rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60"
                   >
                     Cancel
                   </button>
@@ -839,10 +839,10 @@ export default function TripsPage() {
           )}
 
           {/* SEARCH / REGISTRY HEADER */}
-          <div className="mb-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="mb-4 rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
             <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="font-semibold text-slate-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Trip Registry
                 </h2>
 
@@ -862,14 +862,14 @@ export default function TripsPage() {
                     onChange={(e) =>
                       setSearch(e.target.value)
                     }
-                    className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 pr-10 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-3 pr-10 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
 
                   {search && (
                     <button
                       type="button"
                       onClick={() => setSearch("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-slate-400 hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-slate-400 hover:text-slate-700 dark:text-slate-200"
                     >
                       ×
                     </button>
@@ -880,10 +880,10 @@ export default function TripsPage() {
           </div>
 
           {/* TABLE */}
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1200px] text-left text-sm">
-                <thead className="border-b border-slate-200 bg-slate-50">
+                <thead className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900">
                   <tr>
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Trip
@@ -923,7 +923,7 @@ export default function TripsPage() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                   {loading ? (
                     <tr>
                       <td
@@ -950,7 +950,7 @@ export default function TripsPage() {
                             🚚
                           </div>
 
-                          <h3 className="mt-4 font-semibold text-slate-900">
+                          <h3 className="mt-4 font-semibold text-slate-900 dark:text-white">
                             {search
                               ? "No matching trips"
                               : "No trips found"}
@@ -978,19 +978,19 @@ export default function TripsPage() {
                     filteredTrips.map((trip) => (
                       <tr
                         key={trip.id}
-                        className="transition hover:bg-slate-50"
+                        className="transition hover:bg-slate-50 dark:hover:bg-slate-700"
                       >
                         {/* TRIP */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-blue-700">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950 text-sm font-bold text-blue-700">
                               {trip.tripCode
                                 ?.slice(0, 2)
                                 .toUpperCase() || "TR"}
                             </div>
 
                             <div>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-semibold text-slate-900 dark:text-white">
                                 {trip.tripCode}
                               </p>
 
@@ -1009,14 +1009,14 @@ export default function TripsPage() {
 
                         {/* VEHICLE */}
                         <td className="px-6 py-4">
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {trip.vehicleCode}
                           </span>
                         </td>
 
                         {/* DRIVER */}
                         <td className="px-6 py-4">
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {trip.driverCode}
                           </span>
                         </td>
@@ -1025,7 +1025,7 @@ export default function TripsPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <div>
-                              <p className="font-medium text-slate-700">
+                              <p className="font-medium text-slate-700 dark:text-slate-200">
                                 {trip.origin}
                               </p>
 
@@ -1037,13 +1037,13 @@ export default function TripsPage() {
                         </td>
 
                         {/* DATE */}
-                        <td className="px-6 py-4 text-slate-600">
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                           {formatDate(trip.tripDate) || "—"}
                         </td>
 
                         {/* DISTANCE */}
                         <td className="px-6 py-4">
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {Number(
                               trip.distance || 0,
                             ).toLocaleString()}
@@ -1056,7 +1056,7 @@ export default function TripsPage() {
 
                         {/* REVENUE */}
                         <td className="px-6 py-4">
-                          <span className="font-semibold text-slate-900">
+                          <span className="font-semibold text-slate-900 dark:text-white">
                             $
                             {Number(
                               trip.revenue || 0,
@@ -1086,7 +1086,7 @@ export default function TripsPage() {
                               onClick={() =>
                                 handleEdit(trip)
                               }
-                              className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
+                              className="rounded-lg bg-blue-50 dark:bg-blue-950 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
                             >
                               Edit
                             </button>
@@ -1099,7 +1099,7 @@ export default function TripsPage() {
                               disabled={
                                 deletingId === trip.id
                               }
-                              className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="rounded-lg bg-red-50 dark:bg-red-950 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {deletingId === trip.id
                                 ? "Deleting..."
@@ -1116,7 +1116,7 @@ export default function TripsPage() {
 
             {!loading &&
               filteredTrips.length > 0 && (
-                <div className="border-t border-slate-100 bg-slate-50 px-6 py-3">
+                <div className="border-t border-slate-100 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-6 py-3">
                   <p className="text-xs text-slate-500">
                     Showing {filteredTrips.length} of{" "}
                     {trips.length} trips
@@ -1129,4 +1129,7 @@ export default function TripsPage() {
     </ProtectedPage>
   );
 }
+
+
+
 

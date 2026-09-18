@@ -197,13 +197,13 @@ export default function MaintenancePage() {
         return "bg-orange-50 text-orange-700 ring-1 ring-orange-200";
 
       default:
-        return "bg-slate-100 text-slate-700 ring-1 ring-slate-200";
+        return "bg-slate-100 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200";
     }
   };
 
   return (
     <ProtectedPage permission="maintenance">
-      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
         <div className="mx-auto max-w-7xl">
 
           {/* HEADER */}
@@ -213,7 +213,7 @@ export default function MaintenancePage() {
                 Maintenance Management
               </p>
 
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Maintenance
               </h1>
 
@@ -228,7 +228,7 @@ export default function MaintenancePage() {
                 type="button"
                 onClick={() => fetchMaintenance(false)}
                 disabled={refreshing}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {refreshing ? (
                   <>
@@ -285,10 +285,10 @@ export default function MaintenancePage() {
 
           {/* ADD MAINTENANCE FORM */}
           {showForm && (
-            <section className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
+            <section className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
+              <div className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900/70 px-6 py-5">
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     Add Maintenance Record
                   </h2>
 
@@ -306,7 +306,7 @@ export default function MaintenancePage() {
 
                   {/* MAINTENANCE CODE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Maintenance Code
                     </label>
 
@@ -321,13 +321,13 @@ export default function MaintenancePage() {
                       }
                       placeholder="e.g. MNT-0001"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* VEHICLE CODE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Vehicle Code
                     </label>
 
@@ -342,13 +342,13 @@ export default function MaintenancePage() {
                       }
                       placeholder="Vehicle code"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* DATE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Maintenance Date
                     </label>
 
@@ -365,13 +365,13 @@ export default function MaintenancePage() {
                       pattern="\d{4}-\d{2}-\d{2}"
                       maxLength={10}
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* MAINTENANCE TYPE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Maintenance Type
                     </label>
 
@@ -383,7 +383,7 @@ export default function MaintenancePage() {
                           maintenanceType: e.target.value,
                         })
                       }
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     >
                       <option value="Oil Change">Oil Change</option>
                       <option value="Engine Service">
@@ -404,7 +404,7 @@ export default function MaintenancePage() {
 
                   {/* DESCRIPTION */}
                   <div className="sm:col-span-2">
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Description
                     </label>
 
@@ -419,13 +419,13 @@ export default function MaintenancePage() {
                       }
                       placeholder="Describe the maintenance work"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* MILEAGE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Mileage (km)
                     </label>
 
@@ -442,13 +442,13 @@ export default function MaintenancePage() {
                       min="0"
                       step="0.01"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* COST */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Cost
                     </label>
 
@@ -465,13 +465,13 @@ export default function MaintenancePage() {
                       min="0"
                       step="0.01"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* SERVICE PROVIDER */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Service Provider
                     </label>
 
@@ -486,13 +486,13 @@ export default function MaintenancePage() {
                       }
                       placeholder="Workshop / provider"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* STATUS */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Status
                     </label>
 
@@ -504,7 +504,7 @@ export default function MaintenancePage() {
                           status: e.target.value,
                         })
                       }
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     >
                       <option value="Pending">Pending</option>
                       <option value="In Progress">
@@ -516,7 +516,7 @@ export default function MaintenancePage() {
 
                   {/* NOTES */}
                   <div className="sm:col-span-2 lg:col-span-3">
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Notes
                     </label>
 
@@ -530,7 +530,7 @@ export default function MaintenancePage() {
                         })
                       }
                       placeholder="Optional notes"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
@@ -553,14 +553,14 @@ export default function MaintenancePage() {
           <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
             {/* TOTAL */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
                     Total Records
                   </p>
 
-                  <p className="mt-2 text-2xl font-bold text-slate-900">
+                  <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                     {records.length.toLocaleString()}
                   </p>
                 </div>
@@ -576,7 +576,7 @@ export default function MaintenancePage() {
             </div>
 
             {/* PENDING */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -599,7 +599,7 @@ export default function MaintenancePage() {
             </div>
 
             {/* IN PROGRESS */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -622,7 +622,7 @@ export default function MaintenancePage() {
             </div>
 
             {/* COST */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -646,12 +646,12 @@ export default function MaintenancePage() {
           </div>
 
           {/* REGISTRY */}
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
 
             {/* TABLE HEADER */}
             <div className="flex flex-col gap-4 border-b border-slate-200 p-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="font-semibold text-slate-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Maintenance Registry
                 </h2>
 
@@ -675,14 +675,14 @@ export default function MaintenancePage() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search maintenance..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-9 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 py-2.5 pl-9 pr-9 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
 
                   {search && (
                     <button
                       type="button"
                       onClick={() => setSearch("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-700 dark:text-slate-200"
                     >
                       ×
                     </button>
@@ -695,7 +695,7 @@ export default function MaintenancePage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px] text-left text-sm">
 
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-slate-50 dark:bg-slate-900 text-xs uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-6 py-4 font-semibold">
                       Maintenance ID
@@ -744,7 +744,7 @@ export default function MaintenancePage() {
                         <div className="flex flex-col items-center justify-center">
                           <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
 
-                          <p className="mt-4 text-sm font-medium text-slate-600">
+                          <p className="mt-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                             Loading maintenance records...
                           </p>
 
@@ -764,7 +764,7 @@ export default function MaintenancePage() {
                             🔧
                           </div>
 
-                          <h3 className="mt-4 text-sm font-semibold text-slate-900">
+                          <h3 className="mt-4 text-sm font-semibold text-slate-900 dark:text-white">
                             {search
                               ? "No matching maintenance records"
                               : "No maintenance records yet"}
@@ -780,7 +780,7 @@ export default function MaintenancePage() {
                             <button
                               type="button"
                               onClick={() => setSearch("")}
-                              className="mt-4 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                              className="mt-4 rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-slate-900"
                             >
                               Clear Search
                             </button>
@@ -802,10 +802,10 @@ export default function MaintenancePage() {
                     filteredRecords.map((record) => (
                       <tr
                         key={record.id}
-                        className="transition hover:bg-slate-50"
+                        className="transition hover:bg-slate-50 dark:bg-slate-900"
                       >
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-slate-900">
+                          <div className="font-semibold text-slate-900 dark:text-white">
                             {record.maintenanceCode}
                           </div>
 
@@ -815,13 +815,13 @@ export default function MaintenancePage() {
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                          <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
                             {record.vehicleCode}
                           </span>
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {formatDate(record.maintenanceDate)}
                           </span>
                         </td>
@@ -834,7 +834,7 @@ export default function MaintenancePage() {
 
                         <td className="max-w-xs px-6 py-4">
                           <p
-                            className="truncate text-slate-600"
+                            className="truncate text-slate-600 dark:text-slate-300"
                             title={record.description}
                           >
                             {record.description}
@@ -842,7 +842,7 @@ export default function MaintenancePage() {
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {formatNumber(record.mileage, 0)}
                           </span>
 
@@ -857,7 +857,7 @@ export default function MaintenancePage() {
                           </span>
                         </td>
 
-                        <td className="px-6 py-4 text-slate-600">
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                           {record.serviceProvider}
                         </td>
 
@@ -879,10 +879,10 @@ export default function MaintenancePage() {
 
             {/* TABLE FOOTER */}
             {!loading && filteredRecords.length > 0 && (
-              <div className="border-t border-slate-200 bg-slate-50/50 px-6 py-3">
+              <div className="border-t border-slate-200 bg-slate-50 dark:bg-slate-900/50 px-6 py-3">
                 <p className="text-xs text-slate-500">
                   Showing{" "}
-                  <span className="font-semibold text-slate-700">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
                     {filteredRecords.length}
                   </span>{" "}
                   maintenance record
@@ -896,4 +896,5 @@ export default function MaintenancePage() {
     </ProtectedPage>
   );
 }
+
 

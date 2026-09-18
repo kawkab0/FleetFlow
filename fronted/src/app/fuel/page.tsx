@@ -178,7 +178,7 @@ export default function FuelPage() {
 
   return (
     <ProtectedPage permission="fuel">
-      <main className="ml-64 min-h-screen bg-slate-50 p-8">
+      <main className="ml-64 min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
         <div className="mx-auto max-w-7xl">
 
           {/* HEADER */}
@@ -188,7 +188,7 @@ export default function FuelPage() {
                 Fuel Management
               </p>
 
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Fuel
               </h1>
 
@@ -203,7 +203,7 @@ export default function FuelPage() {
                 type="button"
                 onClick={() => fetchFuel(false)}
                 disabled={refreshing}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {refreshing ? (
                   <>
@@ -259,10 +259,10 @@ export default function FuelPage() {
 
           {/* CREATE FORM */}
           {showForm && (
-            <section className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
+            <section className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
+              <div className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900/70 px-6 py-5">
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     Add Fuel Record
                   </h2>
                   <p className="mt-1 text-sm text-slate-500">
@@ -276,7 +276,7 @@ export default function FuelPage() {
 
                   {/* FUEL CODE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Fuel Code
                     </label>
                     <input
@@ -290,13 +290,13 @@ export default function FuelPage() {
                       }
                       placeholder="e.g. FUEL-0001"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* VEHICLE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Vehicle Code
                     </label>
                     <input
@@ -310,13 +310,13 @@ export default function FuelPage() {
                       }
                       placeholder="Vehicle code"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* DRIVER */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Driver Code
                     </label>
                     <input
@@ -330,13 +330,13 @@ export default function FuelPage() {
                       }
                       placeholder="Driver code"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* DATE */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Fuel Date
                     </label>
                     <input
@@ -352,13 +352,13 @@ export default function FuelPage() {
                       pattern="\d{4}-\d{2}-\d{2}"
                       maxLength={10}
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* LITERS */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Liters
                     </label>
                     <input
@@ -374,13 +374,13 @@ export default function FuelPage() {
                       min="0"
                       step="0.01"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* COST */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Cost
                     </label>
                     <input
@@ -396,13 +396,13 @@ export default function FuelPage() {
                       min="0"
                       step="0.01"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* STATION */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Fuel Station
                     </label>
                     <input
@@ -416,13 +416,13 @@ export default function FuelPage() {
                       }
                       placeholder="Station name"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* ODOMETER */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Odometer (km)
                     </label>
                     <input
@@ -438,13 +438,13 @@ export default function FuelPage() {
                       min="0"
                       step="0.01"
                       required
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
                   {/* PAYMENT METHOD */}
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Payment Method
                     </label>
                     <select
@@ -455,7 +455,7 @@ export default function FuelPage() {
                           paymentMethod: e.target.value,
                         })
                       }
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     >
                       <option value="Cash">Cash</option>
                       <option value="Card">Card</option>
@@ -466,7 +466,7 @@ export default function FuelPage() {
 
                   {/* NOTES */}
                   <div className="sm:col-span-2 lg:col-span-3">
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Notes
                     </label>
                     <input
@@ -479,7 +479,7 @@ export default function FuelPage() {
                         })
                       }
                       placeholder="Optional notes"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
@@ -501,13 +501,13 @@ export default function FuelPage() {
           {/* KPI CARDS */}
           <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
                     Fuel Records
                   </p>
-                  <p className="mt-2 text-2xl font-bold text-slate-900">
+                  <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                     {fuelRecords.length.toLocaleString()}
                   </p>
                 </div>
@@ -522,7 +522,7 @@ export default function FuelPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -543,7 +543,7 @@ export default function FuelPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -564,7 +564,7 @@ export default function FuelPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">
@@ -587,12 +587,12 @@ export default function FuelPage() {
           </div>
 
           {/* REGISTRY */}
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:bg-slate-800 shadow-sm">
 
             {/* TABLE HEADER */}
             <div className="flex flex-col gap-4 border-b border-slate-200 p-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="font-semibold text-slate-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Fuel Registry
                 </h2>
 
@@ -614,14 +614,14 @@ export default function FuelPage() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search fuel records..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-9 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 py-2.5 pl-9 pr-9 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
 
                   {search && (
                     <button
                       type="button"
                       onClick={() => setSearch("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-700 dark:text-slate-200"
                     >
                       ×
                     </button>
@@ -634,7 +634,7 @@ export default function FuelPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1050px] text-left text-sm">
 
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-slate-50 dark:bg-slate-900 text-xs uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-6 py-4 font-semibold">
                       Fuel ID
@@ -683,7 +683,7 @@ export default function FuelPage() {
                         <div className="flex flex-col items-center justify-center">
                           <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
 
-                          <p className="mt-4 text-sm font-medium text-slate-600">
+                          <p className="mt-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                             Loading fuel records...
                           </p>
 
@@ -703,7 +703,7 @@ export default function FuelPage() {
                             ⛽
                           </div>
 
-                          <h3 className="mt-4 text-sm font-semibold text-slate-900">
+                          <h3 className="mt-4 text-sm font-semibold text-slate-900 dark:text-white">
                             {search
                               ? "No matching fuel records"
                               : "No fuel records yet"}
@@ -719,7 +719,7 @@ export default function FuelPage() {
                             <button
                               type="button"
                               onClick={() => setSearch("")}
-                              className="mt-4 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                              className="mt-4 rounded-lg border border-slate-300 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-slate-900"
                             >
                               Clear Search
                             </button>
@@ -741,10 +741,10 @@ export default function FuelPage() {
                     filteredFuelRecords.map((fuel) => (
                       <tr
                         key={fuel.id}
-                        className="transition hover:bg-slate-50"
+                        className="transition hover:bg-slate-50 dark:bg-slate-900"
                       >
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-slate-900">
+                          <div className="font-semibold text-slate-900 dark:text-white">
                             {fuel.fuelCode}
                           </div>
 
@@ -754,17 +754,17 @@ export default function FuelPage() {
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                          <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
                             {fuel.vehicleCode}
                           </span>
                         </td>
 
-                        <td className="px-6 py-4 text-slate-700">
+                        <td className="px-6 py-4 text-slate-700 dark:text-slate-200">
                           {fuel.driverCode}
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {formatDate(fuel.fuelDate)}
                           </span>
                         </td>
@@ -784,12 +784,12 @@ export default function FuelPage() {
                           </span>
                         </td>
 
-                        <td className="px-6 py-4 text-slate-600">
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                           {fuel.fuelStation}
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {formatNumber(fuel.odometer, 0)}
                           </span>
                           <span className="ml-1 text-xs text-slate-400">
@@ -812,10 +812,10 @@ export default function FuelPage() {
 
             {/* TABLE FOOTER */}
             {!loading && filteredFuelRecords.length > 0 && (
-              <div className="border-t border-slate-200 bg-slate-50/50 px-6 py-3">
+              <div className="border-t border-slate-200 bg-slate-50 dark:bg-slate-900/50 px-6 py-3">
                 <p className="text-xs text-slate-500">
                   Showing{" "}
-                  <span className="font-semibold text-slate-700">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
                     {filteredFuelRecords.length}
                   </span>{" "}
                   fuel record
@@ -829,4 +829,5 @@ export default function FuelPage() {
     </ProtectedPage>
   );
 }
+
 

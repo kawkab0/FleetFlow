@@ -26,6 +26,7 @@ import { AuthModule } from "./auth/auth.module";
 import { ReportsModule } from "./reports/reports.module";
 import { AnalyticsModule } from "./analytics/analytics.module";
 import { IntelligenceModule } from "./intelligence/intelligence.module";
+import { ImportsModule } from './imports/imports.module';
 
 @Module({
   imports: [
@@ -74,7 +75,8 @@ import { IntelligenceModule } from "./intelligence/intelligence.module";
     AnalyticsModule,
     IntelligenceModule,
     AuditLogsModule,
-    NotificationModule, 
+    NotificationModule,
+    ImportsModule, 
   ],
 
   controllers: [AppController],

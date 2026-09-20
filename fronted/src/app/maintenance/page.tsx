@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Maintenance {
   id: number;
@@ -224,6 +225,7 @@ export default function MaintenancePage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              <UploadFileButton />
               <button
                 type="button"
                 onClick={() => fetchMaintenance(false)}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Product {
   id: number;
@@ -370,6 +371,10 @@ export default function ProductsPage() {
                     ? "Update the product information below."
                     : "Create a new product record."}
                 </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <UploadFileButton />
               </div>
 
               {editingProduct && (

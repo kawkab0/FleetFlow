@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Fuel {
   id: number;
@@ -199,6 +200,7 @@ export default function FuelPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              <UploadFileButton />
               <button
                 type="button"
                 onClick={() => fetchFuel(false)}

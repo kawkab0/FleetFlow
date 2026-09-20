@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 type Driver = {
   id: number;
@@ -315,12 +316,16 @@ export default function VehiclesPage() {
               </p>
             </div>
 
-            <button
-              onClick={openAddModal}
-              className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
-            >
-              + Add Vehicle
-            </button>
+            <div className="flex items-center gap-3">
+              <UploadFileButton />
+
+              <button
+                onClick={openAddModal}
+                className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
+              >
+                + Add Vehicle
+              </button>
+            </div>
           </div>
 
           {/* STAT CARDS */}
@@ -810,4 +815,6 @@ export default function VehiclesPage() {
     </ProtectedPage>
   );
 }
+
+
 

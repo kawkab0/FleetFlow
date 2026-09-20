@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Warehouse {
   id: number;
@@ -342,6 +343,7 @@ export default function WarehousesPage() {
                     : "Create a new warehouse record."}
                 </p>
               </div>
+                <UploadFileButton />
 
               {editingWarehouse && (
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">

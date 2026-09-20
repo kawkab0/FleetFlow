@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ProtectedPage from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Purchase {
   id: number;
@@ -444,6 +445,7 @@ export default function PurchasesPage() {
                     : "Create a new supplier purchase record."}
                 </p>
               </div>
+                <UploadFileButton />
 
               {editingPurchase && (
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Payment {
   id: number;
@@ -374,6 +375,7 @@ export default function PaymentsPage() {
                   : "Record a new customer payment."}
               </p>
             </div>
+              <UploadFileButton />
 
             {editingPayment && (
               <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">

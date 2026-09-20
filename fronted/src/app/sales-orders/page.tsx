@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import UploadFileButton from "@/components/UploadFileButton";
 
 import ProtectedPage from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
@@ -492,6 +493,7 @@ export default function SalesOrdersPage() {
                   : "Create a new customer sales order."}
               </p>
             </div>
+              <UploadFileButton />
 
             {editingOrder && (
               <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">

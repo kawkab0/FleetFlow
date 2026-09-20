@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import UploadFileButton from "@/components/UploadFileButton";
 
 import ProtectedPage from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/api";
@@ -359,6 +360,7 @@ export default function TripsPage() {
                 {refreshing ? "Refreshing..." : "Refresh"}
               </button>
 
+              <UploadFileButton />
               <button
                 type="button"
                 onClick={() => {

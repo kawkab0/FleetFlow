@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Expense {
   id: number;
@@ -259,6 +260,7 @@ export default function ExpensesPage() {
                 {refreshing ? "Refreshing..." : "Refresh"}
               </button>
 
+              <UploadFileButton />
               <button
                 type="button"
                 onClick={() => {

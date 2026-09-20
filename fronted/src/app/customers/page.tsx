@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import ProtectedPage from "@/components/ProtectedPage";
+import UploadFileButton from "@/components/UploadFileButton";
 
 interface Customer {
   id: number;
@@ -339,6 +340,10 @@ export default function CustomersPage() {
                     ? "Update the customer's information below."
                     : "Create a new customer record."}
                 </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <UploadFileButton />
               </div>
 
               {editingCustomer && (

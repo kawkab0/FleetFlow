@@ -8,6 +8,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ImportsService } from './imports.service';
 
+type UploadedImportFile = {
+  originalname: string;
+  mimetype: string;
+  buffer: Buffer;
+};
+
 @Controller('imports')
 export class ImportsController {
   constructor(
@@ -16,7 +22,7 @@ export class ImportsController {
 
   @Post('preview')
   @UseInterceptors(FileInterceptor('file'))
-  preview(@UploadedFile() file: Express.Multer.File) {
+  preview(@UploadedFile() file: UploadedImportFile) {
     return this.importsService.previewFile(file);
   }
 }

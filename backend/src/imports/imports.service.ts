@@ -4,9 +4,15 @@ import {
 } from '@nestjs/common';
 import * as XLSX from 'xlsx';
 
+type UploadedImportFile = {
+  originalname: string;
+  mimetype: string;
+  buffer: Buffer;
+};
+
 @Injectable()
 export class ImportsService {
-  previewFile(file: Express.Multer.File) {
+  previewFile(file: UploadedImportFile) {
     if (!file) {
       throw new BadRequestException('No file was uploaded.');
     }

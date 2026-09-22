@@ -343,7 +343,7 @@ export default function CustomersPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <UploadFileButton />
+                <UploadFileButton entity="customers" /> 
               </div>
 
               {editingCustomer && (

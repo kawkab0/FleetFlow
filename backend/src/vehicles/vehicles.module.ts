@@ -14,5 +14,6 @@ import { AuditLogsModule } from '../audit-logs/audit-logs.module';
   ],
   controllers: [VehiclesController],
   providers: [VehiclesService],
+  exports: [VehiclesService],
 })
 export class VehiclesModule {}

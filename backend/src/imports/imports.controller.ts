@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Post,
   UploadedFile,
@@ -24,5 +25,12 @@ export class ImportsController {
   @UseInterceptors(FileInterceptor('file'))
   preview(@UploadedFile() file: UploadedImportFile) {
     return this.importsService.previewFile(file);
+  }
+
+  @Post('vehicles')
+  importVehicles(
+    @Body() body: { rows: Record<string, unknown>[] },
+  ) {
+    return this.importsService.importVehicles(body.rows);
   }
 }

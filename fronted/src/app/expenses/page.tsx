@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import { apiFetch } from "@/lib/api";
+
 import ProtectedPage from "@/components/ProtectedPage";
-import UploadFileButton from "@/components/UploadFileButton";
+import UploadFileButton from "@/components/UploadFileButton"; 
 
 interface Expense {
   id: number;
@@ -260,7 +262,7 @@ export default function ExpensesPage() {
                 {refreshing ? "Refreshing..." : "Refresh"}
               </button>
 
-              <UploadFileButton />
+              <UploadFileButton entity="expenses" /> 
               <button
                 type="button"
                 onClick={() => {

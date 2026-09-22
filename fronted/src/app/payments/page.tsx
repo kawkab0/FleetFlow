@@ -375,7 +375,7 @@ export default function PaymentsPage() {
                   : "Record a new customer payment."}
               </p>
             </div>
-              <UploadFileButton />
+              <UploadFileButton entity="payments" /> 
 
             {editingPayment && (
               <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">

@@ -232,7 +232,7 @@ export default function DriversPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <UploadFileButton />
+              <UploadFileButton entity="drivers" /> 
 
               <button
                 onClick={openAddModal}

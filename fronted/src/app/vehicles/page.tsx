@@ -317,7 +317,7 @@ export default function VehiclesPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <UploadFileButton />
+              <UploadFileButton entity="vehicles" /> 
 
               <button
                 onClick={openAddModal}

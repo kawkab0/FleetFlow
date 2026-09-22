@@ -225,7 +225,7 @@ export default function MaintenancePage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <UploadFileButton />
+              <UploadFileButton entity="maintenance" /> 
               <button
                 type="button"
                 onClick={() => fetchMaintenance(false)}

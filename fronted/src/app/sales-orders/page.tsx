@@ -493,7 +493,8 @@ export default function SalesOrdersPage() {
                   : "Create a new customer sales order."}
               </p>
             </div>
-              <UploadFileButton />
+              <UploadFileButton entity="sales-orders" />
+
 
             {editingOrder && (
               <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">

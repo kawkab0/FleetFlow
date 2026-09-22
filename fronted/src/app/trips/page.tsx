@@ -360,7 +360,7 @@ export default function TripsPage() {
                 {refreshing ? "Refreshing..." : "Refresh"}
               </button>
 
-              <UploadFileButton />
+              <UploadFileButton entity="trips" /> 
               <button
                 type="button"
                 onClick={() => {
